@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Angelo Be My Valentine 💘</title>
+
+<style>
+body {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: 'Comic Sans MS', cursive;
+  text-align: center;
+  overflow: hidden;
+}
+
+.container {
+  background: white;
+  padding: 25px 40px;
+  border-radius: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+h1 {
+  color: #ff2d55;
+  font-size: 2.2em;
+}
+
+button {
+  padding: 15px 30px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+}
+
+#yesBtn {
+  font-size: 2em;
+  background: #ff2d55;
+  color: white;
+  transition: 0.3s;
+}
+
+#noBtn {
+  background: #ccc;
+  position: absolute;
+}
+
+/* Floating hearts */
+.heart {
+  position: fixed;
+  color: #ff2d55;
+  font-size: 20px;
+  animation: float 6s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes float {
+  from { transform: translateY(100vh); }
+  to { transform: translateY(-10vh); }
+}
+
+/* Photo slideshow */
+#slideshow img {
+  width: 200px;
+  border-radius: 15px;
+  margin-top: 10px;
+}
+
+/* Fireworks canvas */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Angelo… will you be my Valentine? 😏💖</h1>
+  <div id="slideshow">
+    <img id="photo" src="photo1.jpg">
+  </div>
+  <br>
+  <button id="yesBtn">YES OBVIOUSLY 💘</button>
+  <button id="noBtn">No 🙄</button>
+</div>
+
+<audio id="music" src="song.mp3"></audio>
+<canvas id="fireworks"></canvas>
+
+<script>
+// Floating hearts
+for(let i=0;i<30;i++){
+  let heart = document.createElement("div");
+  heart.className="heart";
+  heart.innerHTML="💖";
+  heart.style.left=Math.random()*100+"vw";
+  heart.style.animationDuration=(3+Math.random()*5)+"s";
+  document.body.appendChild(heart);
+}
+
+// Slideshow (replace photo1.jpg etc with your pics)
+const photos=["photo1.jpg","photo2.jpg","photo3.jpg"];
+let index=0;
+setInterval(()=>{
+  index=(index+1)%photos.length;
+  document.getElementById("photo").src=photos[index];
+},2000);
+
+// NO button runs away + YES grows
+const noBtn=document.getElementById("noBtn");
+const yesBtn=document.getElementById("yesBtn");
+let yesSize=2;
+
+noBtn.addEventListener("mouseover",()=>{
+  const x=Math.random()*(window.innerWidth-100);
+  const y=Math.random()*(window.innerHeight-50);
+  noBtn.style.left=x+"px";
+  noBtn.style.top=y+"px";
+  yesSize+=0.2;
+  yesBtn.style.fontSize=yesSize+"em";
+});
+
+// Fireworks
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+yesBtn.addEventListener("click",()=>{
+  document.getElementById("music").play();
+  alert("CONGRATS 🎉 You are officially Lily’s Valentine forever.");
+  startFireworks();
+});
+
+function startFireworks(){
+  const particles=[];
+  function createFirework(){
+    const x=Math.random()*canvas.width;
+    const y=Math.random()*canvas.height/2;
+    const colors=["#ff2d55","#fff","#ffcc00","#fad0c4"];
+    for(let i=0;i<120;i++){
+      particles.push({
+        x,y,
+        dx:(Math.random()-0.5)*6,
+        dy:(Math.random()-0.5)*6,
+        life:100,
+        color:colors[Math.floor(Math.random()*colors.length)]
+      });
+    }
+  }
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach((p,i)=>{
+      p.x+=p.dx;
+      p.y+=p.dy;
+      p.life--;
+      ctx.fillStyle=p.color;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,2,0,Math.PI*2);
+      ctx.fill();
+      if(p.life<=0)particles.splice(i,1);
+    });
+    requestAnimationFrame(animate);
+  }
+  setInterval(createFirework,500);
+  animate();
+}
+</script>
+
+</body>
+</html>
