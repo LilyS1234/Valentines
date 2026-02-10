@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Angelo & Niloo Valentine Contract 💘</title>
+
+<style>
+body {
+  margin:0;
+  overflow:hidden;
+  background:#ffc0cb;
+  font-family: "Comic Sans MS", cursive;
+  text-align:center;
+}
+
+/* Floating hearts */
+.heart {
+  position: fixed;
+  color: red;
+  font-size: 20px;
+  animation: floatUp 6s linear infinite;
+}
+@keyframes floatUp {
+  from { bottom:-10px; opacity:1; }
+  to { bottom:110%; opacity:0; }
+}
+
+/* Buttons */
+#yesBtn {
+  font-size:50px;
+  padding:20px 60px;
+  background:red;
+  color:white;
+  border:none;
+  border-radius:25px;
+  cursor:pointer;
+}
+#noBtn {
+  font-size:20px;
+  padding:10px 20px;
+  position:absolute;
+}
+
+/* YES SCENE */
+#yesScene {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:#fff0f6;
+}
+
+/* Niloo animation */
+#niloo {
+  width:220px;
+  position:absolute;
+  bottom:0;
+  left:20%;
+  animation: bounce 1s infinite alternate;
+}
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-15px); }
+}
+
+/* Coffee cup */
+#cup {
+  width:200px;
+  position:absolute;
+  bottom:0;
+  left:55%;
+  opacity:0;
+  transition:1s;
+}
+
+/* Coffee pour */
+#pour {
+  position:absolute;
+  width:15px;
+  height:120px;
+  background:brown;
+  left:43%;
+  bottom:200px;
+  opacity:0;
+  animation: pour 2s forwards;
+}
+@keyframes pour {
+  0% { opacity:0; height:0; }
+  30% { opacity:1; height:120px; }
+  100% { opacity:0; height:0; }
+}
+
+/* Fireworks */
+.firework {
+  position: fixed;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  animation: explode 1s ease-out forwards;
+}
+@keyframes explode {
+  from { transform: scale(1); opacity:1; }
+  to { transform: scale(20); opacity:0; }
+}
+
+/* Handwriting message */
+#message {
+  font-size:26px;
+  position:absolute;
+  top:48%;
+  left:55%;
+  transform:translate(-50%, -50%);
+  font-family:"Courier New", cursive;
+  color:black;
+}
+
+/* Contract photo popup */
+#contract {
+  display:none;
+  position:absolute;
+  top:5%;
+  left:5%;
+  width:250px;
+  border-radius:15px;
+  border:4px solid white;
+  box-shadow:0 0 20px pink;
+}
+
+/* Fake Terms */
+#terms {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:white;
+  overflow:auto;
+  padding:20px;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Angelo… will you be Niloo’s Valentine? 💌</h1>
+<button id="yesBtn">YES YES YES 😍</button>
+<button id="noBtn">No 😏</button>
+
+<div id="yesScene">
+  <h1>Barista Niloo is making your coffee ☕</h1>
+
+  <!-- Upload your images and use these names -->
+  <img id="niloo" src="niloo-coffee.png">
+  <div id="pour"></div>
+  <img id="cup" src="starbucks-cup.png">
+  <img id="contract" src="contract.jpg">
+
+  <div id="message"></div>
+</div>
+
+<div id="terms">
+<h2>Terms & Conditions of Dating Niloo 💘</h2>
+<p>1. Angelo agrees to unlimited affection.</p>
+<p>2. Angelo agrees Niloo is always correct.</p>
+<p>3. Angelo must accept surprise coffee deliveries.</p>
+<p>4. Angelo acknowledges Sicilian, Kansas, and Internet Law.</p>
+<p>5. Contract valid for eternity.</p>
+<button onclick="document.getElementById('terms').style.display='none'">I ACCEPT</button>
+</div>
+
+<script>
+// Floating hearts
+setInterval(()=>{
+  let h=document.createElement("div");
+  h.className="heart";
+  h.innerHTML="❤️";
+  h.style.left=Math.random()*100+"vw";
+  h.style.fontSize=(10+Math.random()*30)+"px";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),6000);
+},300);
+
+// NO button runs away
+const noBtn=document.getElementById("noBtn");
+noBtn.onmouseover=()=>{
+  noBtn.style.left=Math.random()*90+"vw";
+  noBtn.style.top=Math.random()*90+"vh";
+};
+
+// YES click chaos
+document.getElementById("yesBtn").onclick=()=>{
+  document.body.innerHTML=document.getElementById("yesScene").outerHTML;
+  document.getElementById("yesScene").style.display="block";
+
+  // Show cup
+  setTimeout(()=>document.getElementById("cup").style.opacity=1,2000);
+
+  // Handwriting typing
+  let text="Angelo — You’re amazing ☕ Love, Niloo 💖";
+  let i=0;
+  let msg=document.getElementById("message");
+  let typing=setInterval(()=>{
+    msg.innerHTML+=text[i];
+    i++;
+    if(i>=text.length) clearInterval(typing);
+  },100);
+
+  // Fireworks
+  setInterval(()=>{
+    let f=document.createElement("div");
+    f.className="firework";
+    f.style.left=Math.random()*100+"vw";
+    f.style.top=Math.random()*100+"vh";
+    f.style.background=["red","yellow","blue","purple","white"][Math.floor(Math.random()*5)];
+    document.body.appendChild(f);
+    setTimeout(()=>f.remove(),1000);
+  },250);
+
+  // Show contract photo
+  setTimeout(()=>{
+    document.getElementById("contract").style.display="block";
+  },4000);
+
+  // Contract popup
+  setTimeout(()=>{
+    alert("💘 CONTRACT SIGNED 💘\nAngelo is legally Niloo’s Valentine under Sicilian, Kansas, and Internet Law.");
+  },5000);
+
+  // Fake screenshot prank
+  setTimeout(()=>{
+    alert("📸 Screenshot captured and sent to Niloo. Compliance verified.");
+  },8000);
+
+  // Terms popup
+  setTimeout(()=>{
+    document.getElementById("terms").style.display="block";
+  },11000);
+};
+</script>
+
+</body>
+</html>
