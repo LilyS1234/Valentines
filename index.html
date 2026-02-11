@@ -1,241 +1,232 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Angelo & Niloo Valentine Contract 💘</title>
-
+<title>Angelo, Be My Valentine?</title>
 <style>
+
 body {
-  margin:0;
-  overflow:hidden;
-  background:#ffc0cb;
-  font-family: "Comic Sans MS", cursive;
-  text-align:center;
+  background: radial-gradient(#ffb6c1, #ff69b4);
+  overflow: hidden;
+  text-align: center;
+  font-family: 'Comic Sans MS', cursive;
 }
 
-/* Floating hearts */
+#scene {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 3s ease-in-out;
+}
+
+#niloo {
+  width: 300px;
+  height: 300px;
+  background-image: url("niloo_sprite.png");
+  background-size: 1800px 300px;
+}
+
+button {
+  font-size: 40px;
+  padding: 15px 50px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+}
+
+#yesBtn { background: red; color: white; }
+#noBtn { position: absolute; font-size: 20px; }
+
 .heart {
   position: fixed;
-  color: red;
-  font-size: 20px;
-  animation: floatUp 6s linear infinite;
+  font-size: 30px;
+  animation: floatUp 2s linear forwards;
 }
+
 @keyframes floatUp {
-  from { bottom:-10px; opacity:1; }
-  to { bottom:110%; opacity:0; }
+  from {transform: translateY(0);}
+  to {transform: translateY(-200px); opacity: 0;}
 }
 
-/* Buttons */
-#yesBtn {
-  font-size:50px;
-  padding:20px 60px;
-  background:red;
-  color:white;
-  border:none;
-  border-radius:25px;
-  cursor:pointer;
-}
-#noBtn {
-  font-size:20px;
-  padding:10px 20px;
-  position:absolute;
-}
-
-/* YES SCENE */
-#yesScene {
-  display:none;
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:#fff0f6;
-}
-
-/* Niloo animation */
-#niloo {
-  width:220px;
-  position:absolute;
-  bottom:0;
-  left:20%;
-  animation: bounce 1s infinite alternate;
-}
-@keyframes bounce {
-  from { transform: translateY(0); }
-  to { transform: translateY(-15px); }
-}
-
-/* Coffee cup */
-#cup {
-  width:200px;
-  position:absolute;
-  bottom:0;
-  left:55%;
-  opacity:0;
-  transition:1s;
-}
-
-/* Coffee pour */
-#pour {
-  position:absolute;
-  width:15px;
-  height:120px;
-  background:brown;
-  left:43%;
-  bottom:200px;
-  opacity:0;
-  animation: pour 2s forwards;
-}
-@keyframes pour {
-  0% { opacity:0; height:0; }
-  30% { opacity:1; height:120px; }
-  100% { opacity:0; height:0; }
-}
-
-/* Fireworks */
 .firework {
   position: fixed;
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  animation: explode 1s ease-out forwards;
-}
-@keyframes explode {
-  from { transform: scale(1); opacity:1; }
-  to { transform: scale(20); opacity:0; }
+  font-size: 50px;
+  animation: boom 1s forwards;
 }
 
-/* Handwriting message */
-#message {
-  font-size:26px;
-  position:absolute;
-  top:48%;
-  left:55%;
-  transform:translate(-50%, -50%);
-  font-family:"Courier New", cursive;
-  color:black;
+@keyframes boom {
+  from {transform: scale(0);}
+  to {transform: scale(2); opacity: 0;}
 }
 
-/* Contract photo popup */
-#contract {
+/* Receipt */
+#receipt {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 15px;
+  font-family: monospace;
+  border-radius: 10px;
+  box-shadow: 0 0 20px black;
+  text-align: left;
+  animation: slideUp 2s forwards;
+}
+
+@keyframes slideUp {
+  from {bottom:-300px;}
+  to {bottom:20px;}
+}
+
+/* Fake phone popup */
+#phone {
   display:none;
-  position:absolute;
-  top:5%;
-  left:5%;
-  width:250px;
-  border-radius:15px;
-  border:4px solid white;
-  box-shadow:0 0 20px pink;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: black;
+  color: white;
+  padding: 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  box-shadow: 0 0 15px black;
 }
 
-/* Fake Terms */
-#terms {
-  display:none;
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:white;
-  overflow:auto;
-  padding:20px;
-  font-size:18px;
+/* Handwriting SVG */
+#cupText {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: write 4s forwards;
 }
+
+@keyframes write {
+  to {stroke-dashoffset: 0;}
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>Angelo… will you be Niloo’s Valentine? 💌</h1>
-<button id="yesBtn">YES YES YES 😍</button>
-<button id="noBtn">No 😏</button>
-
-<div id="yesScene">
-  <h1>Barista Niloo is making your coffee ☕</h1>
-
-  <!-- Upload your images and use these names -->
-  <img id="niloo" src="niloo-coffee.png">
-  <div id="pour"></div>
-  <img id="cup" src="starbucks-cup.png">
-  <img id="contract" src="contract.jpg">
-
-  <div id="message"></div>
+<div id="scene">
+  <div id="niloo"></div>
+  <br>
+  <button id="yesBtn">YES 💘</button>
+  <button id="noBtn">No 😒</button>
 </div>
 
-<div id="terms">
-<h2>Terms & Conditions of Dating Niloo 💘</h2>
-<p>1. Angelo agrees to unlimited affection.</p>
-<p>2. Angelo agrees Niloo is always correct.</p>
-<p>3. Angelo must accept surprise coffee deliveries.</p>
-<p>4. Angelo acknowledges Sicilian, Kansas, and Internet Law.</p>
-<p>5. Contract valid for eternity.</p>
-<button onclick="document.getElementById('terms').style.display='none'">I ACCEPT</button>
+<!-- HANDWRITING MESSAGE ON CUP -->
+<svg width="500" height="200" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:none;" id="cupSVG">
+  <path id="cupText" d="M10 50 Q100 10 200 50 T400 50 
+   M10 100 Q200 160 400 100 
+   M10 150 Q200 180 400 150"
+   stroke="brown" stroke-width="3" fill="none"/>
+  <text x="50" y="60" font-size="22">Angelo - you are amazing!!</text>
+  <text x="100" y="140" font-size="20">Love, Niloo</text>
+</svg>
+
+<div id="receipt">
+STARBUCKS RECEIPT ☕<br>
+-------------------------<br>
+Order: Grande Chaos Latte<br>
+Customer: ANGELO 💖<br>
+Barista: Niloo<br><br>
+Message:<br>
+"Angelo is legally required to be my Valentine"<br><br>
+Extra Foam: YES<br>
+Extra Chaos: YES<br>
+Price: His Heart<br>
 </div>
+
+<div id="phone">📱 Niloo saw you clicked YES 👀💘</div>
 
 <script>
-// Floating hearts
-setInterval(()=>{
-  let h=document.createElement("div");
-  h.className="heart";
-  h.innerHTML="❤️";
-  h.style.left=Math.random()*100+"vw";
-  h.style.fontSize=(10+Math.random()*30)+"px";
-  document.body.appendChild(h);
-  setTimeout(()=>h.remove(),6000);
-},300);
 
-// NO button runs away
-const noBtn=document.getElementById("noBtn");
-noBtn.onmouseover=()=>{
-  noBtn.style.left=Math.random()*90+"vw";
-  noBtn.style.top=Math.random()*90+"vh";
+let frame = 0;
+let totalFrames = 6;
+let niloo = document.getElementById("niloo");
+let scene = document.getElementById("scene");
+
+// floating hearts before YES
+setInterval(() => {
+  let h = document.createElement("div");
+  h.className = "heart";
+  h.innerHTML = "💖";
+  h.style.left = Math.random()*window.innerWidth + "px";
+  h.style.top = window.innerHeight + "px";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),2000);
+}, 300);
+
+// NO button chaos
+noBtn.onmouseover = () => {
+  noBtn.style.left = Math.random()*(window.innerWidth-100)+"px";
+  noBtn.style.top = Math.random()*(window.innerHeight-100)+"px";
 };
 
-// YES click chaos
-document.getElementById("yesBtn").onclick=()=>{
-  document.body.innerHTML=document.getElementById("yesScene").outerHTML;
-  document.getElementById("yesScene").style.display="block";
+// YES CUTSCENE
+yesBtn.onclick = () => {
 
-  // Show cup
-  setTimeout(()=>document.getElementById("cup").style.opacity=1,2000);
+  yesBtn.remove();
+  noBtn.remove();
 
-  // Handwriting typing
-  let text="Angelo — You’re amazing ☕ Love, Niloo 💖";
-  let i=0;
-  let msg=document.getElementById("message");
-  let typing=setInterval(()=>{
-    msg.innerHTML+=text[i];
-    i++;
-    if(i>=text.length) clearInterval(typing);
-  },100);
+  // Animate Niloo sprite
+  let anim = setInterval(() => {
+    niloo.style.backgroundPosition = `-${frame*300}px 0px`;
+    frame++;
+    if(frame >= totalFrames) clearInterval(anim);
+  }, 500);
+
+  // Camera zoom into cup
+  setTimeout(() => {
+    scene.style.transform = "translate(-50%, -50%) scale(2.5)";
+  }, 2000);
+
+  // Show handwriting
+  setTimeout(() => {
+    document.getElementById("cupSVG").style.display = "block";
+  }, 3000);
+
+  // Heart explosion
+  setTimeout(() => {
+    for(let i=0;i<60;i++){
+      let h = document.createElement("div");
+      h.className = "heart";
+      h.innerHTML = "💘";
+      h.style.left = window.innerWidth/2+"px";
+      h.style.top = window.innerHeight/2+"px";
+      document.body.appendChild(h);
+      setTimeout(()=>h.remove(),2000);
+    }
+  }, 4000);
 
   // Fireworks
-  setInterval(()=>{
-    let f=document.createElement("div");
-    f.className="firework";
-    f.style.left=Math.random()*100+"vw";
-    f.style.top=Math.random()*100+"vh";
-    f.style.background=["red","yellow","blue","purple","white"][Math.floor(Math.random()*5)];
-    document.body.appendChild(f);
-    setTimeout(()=>f.remove(),1000);
-  },250);
+  setTimeout(() => {
+    for(let i=0;i<40;i++){
+      let f = document.createElement("div");
+      f.className = "firework";
+      f.innerHTML = "🎆";
+      f.style.left = Math.random()*window.innerWidth+"px";
+      f.style.top = Math.random()*window.innerHeight+"px";
+      document.body.appendChild(f);
+      setTimeout(()=>f.remove(),2000);
+    }
+  }, 5000);
 
-  // Show contract photo
-  setTimeout(()=>{
-    document.getElementById("contract").style.display="block";
-  },4000);
+  // Receipt pop up
+  setTimeout(() => {
+    document.getElementById("receipt").style.display="block";
+  }, 6000);
 
-  // Contract popup
-  setTimeout(()=>{
-    alert("💘 CONTRACT SIGNED 💘\nAngelo is legally Niloo’s Valentine under Sicilian, Kansas, and Internet Law.");
-  },5000);
+  // Fake phone notification
+  setTimeout(() => {
+    document.getElementById("phone").style.display="block";
+  }, 7000);
 
-  // Fake screenshot prank
-  setTimeout(()=>{
-    alert("📸 Screenshot captured and sent to Niloo. Compliance verified.");
-  },8000);
-
-  // Terms popup
-  setTimeout(()=>{
-    document.getElementById("terms").style.display="block";
-  },11000);
 };
+
 </script>
 
 </body>
