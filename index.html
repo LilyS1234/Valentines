@@ -84,7 +84,17 @@
       gap: 16px;
       flex-wrap:wrap;
       margin-top: 10px;
+      opacity: 0;                /* hidden initially */
+      pointer-events: none;      /* disabled initially */
+      transform: translateY(8px);
+      transition: opacity .35s ease, transform .35s ease;
     }
+    #btnRow.ready{
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
     button{
       border:0;
       cursor:pointer;
@@ -107,6 +117,7 @@
     }
     #yesBtn:hover{ transform: scale(1.03); }
 
+    /* NO button floats around outside the card area */
     #noBtn{
       font-size: 18px;
       padding: 12px 18px;
@@ -116,6 +127,14 @@
       left: 60%;
       top: 72%;
       z-index: 5;
+      opacity: 0;                /* hidden initially */
+      pointer-events: none;      /* disabled initially */
+      transform: scale(1);
+      transition: opacity .35s ease;
+    }
+    #noBtn.ready{
+      opacity: 1;
+      pointer-events: auto;
     }
 
     /* Stage / scenes */
@@ -124,6 +143,7 @@
       inset:0;
       display:none;
       place-items:center;
+      padding: 18px;
     }
 
     /* Loading panel */
@@ -136,7 +156,6 @@
       text-align:center;
     }
     #loadingTitle{
-      font-family:"Montserrat";
       font-weight:900;
       letter-spacing:.5px;
       margin: 0 0 10px;
@@ -165,7 +184,7 @@
       display:none;
       position:fixed;
       left:50%;
-      top: 20%;
+      top: 18%;
       transform: translateX(-50%) rotate(-10deg) scale(.6);
       padding: 14px 24px;
       border: 10px solid #1bb24a;
@@ -175,7 +194,7 @@
       border-radius: 18px;
       background: rgba(255,255,255,.9);
       box-shadow: 0 14px 45px rgba(0,0,0,.22);
-      z-index: 30;
+      z-index: 50; /* on top, but we will MOVE it away before photo appears */
       text-transform: uppercase;
       letter-spacing: 2px;
       opacity:0;
@@ -188,6 +207,16 @@
       60%{ opacity:1; transform: translateX(-50%) rotate(-10deg) scale(1); }
       100%{ opacity:1; transform: translateX(-50%) rotate(-10deg) scale(1); }
     }
+    .stampAway{
+      animation: stampAway .7s ease forwards;
+    }
+    @keyframes stampAway{
+      to{
+        opacity: .85;
+        transform: translateX(-50%) rotate(-18deg) scale(.55) translateY(-120px);
+        filter: blur(.2px);
+      }
+    }
 
     /* Heart frame photo (pink glitter) */
     #photoWrap{
@@ -198,22 +227,17 @@
       transform: translate(-50%,-50%) scale(.92);
       width: min(420px, 72vw);
       aspect-ratio: 1/1;
-      z-index: 25;
+      z-index: 40; /* below stamp initially, but stamp moves away */
       filter: drop-shadow(0 18px 38px rgba(0,0,0,.25));
     }
-
-    /* Heart clip */
     #heart{
       width:100%;
       height:100%;
       position:relative;
       clip-path: path("M 210 380 C 130 320 40 250 40 160 C 40 95 85 55 140 55 C 175 55 200 75 210 95 C 220 75 245 55 280 55 C 335 55 380 95 380 160 C 380 250 290 320 210 380 Z");
-      border-radius: 28px;
       overflow:hidden;
       background:#fff;
     }
-
-    /* Photo inside heart */
     #contractPhoto{
       width:100%;
       height:100%;
@@ -221,8 +245,6 @@
       display:block;
       transform: scale(1.03);
     }
-
-    /* Glitter frame overlay */
     #glitter{
       position:absolute;
       inset:-14px;
@@ -258,7 +280,7 @@
       border-radius: 16px;
       font-size: 13px;
       box-shadow: var(--shadow);
-      z-index: 40;
+      z-index: 60;
       opacity:0;
       animation: toastIn 3.2s ease forwards;
       max-width: min(560px, 92vw);
@@ -270,16 +292,17 @@
       100%{ opacity:0; }
     }
 
-    /* Niloo barista scene */
+    /* Barista scene panel */
     #baristaScene{
       display:none;
       width:min(760px, 92vw);
+      max-height: calc(100vh - 36px);
+      overflow: auto;
       background: rgba(255,255,255,.92);
       border-radius: 28px;
       box-shadow: var(--shadow);
-      padding: 22px 18px 16px;
+      padding: 22px 18px 18px;
       text-align:center;
-      position:relative;
     }
     #baristaTitle{
       font-weight:900;
@@ -300,7 +323,7 @@
       to{ transform: translateY(-12px); }
     }
 
-    /* Receipt */
+    /* Receipt (no cut-off) */
     #receipt{
       display:none;
       margin: 14px auto 0;
@@ -314,24 +337,20 @@
       position:relative;
       overflow:hidden;
     }
-    /* printing reveal */
     #receiptPrint{
       height: 0;
       overflow:hidden;
       animation: print 2.1s ease-out forwards;
     }
     @keyframes print{
-      to{ height: 420px; } /* enough to reveal full receipt */
+      to{ height: 520px; } /* increased so footer always reveals */
     }
-
     .rTitle{ font-weight:900; }
     .rSmall{ font-size: 12px; opacity:.7; }
     .rHr{ border-top: 1px dashed rgba(0,0,0,.25); margin: 10px 0; }
     .rRow{ display:flex; justify-content:space-between; gap:10px; }
     .fadeInLater{ opacity:0; animation: fadeIn 1.1s ease forwards; animation-delay: 2.2s; }
     @keyframes fadeIn{ to{ opacity:1; } }
-
-    /* curl bottom */
     #receipt::after{
       content:"";
       position:absolute;
@@ -342,7 +361,6 @@
       opacity:.35;
       pointer-events:none;
     }
-
     #pdfBtn{
       width:100%;
       margin-top: 10px;
@@ -359,13 +377,14 @@
     #end{
       display:none;
       width:min(860px, 92vw);
+      max-height: calc(100vh - 36px);
+      overflow:auto;
       background: rgba(255,255,255,.92);
       border-radius: 30px;
       box-shadow: var(--shadow);
       padding: 26px 22px 20px;
       text-align:center;
       position:relative;
-      overflow:hidden;
     }
     #end h2{
       margin: 0 0 6px;
@@ -388,9 +407,7 @@
     #clauses div:nth-child(1){ animation-delay: .2s; }
     #clauses div:nth-child(2){ animation-delay: .6s; }
     #clauses div:nth-child(3){ animation-delay: 1.0s; }
-    @keyframes clauseIn{
-      to{ opacity:1; transform: translateY(0); }
-    }
+    @keyframes clauseIn{ to{ opacity:1; transform: translateY(0); } }
 
     #songBtn{
       margin-top: 8px;
@@ -410,6 +427,7 @@
       animation: fall 2.2s linear forwards;
       opacity:.95;
       filter: drop-shadow(0 10px 16px rgba(0,0,0,.18));
+      z-index: 70;
     }
     @keyframes fall{
       from{ transform: translateY(-20px) rotate(0deg) scale(1); opacity:1; }
@@ -420,6 +438,7 @@
       pointer-events:none;
       animation: boom 1.1s ease-out forwards;
       opacity:1;
+      z-index: 70;
     }
     @keyframes boom{
       from{ transform: scale(.15); opacity:1; }
@@ -441,7 +460,6 @@
       <button id="noBtn">No 😒</button>
     </div>
 
-    <!-- Stage overlays -->
     <div id="stage">
       <div id="loadingPanel">
         <h2 id="loadingTitle">Processing Valentine Agreement</h2>
@@ -516,11 +534,13 @@
     document.body.appendChild(h);
     setTimeout(()=>h.remove(), 2600);
   }
-  const ambientTimer = setInterval(ambientHearts, 260);
+  setInterval(ambientHearts, 260);
 
-  // ---------- Typewriter question ----------
+  // ---------- Typewriter question (buttons appear after) ----------
   const questionEl = document.getElementById("question");
   const subEl = document.getElementById("sub");
+  const btnRow = document.getElementById("btnRow");
+  const noBtn = document.getElementById("noBtn");
 
   async function typeText(el, text, speed=55){
     el.textContent = "";
@@ -531,22 +551,32 @@
   }
 
   (async ()=>{
-    await typeText(questionEl, "Angelo…", 80);
+    await typeText(questionEl, "Angelo…", 85);
     subEl.textContent = " ";
-    await new Promise(r=>setTimeout(r, 650)); // dramatic pause
-    await typeText(questionEl, "Angelo… will you be my Valentine? 💘", 38);
+    await new Promise(r=>setTimeout(r, 750)); // dramatic pause
+    await typeText(questionEl, "Angelo… will you be my Valentine? 💘", 40);
     subEl.textContent = "Please respond with honesty and romantic compliance.";
+    // NOW show buttons
+    btnRow.classList.add("ready");
+    noBtn.classList.add("ready");
   })();
 
   // ---------- No button dodges (6 times), shrinks/fades, disappears ----------
-  const noBtn = document.getElementById("noBtn");
   const yesBtn = document.getElementById("yesBtn");
   let dodges = 0;
+
+  function toast(message){
+    const t = document.createElement("div");
+    t.className = "toast";
+    t.innerHTML = message;
+    document.body.appendChild(t);
+    setTimeout(()=> t.remove(), 3200);
+  }
 
   function moveNo(){
     dodges++;
 
-    // YES grows each dodge (you said YES)
+    // YES grows each dodge
     const grow = 1 + dodges * 0.07;
     yesBtn.style.transform = `scale(${grow})`;
 
@@ -565,7 +595,6 @@
     noBtn.style.transform = `scale(${scale})`;
     noBtn.style.opacity = op;
 
-    // vanish at 6
     if(dodges >= 6){
       noBtn.style.pointerEvents = "none";
       noBtn.style.opacity = "0";
@@ -578,17 +607,7 @@
   noBtn.addEventListener("click", moveNo);
   noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNo(); }, {passive:false});
 
-  // ---------- Toasts ----------
-  function toast(message){
-    const t = document.createElement("div");
-    t.className = "toast";
-    t.innerHTML = message;
-    document.body.appendChild(t);
-    setTimeout(()=> t.remove(), 3200);
-  }
-
-  // ---------- Simple sound effects (no external files) ----------
-  // Uses WebAudio so you don't need to upload sound files.
+  // ---------- Simple sound effects (WebAudio) ----------
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   let audioCtx;
 
@@ -601,15 +620,12 @@
     const t = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-
     osc.type = "sine";
     osc.frequency.setValueAtTime(140, t);
     osc.frequency.exponentialRampToValueAtTime(60, t + 0.12);
-
     gain.gain.setValueAtTime(0.0001, t);
     gain.gain.exponentialRampToValueAtTime(0.45, t + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-
     osc.connect(gain).connect(audioCtx.destination);
     osc.start(t);
     osc.stop(t + 0.18);
@@ -656,7 +672,7 @@
     osc.stop(t + 0.13);
   }
 
-  // ---------- YES flow ----------
+  // ---------- YES flow (fixed layering + better timing) ----------
   const card = document.getElementById("card");
   const stage = document.getElementById("stage");
   const loadingLine = document.getElementById("loadingLine");
@@ -664,34 +680,34 @@
   const photoWrap = document.getElementById("photoWrap");
   const baristaScene = document.getElementById("baristaScene");
   const receipt = document.getElementById("receipt");
-  const receiptPrint = document.getElementById("receiptPrint");
   const end = document.getElementById("end");
-  const songBtn = document.getElementById("songBtn");
 
   function setLoading(text){
     loadingLine.textContent = text;
     loadingLine.classList.add("dots");
   }
-
   function stopDots(){
     loadingLine.classList.remove("dots");
   }
 
   async function runYesSequence(){
+    // hide buttons immediately so nothing is clickable during sequence
+    btnRow.classList.remove("ready");
+    noBtn.classList.remove("ready");
+
     // Switch to stage
     card.style.display = "none";
     stage.style.display = "grid";
 
-    // Maximum tension: 3.5 seconds total across messages
+    // Max tension: 3.5s
     const steps = [
       "Reviewing terms",
       "Verifying boyfriend status",
       "Cross-checking Sicilian servers"
     ];
-
     let i=0;
     setLoading(steps[i]);
-    const stepTime = 3500 / steps.length; // total ~3.5s
+    const stepTime = 3500 / steps.length;
     const interval = setInterval(()=>{
       i++;
       if(i >= steps.length){ clearInterval(interval); return; }
@@ -703,29 +719,32 @@
 
     // Stamp APPROVED + THUNK
     stampEl.style.display = "block";
+    stampEl.classList.remove("stampAway");
     stampEl.classList.add("stampIn");
     thunk();
 
-    // Photo pop
-    await new Promise(r=>setTimeout(r, 650));
+    // Let the stamp be fully seen, then move it UP so it doesn't cover photo
+    await new Promise(r=>setTimeout(r, 700));
+    stampEl.classList.add("stampAway");
+
+    // Now show photo (stamp has moved away)
+    await new Promise(r=>setTimeout(r, 350));
     photoWrap.style.display = "block";
 
     // Sparkle hearts burst
-    for(let k=0;k<18;k++){
-      ambientHearts();
-    }
+    for(let k=0;k<18;k++) ambientHearts();
 
-    // Toasts (screenshot + law)
-    await new Promise(r=>setTimeout(r, 700));
+    // Toasts
+    await new Promise(r=>setTimeout(r, 650));
     toast("📸 Contract screenshot captured and sent to <b>Niloo</b>.");
     await new Promise(r=>setTimeout(r, 900));
     toast("⚖️ Binding under <b>American</b>, <b>Italian</b>, and <b>Internet</b> Law.");
 
     // Transition to barista scene
-    await new Promise(r=>setTimeout(r, 1200));
-    // hide stamp and photo but keep the vibe
+    await new Promise(r=>setTimeout(r, 1300));
     stampEl.style.display = "none";
     photoWrap.style.display = "none";
+    document.getElementById("loadingPanel").style.display = "none";
     baristaScene.style.display = "block";
 
     // Receipt appears and prints (with sound)
@@ -733,21 +752,20 @@
     receipt.style.display = "block";
     printerBrrt();
 
-    // Celebration endscreen after a moment
-    await new Promise(r=>setTimeout(r, 4200));
+    // Endscreen after a moment (slightly longer so receipt isn't rushed)
+    await new Promise(r=>setTimeout(r, 4600));
     baristaScene.style.display = "none";
     end.style.display = "block";
 
-    // Fireworks + confetti + hearts mix
     celebrate();
   }
 
   yesBtn.addEventListener("click", ()=>{
-    ensureAudio(); // unlock audio context on user gesture
+    ensureAudio(); // unlock audio on click
     runYesSequence();
   });
 
-  // ---------- Receipt PDF (cute printable) ----------
+  // ---------- Receipt PDF ----------
   document.getElementById("pdfBtn").addEventListener("click", ()=>{
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({unit:"pt", format:"a4"});
@@ -755,7 +773,6 @@
     const margin = 48;
     let y = 72;
 
-    // receipt paper vibe
     doc.setFillColor(255, 253, 247);
     doc.rect(36, 36, 523, 770, "F");
 
@@ -808,7 +825,7 @@
     doc.save("Angelo_Niloo_Starbucks_Receipt.pdf");
   });
 
-  // ---------- End celebration: confetti + hearts + fireworks + sfx ----------
+  // ---------- End celebration ----------
   function spawnConfetti(){
     const c = document.createElement("div");
     c.className = "confetti";
@@ -833,7 +850,6 @@
   }
 
   function celebrate(){
-    // confetti stream
     let conf = 0;
     const confTimer = setInterval(()=>{
       conf++;
@@ -841,7 +857,6 @@
       if(conf > 80) clearInterval(confTimer);
     }, 55);
 
-    // fireworks bursts
     let bursts = 0;
     const fwTimer = setInterval(()=>{
       bursts++;
@@ -851,10 +866,9 @@
     }, 420);
   }
 
-  // ---------- “Play our song” button (open YouTube search in new tab) ----------
-  songBtn.addEventListener("click", ()=>{
-    const q = encodeURIComponent('Jovanotti "I Love You Baby"');
-    window.open(`https://www.youtube.com/results?search_query=${q}`, "_blank", "noopener,noreferrer");
+  // ---------- Song button -> exact video URL ----------
+  document.getElementById("songBtn").addEventListener("click", ()=>{
+    window.open("https://www.youtube.com/watch?v=rLoGGMbF-YQ", "_blank", "noopener,noreferrer");
   });
 </script>
 </body>
