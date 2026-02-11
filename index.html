@@ -12,7 +12,9 @@
 
   <style>
     :root{
-      --pink1:#ffb6c1; --pink2:#ff69b4; --hot:#ff2d55;
+      --pink1:#ffb6c1;
+      --pink2:#ff69b4;
+      --hot:#ff2d55;
       --shadow: 0 18px 45px rgba(0,0,0,.25);
       --card: rgba(255,255,255,.92);
     }
@@ -24,22 +26,24 @@
       color:#111;
     }
 
+    /* wrappers / panels */
     .wrap{ position:fixed; inset:0; display:grid; place-items:center; padding:18px; }
     .panel{
-      width:min(860px, 92vw);
+      width:min(900px, 94vw);
       max-height: calc(100vh - 36px);
       overflow:auto;
       background: var(--card);
       border-radius: 30px;
       box-shadow: var(--shadow);
-      padding: 32px 26px 24px;
+      padding: 30px 24px 22px;
       text-align:center;
       position:relative;
     }
 
+    /* headline question */
     #question{
       font-family: "Great Vibes", cursive;
-      font-size: clamp(44px, 6vw, 88px);
+      font-size: clamp(44px, 6vw, 92px);
       color: var(--hot);
       margin: 0 0 10px;
       text-shadow: 0 0 24px rgba(255,255,255,.6);
@@ -48,7 +52,8 @@
     }
     #sub{ margin:0 0 18px; opacity:.75; font-size:15px; min-height:1.2em; }
 
-    .row{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top: 8px; }
+    /* buttons */
+    .row{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top: 10px; }
     button{
       border:0; cursor:pointer; border-radius:999px;
       font-weight:900;
@@ -60,34 +65,55 @@
     button:active{ transform: translateY(2px) scale(.98); }
 
     #yesBtn{
-      font-size: clamp(26px, 3.8vw, 44px);
+      font-size: clamp(26px, 3.8vw, 46px);
       padding: 18px 44px;
       color:#fff;
       background: linear-gradient(180deg, #ff2d55, #ff0033);
       text-shadow: 0 2px 0 rgba(0,0,0,.15);
       filter: drop-shadow(0 0 16px rgba(255,255,255,.55));
     }
+
+    /* question buttons hidden until typing completes */
+    #btnRow{
+      opacity:0;
+      pointer-events:none;
+      transform: translateY(10px);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    #btnRow.ready{
+      opacity:1;
+      pointer-events:auto;
+      transform: translateY(0);
+    }
+
+    /* NO button */
     #noBtn{
-      font-size: 18px; padding: 12px 18px;
-      background: rgba(255,255,255,.95); color:#333;
-      position: fixed; left: 60%; top: 72%;
-      z-index: 10;
-      opacity:0; pointer-events:none;
+      font-size: 18px;
+      padding: 12px 18px;
+      background: rgba(255,255,255,.95);
+      color:#333;
+      position: fixed;
+      left: 60%;
+      top: 72%;
+      z-index: 20;
+      opacity:0;
+      pointer-events:none;
+      transform: scale(1);
+      transition: opacity .5s ease;
     }
     #noBtn.ready{ opacity:1; pointer-events:auto; }
 
     /* loading line */
-    #loadingLine{ font-size:18px; opacity:.85; min-height:1.6em; margin: 8px 0 0; }
+    #loadingLine{ font-size:18px; opacity:.85; min-height:1.6em; margin: 10px 0 6px; }
     .dots::after{ content:""; animation:dots 1.2s steps(4,end) infinite; }
     @keyframes dots{ 0%{content:""} 25%{content:"."} 50%{content:".."} 75%{content:"..."} 100%{content:""} }
 
-    /* stamp */
+    /* APPROVED stamp */
     #stamp{
       display:none;
-      position:absolute;
-      left:50%;
-      top: 18px;
-      transform: translateX(-50%) rotate(-10deg);
+      position:relative;
+      margin: 6px auto 0;
+      width: fit-content;
       padding: 12px 20px;
       border: 10px solid #1bb24a;
       color:#1bb24a;
@@ -99,23 +125,22 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       opacity:0;
-      z-index: 5;
     }
-    .stampIn{ animation: stampIn .55s cubic-bezier(.2,1.4,.2,1) forwards; }
+    .stampIn{ animation: stampIn .7s cubic-bezier(.2,1.4,.2,1) forwards; }
     @keyframes stampIn{
-      0%{ opacity:0; transform: translateX(-50%) rotate(-10deg) scale(2); }
-      60%{ opacity:1; transform: translateX(-50%) rotate(-10deg) scale(1); }
-      100%{ opacity:1; transform: translateX(-50%) rotate(-10deg) scale(1); }
+      0%{ opacity:0; transform: rotate(-10deg) scale(2); }
+      65%{ opacity:1; transform: rotate(-10deg) scale(1); }
+      100%{ opacity:1; transform: rotate(-10deg) scale(1); }
     }
 
     /* heart photo */
     #photoWrap{
-      width:min(420px, 76vw);
+      width:min(440px, 80vw);
       aspect-ratio:1/1;
-      margin: 18px auto 8px;
+      margin: 18px auto 10px;
       position:relative;
       filter: drop-shadow(0 18px 38px rgba(0,0,0,.25));
-      z-index: 1;
+      display:none;
     }
     #heart{
       width:100%; height:100%;
@@ -138,28 +163,46 @@
         radial-gradient(circle at 25% 75%, rgba(255,255,255,.8) 0 2px, rgba(255,255,255,0) 3px),
         radial-gradient(circle at 70% 82%, rgba(255,255,255,.75) 0 2px, rgba(255,255,255,0) 3px),
         repeating-linear-gradient(45deg, rgba(255,255,255,.10) 0 8px, rgba(255,105,180,.16) 8px 16px);
-      animation: sparkle 1.35s linear infinite;
+      animation: sparkle 1.45s linear infinite;
       opacity:.95;
     }
     @keyframes sparkle{
       0%{ filter: brightness(1) saturate(1.05); }
-      50%{ filter: brightness(1.25) saturate(1.25); }
+      50%{ filter: brightness(1.28) saturate(1.28); }
       100%{ filter: brightness(1) saturate(1.05); }
     }
 
-    /* Niloo + receipt */
+    /* toast */
+    .toast{
+      position:fixed; left:50%; top:14px; transform:translateX(-50%);
+      background: rgba(0,0,0,.88); color:#fff;
+      padding: 12px 14px; border-radius: 16px; font-size:13px;
+      box-shadow: var(--shadow);
+      z-index: 80; opacity:0;
+      animation: toastIn 3.2s ease forwards;
+      max-width: min(560px, 92vw);
+    }
+    @keyframes toastIn{
+      0%{ opacity:0; transform: translateX(-50%) translateY(-8px); }
+      12%{ opacity:1; transform: translateX(-50%) translateY(0); }
+      86%{ opacity:1; }
+      100%{ opacity:0; }
+    }
+
+    /* Niloo bounce */
     #nilooImg{
       width:min(320px, 70vw);
       filter: drop-shadow(0 18px 30px rgba(0,0,0,.22));
-      animation: bounce 1s ease-in-out infinite alternate;
+      animation: bounce 1.2s ease-in-out infinite alternate;
       border-radius: 22px;
       background: rgba(255,255,255,.4);
     }
-    @keyframes bounce{ from{transform:translateY(0)} to{transform:translateY(-12px)} }
+    @keyframes bounce{ from{transform:translateY(0)} to{transform:translateY(-14px)} }
 
+    /* receipt */
     #receipt{
       margin: 14px auto 0;
-      width:min(520px, 92vw);
+      width:min(540px, 92vw);
       background: #fffdf7;
       border-radius: 18px;
       box-shadow: 0 12px 24px rgba(0,0,0,.16);
@@ -170,14 +213,14 @@
       overflow:hidden;
     }
     #receiptPrint{ height:0; overflow:hidden; }
-    .printing #receiptPrint{ animation: print 2.1s ease-out forwards; }
-    @keyframes print{ to{ height: 540px; } }
+    .printing #receiptPrint{ animation: print 2.8s ease-out forwards; }
+    @keyframes print{ to{ height: 560px; } }
     .rTitle{ font-weight:900; }
     .rSmall{ font-size:12px; opacity:.7; }
     .rHr{ border-top: 1px dashed rgba(0,0,0,.25); margin:10px 0; }
     .rRow{ display:flex; justify-content:space-between; gap:10px; }
     .fadeInLater{ opacity:0; }
-    .printing .fadeInLater{ animation: fadeIn 1.1s ease forwards; animation-delay: 2.2s; }
+    .printing .fadeInLater{ animation: fadeIn 1.3s ease forwards; animation-delay: 2.8s; }
     @keyframes fadeIn{ to{opacity:1} }
     #receipt::after{
       content:""; position:absolute; left:0; right:0; bottom:-18px;
@@ -198,48 +241,69 @@
       font-size:14px;
     }
 
-    /* End clauses */
-    #clauses{ margin: 10px auto 14px; width:min(640px,92vw); text-align:left; font-size:16px; opacity:.92; }
-    #clauses div{ margin:8px 0; opacity:0; transform:translateY(6px); }
-    .showClauses #clauses div{ animation: clauseIn .7s ease forwards; }
-    .showClauses #clauses div:nth-child(1){ animation-delay: .2s; }
-    .showClauses #clauses div:nth-child(2){ animation-delay: .6s; }
-    .showClauses #clauses div:nth-child(3){ animation-delay: 1.0s; }
+    /* clauses */
+    #clauses{ margin: 10px auto 14px; width:min(660px,92vw); text-align:left; font-size:16px; opacity:.92; }
+    #clauses div{ margin:8px 0; opacity:0; transform:translateY(8px); }
+    .showClauses #clauses div{ animation: clauseIn 1.35s ease forwards; }
+    .showClauses #clauses div:nth-child(1){ animation-delay: 0.8s; }
+    .showClauses #clauses div:nth-child(2){ animation-delay: 2.4s; }
+    .showClauses #clauses div:nth-child(3){ animation-delay: 4.0s; }
     @keyframes clauseIn{ to{opacity:1; transform:translateY(0)} }
 
-    /* Confetti / fireworks */
-    .confetti{ position:fixed; pointer-events:none; animation: fall 2.2s linear forwards; opacity:.95; z-index: 50; }
-    @keyframes fall{ from{transform:translateY(-20px) rotate(0) scale(1); opacity:1} to{transform:translateY(110vh) rotate(420deg) scale(1.1); opacity:0} }
-    .firework{ position:fixed; pointer-events:none; animation: boom 1.1s ease-out forwards; opacity:1; z-index:50; }
-    @keyframes boom{ from{transform:scale(.15); opacity:1} to{transform:scale(2.2); opacity:0} }
-
-    /* Toast */
-    .toast{
-      position:fixed; left:50%; top:14px; transform:translateX(-50%);
-      background: rgba(0,0,0,.88); color:#fff;
-      padding: 12px 14px; border-radius: 16px; font-size:13px;
-      box-shadow: var(--shadow);
-      z-index: 60; opacity:0;
-      animation: toastIn 3.2s ease forwards;
-      max-width: min(560px, 92vw);
+    /* confetti + fireworks visuals */
+    .confetti{ position:fixed; pointer-events:none; animation: fall 2.6s linear forwards; opacity:.95; z-index: 70; }
+    @keyframes fall{
+      from{transform:translateY(-20px) rotate(0) scale(1); opacity:1}
+      to{transform:translateY(110vh) rotate(420deg) scale(1.1); opacity:0}
     }
-    @keyframes toastIn{
-      0%{ opacity:0; transform: translateX(-50%) translateY(-8px); }
-      12%{ opacity:1; transform: translateX(-50%) translateY(0); }
-      86%{ opacity:1; }
-      100%{ opacity:0; }
+    .firework{ position:fixed; pointer-events:none; animation: boom 1.3s ease-out forwards; opacity:1; z-index:70; }
+    @keyframes boom{ from{transform:scale(.2); opacity:1} to{transform:scale(2.4); opacity:0} }
+
+    /* final photo */
+    #finalPhoto{
+      width:min(560px, 92vw);
+      border-radius: 26px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.22);
+      opacity:0;
+      transform: translateY(18px) scale(.96);
+      transition: opacity 1.0s ease, transform 1.0s ease;
+    }
+    #finalText{
+      margin-top: 18px;
+      font-family: "Great Vibes", cursive;
+      font-size: clamp(34px, 5vw, 72px);
+      color: var(--hot);
+      text-shadow: 0 0 24px rgba(255,255,255,.6);
+      min-height: 1.4em;
+      white-space: pre-wrap;
+    }
+
+    /* tiny helper buttons */
+    .miniBtn{
+      padding: 12px 16px;
+      font-size: 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.88);
+      color:#fff;
+      box-shadow: 0 12px 24px rgba(0,0,0,.18);
     }
   </style>
 </head>
 
 <body>
+  <!-- BGM starts on coffee scene -->
+  <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
+
   <!-- Scene 1: Question -->
   <div class="wrap" id="sceneQuestion">
     <div class="panel">
       <h1 id="question"></h1>
       <p id="sub"></p>
-      <div class="row" id="btnRow" style="opacity:0; pointer-events:none; transform:translateY(8px); transition:opacity .35s ease, transform .35s ease;">
+      <div class="row" id="btnRow">
         <button id="yesBtn">Sign Valentine Agreement ✍️</button>
+      </div>
+      <div class="row" style="margin-top:14px;">
+        <button class="miniBtn" id="sfxToggle">SFX: ON</button>
       </div>
     </div>
     <button id="noBtn">No 😒</button>
@@ -248,21 +312,26 @@
   <!-- Scene 2: Contract -->
   <div class="wrap" id="sceneContract" style="display:none;">
     <div class="panel">
-      <div id="stamp">APPROVED</div>
       <h2 style="margin:0 0 6px; font-weight:900;">Valentine Agreement Review</h2>
-      <div id="loadingLine" class="dots">Reviewing terms</div>
+      <div id="loadingLine" class="dots">Booting romantic compliance module</div>
 
-      <div id="photoWrap" style="display:none;">
+      <div id="stamp">APPROVED</div>
+
+      <div id="photoWrap">
         <div id="heart">
           <img id="contractPhoto" src="contract.jpg" alt="Contract signing photo">
           <div id="glitter"></div>
         </div>
       </div>
 
-      <div class="row" style="margin-top:12px;">
+      <div class="row" style="margin-top:10px;">
         <button id="toCoffeeBtn" style="display:none; font-size:18px; padding:14px 18px;">
           Redeem my Valentine’s Day coffee ☕
         </button>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="miniBtn" id="musicToggleContract">Music: OFF</button>
       </div>
     </div>
   </div>
@@ -271,9 +340,10 @@
   <div class="wrap" id="sceneCoffee" style="display:none;">
     <div class="panel">
       <div style="font-weight:900; margin:0 0 10px;">Barista Niloo is pleased with your decision ☕💘</div>
+
       <img id="nilooImg" src="niloo.png" alt="Niloo barista">
 
-      <div id="receipt" class="">
+      <div id="receipt">
         <div id="receiptPrint">
           <div class="rRow">
             <div class="rTitle">STARBUCKS RECEIPT ☕</div>
@@ -306,9 +376,13 @@
 
       <div class="row" style="margin-top:14px;">
         <button id="toEndBtn" style="font-size:18px; padding:14px 18px;">
-  Finalize my boyfriend status ✅
-</button>
+          Finalize my boyfriend status ✅
+        </button>
+      </div>
 
+      <div class="row" style="margin-top:12px;">
+        <button class="miniBtn" id="musicToggle">Music: ON</button>
+        <button class="miniBtn" id="sfxToggle2">SFX: ON</button>
       </div>
     </div>
   </div>
@@ -322,66 +396,90 @@
         <div>• No cancellations. No refunds. Only kisses.</div>
         <div>• Return policy remains: absolutely not.</div>
       </div>
+
       <div class="row">
-        <button id="songBtn" style="padding:14px 18px; font-size:14px; background:linear-gradient(180deg,#111,#000); color:#fff;">
-          Play our song 🎶
-        </button>
+        <button id="songBtn" class="miniBtn">Play our song 🎶</button>
+        <button id="finalBtn" style="font-size:18px; padding:14px 18px;">Claim final reward 💝</button>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="miniBtn" id="musicToggleEnd">Music: ON</button>
+        <button class="miniBtn" id="sfxToggle3">SFX: ON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 5: Final -->
+  <div class="wrap" id="sceneFinal" style="display:none;">
+    <div class="panel">
+      <img id="finalPhoto" src="final.jpg" alt="Us 💘">
+      <div id="finalText"></div>
+      <div class="row" style="margin-top:10px;">
+        <button class="miniBtn" id="restartBtn">Restart (for replay 😌)</button>
       </div>
     </div>
   </div>
 
 <script>
-  // ---------- Helpers ----------
+  // =========================================================
+  // GLOBAL PACING
+  // Bigger = slower animations/timing feel.
+  // =========================================================
+  const SPEED = 1.6; // try 1.4–2.0
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const wait  = (ms) => sleep(ms * SPEED);
 
+  // =========================================================
+  // TOAST
+  // =========================================================
   function toast(message){
     const t = document.createElement("div");
     t.className = "toast";
     t.innerHTML = message;
     document.body.appendChild(t);
-    setTimeout(()=> t.remove(), 3200);
+    setTimeout(()=> t.remove(), 3200 * SPEED);
   }
 
-  // Ambient hearts (subtle)
-  function ambientHearts(){
-    const h = document.createElement("div");
-    h.className = "confetti";
-    h.textContent = Math.random() > 0.5 ? "💖" : "💘";
-    h.style.left = (Math.random()*innerWidth) + "px";
-    h.style.top  = "-10px";
-    h.style.fontSize = (14 + Math.random()*22) + "px";
-    h.style.animationDuration = "2.8s";
-    document.body.appendChild(h);
-    setTimeout(()=>h.remove(), 2900);
-  }
-  setInterval(ambientHearts, 420);
+  // =========================================================
+  // SCENES
+  // =========================================================
+  const sceneQuestion = document.getElementById("sceneQuestion");
+  const sceneContract = document.getElementById("sceneContract");
+  const sceneCoffee   = document.getElementById("sceneCoffee");
+  const sceneEnd      = document.getElementById("sceneEnd");
+  const sceneFinal    = document.getElementById("sceneFinal");
 
-  // ---------- Fix typewriter: keep Angelo… then append rest ----------
+  const show = (el) => el.style.display = "grid";
+  const hide = (el) => el.style.display = "none";
+
+  // =========================================================
+  // INTRO TYPEWRITER (append, don’t replace)
+  // =========================================================
   const questionEl = document.getElementById("question");
-  const subEl = document.getElementById("sub");
-  const btnRow = document.getElementById("btnRow");
-  const noBtn = document.getElementById("noBtn");
+  const subEl      = document.getElementById("sub");
+  const btnRow     = document.getElementById("btnRow");
+  const noBtn      = document.getElementById("noBtn");
 
-  async function typeAppend(el, text, speed=55){
+  async function typeAppend(el, text, speed=65){
     for(let i=0;i<text.length;i++){
       el.textContent += text[i];
-      await sleep(speed);
+      await wait(speed);
     }
   }
 
   (async ()=>{
     questionEl.textContent = "";
-    await typeAppend(questionEl, "Angelo…", 85);
-    await sleep(750); // dramatic pause
-    await typeAppend(questionEl, " will you be my Valentine? 💘", 40);
+    await typeAppend(questionEl, "Angelo…", 95);
+    await wait(1100);
+    await typeAppend(questionEl, " will you be my Valentine? 💘", 65);
     subEl.textContent = "Please respond with honesty and romantic compliance.";
-    btnRow.style.opacity = "1";
-    btnRow.style.pointerEvents = "auto";
-    btnRow.style.transform = "translateY(0)";
+    btnRow.classList.add("ready");
     noBtn.classList.add("ready");
   })();
 
-  // ---------- NO button dodges (6), YES grows ----------
+  // =========================================================
+  // NO BUTTON DODGE (6 times), YES grows
+  // =========================================================
   const yesBtn = document.getElementById("yesBtn");
   let dodges = 0;
 
@@ -411,13 +509,50 @@
   }
   noBtn.addEventListener("mouseenter", moveNo);
   noBtn.addEventListener("click", moveNo);
+  noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNo(); }, {passive:false});
 
-  // ---------- WebAudio SFX ----------
+  // =========================================================
+  // AUDIO (SFX + BGM)
+  // =========================================================
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   let audioCtx;
-  function ensureAudio(){ if(!audioCtx) audioCtx = new AudioCtx(); }
+  let sfxOn = true;
 
+  const bgm = document.getElementById("bgm");
+  let musicOn = true;
+
+  function ensureAudio(){
+    if(!audioCtx) audioCtx = new AudioCtx();
+  }
+
+  function startBgm(){
+    if(!musicOn) return;
+    try{
+      bgm.volume = 0.22;
+      bgm.play().catch(()=>{});
+    }catch(e){}
+  }
+  function stopBgm(){
+    try{ bgm.pause(); }catch(e){}
+  }
+
+  function setSfx(on){
+    sfxOn = on;
+    document.getElementById("sfxToggle").textContent  = `SFX: ${on ? "ON" : "OFF"}`;
+    document.getElementById("sfxToggle2").textContent = `SFX: ${on ? "ON" : "OFF"}`;
+    document.getElementById("sfxToggle3").textContent = `SFX: ${on ? "ON" : "OFF"}`;
+  }
+  function setMusic(on){
+    musicOn = on;
+    document.getElementById("musicToggle").textContent        = `Music: ${on ? "ON" : "OFF"}`;
+    document.getElementById("musicToggleEnd").textContent     = `Music: ${on ? "ON" : "OFF"}`;
+    document.getElementById("musicToggleContract").textContent= `Music: ${on ? "ON" : "OFF"}`;
+    if(on) startBgm(); else stopBgm();
+  }
+
+  // SFX primitives
   function thunk(){
+    if(!sfxOn) return;
     ensureAudio();
     const t = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
@@ -433,13 +568,51 @@
     osc.stop(t + 0.18);
   }
 
+  function yay(){
+    if(!sfxOn) return;
+    ensureAudio();
+    const t = audioCtx.currentTime;
+    const notes = [523.25, 659.25, 783.99]; // C5 E5 G5
+    notes.forEach((f, idx) => {
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = "square";
+      osc.frequency.setValueAtTime(f, t + idx*0.06);
+      g.gain.setValueAtTime(0.0001, t + idx*0.06);
+      g.gain.exponentialRampToValueAtTime(0.11, t + idx*0.06 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + idx*0.06 + 0.22);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(t + idx*0.06);
+      osc.stop(t + idx*0.06 + 0.24);
+    });
+  }
+
+  function coin(){
+    if(!sfxOn) return;
+    ensureAudio();
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(990, t);
+    osc.frequency.exponentialRampToValueAtTime(1400, t + 0.08);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.12, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+    osc.connect(g).connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + 0.14);
+  }
+
   function printerBrrt(){
+    if(!sfxOn) return;
     ensureAudio();
     const t = audioCtx.currentTime;
     const bufferSize = 2 * audioCtx.sampleRate;
     const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
     const output = noiseBuffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1);
+
     const noise = audioCtx.createBufferSource();
     noise.buffer = noiseBuffer;
 
@@ -450,121 +623,228 @@
     const gain = audioCtx.createGain();
     gain.gain.setValueAtTime(0.0001, t);
     gain.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.70);
 
     noise.connect(filter).connect(gain).connect(audioCtx.destination);
     noise.start(t);
-    noise.stop(t + 0.6);
+    noise.stop(t + 0.75);
   }
 
-  function popFirework(){
+  function kiss(){
+    if(!sfxOn) return;
     ensureAudio();
     const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(420, t);
-    osc.frequency.exponentialRampToValueAtTime(120, t + 0.08);
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.12, t + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start(t);
-    osc.stop(t + 0.13);
+    const bufferSize = audioCtx.sampleRate * 0.16;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1);
+
+    const src = audioCtx.createBufferSource();
+    src.buffer = noiseBuffer;
+
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(850, t);
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.18, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+
+    src.connect(lp).connect(g).connect(audioCtx.destination);
+    src.start(t);
+    src.stop(t + 0.18);
   }
 
-  // ---------- Scene switching ----------
-  const sceneQuestion = document.getElementById("sceneQuestion");
-  const sceneContract  = document.getElementById("sceneContract");
-  const sceneCoffee    = document.getElementById("sceneCoffee");
-  const sceneEnd       = document.getElementById("sceneEnd");
+  // More firework-y boom (low thump + crackle)
+  function fireworkBoom(){
+    if(!sfxOn) return;
+    ensureAudio();
+    const t = audioCtx.currentTime;
 
+    const bufferSize = audioCtx.sampleRate * 0.42;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1);
+
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuffer;
+
+    const band = audioCtx.createBiquadFilter();
+    band.type = "bandpass";
+    band.frequency.setValueAtTime(2300, t);
+
+    const g1 = audioCtx.createGain();
+    g1.gain.setValueAtTime(0.0001, t);
+    g1.gain.exponentialRampToValueAtTime(0.26, t + 0.02);
+    g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+
+    const osc = audioCtx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(95, t);
+    osc.frequency.exponentialRampToValueAtTime(42, t + 0.28);
+
+    const g2 = audioCtx.createGain();
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+
+    noise.connect(band).connect(g1).connect(audioCtx.destination);
+    osc.connect(g2).connect(audioCtx.destination);
+
+    noise.start(t); noise.stop(t + 0.42);
+    osc.start(t);   osc.stop(t + 0.36);
+  }
+
+  // Toggles
+  document.getElementById("sfxToggle").addEventListener("click", ()=>setSfx(!sfxOn));
+  document.getElementById("sfxToggle2").addEventListener("click", ()=>setSfx(!sfxOn));
+  document.getElementById("sfxToggle3").addEventListener("click", ()=>setSfx(!sfxOn));
+
+  document.getElementById("musicToggle").addEventListener("click", ()=>setMusic(!musicOn));
+  document.getElementById("musicToggleEnd").addEventListener("click", ()=>setMusic(!musicOn));
+  document.getElementById("musicToggleContract").addEventListener("click", ()=>setMusic(!musicOn));
+
+  // initial UI label state
+  setSfx(true);
+  setMusic(true);
+
+  // =========================================================
+  // CONTRACT SCENE (loading → stamp → photo → toCoffee button)
+  // =========================================================
   const loadingLine = document.getElementById("loadingLine");
-  const stampEl = document.getElementById("stamp");
-  const photoWrap = document.getElementById("photoWrap");
+  const stampEl     = document.getElementById("stamp");
+  const photoWrap   = document.getElementById("photoWrap");
   const toCoffeeBtn = document.getElementById("toCoffeeBtn");
-  const toEndBtn = document.getElementById("toEndBtn");
-  const receipt = document.getElementById("receipt");
-  const endPanel = document.getElementById("endPanel");
-
-  function show(el){ el.style.display = "grid"; }
-  function hide(el){ el.style.display = "none"; }
 
   function setLoading(text){
     loadingLine.textContent = text;
     loadingLine.classList.add("dots");
   }
-  function stopDots(){ loadingLine.classList.remove("dots"); }
+  function stopDots(){
+    loadingLine.classList.remove("dots");
+  }
 
-  // Scene 2: Contract sequence runs, then waits for click
   async function startContractScene(){
     hide(sceneQuestion);
     show(sceneContract);
 
-    // 3.5s max tension
-    const steps = ["Reviewing terms", "Verifying boyfriend status", "Cross-checking Sicilian servers"];
-    let i=0;
+    // game-style suspense loading (longer + more steps)
+    const steps = [
+      "Booting romantic compliance module",
+      "Reviewing terms & conditions",
+      "Verifying boyfriend status",
+      "Cross-checking Sicilian servers",
+      "Syncing Valentine credentials",
+      "Preparing APPROVAL stamp"
+    ];
+    let i = 0;
     setLoading(steps[i]);
-    const stepTime = 3500 / steps.length;
+
+    const total = 5800; // longer tension (pre-multiplier)
+    const stepTime = total / steps.length;
     const interval = setInterval(()=>{
       i++;
       if(i >= steps.length){ clearInterval(interval); return; }
       setLoading(steps[i]);
-    }, stepTime);
+    }, stepTime * SPEED);
 
-    await sleep(3500);
+    await wait(total);
     stopDots();
 
     // stamp
     stampEl.style.display = "block";
     stampEl.classList.remove("stampIn");
-    void stampEl.offsetWidth; // restart animation reliably
+    void stampEl.offsetWidth;
     stampEl.classList.add("stampIn");
     thunk();
+    coin();
 
-    // show photo after stamp lands (so not covered)
-    await sleep(650);
+    // show photo
+    await wait(900);
     photoWrap.style.display = "block";
 
-    // popups
-    await sleep(650);
+    // legal popups
+    await wait(850);
     toast("📸 Contract screenshot captured and sent to <b>Niloo</b>.");
-    await sleep(900);
+    await wait(1100);
     toast("⚖️ Binding under <b>American</b>, <b>Italian</b>, and <b>Internet</b> Law.");
 
-    // now WAIT: show button to proceed
-    await sleep(600);
+    // wait for user to proceed
+    await wait(900);
     toCoffeeBtn.style.display = "inline-block";
   }
 
-  // Scene 3: Coffee stays until click
+  // =========================================================
+  // COFFEE SCENE (starts BGM here)
+  // =========================================================
+  const receipt = document.getElementById("receipt");
+  const toEndBtn = document.getElementById("toEndBtn");
+
   function startCoffeeScene(){
     hide(sceneContract);
     show(sceneCoffee);
 
-    // start receipt printing + sound
+    // Start BGM on coffee scene (user gesture click)
+    startBgm();
+
+    // receipt printing
     receipt.classList.add("printing");
     printerBrrt();
+
+    // cute kissy sounds (optional)
+    setTimeout(()=>kiss(), 300);
+    setTimeout(()=>kiss(), 620);
   }
 
-  // Scene 4: End stays
+  // =========================================================
+  // END SCENE
+  // =========================================================
+  const endPanel = document.getElementById("endPanel");
   function startEndScene(){
     hide(sceneCoffee);
     show(sceneEnd);
-
     endPanel.classList.add("showClauses");
     celebrate();
   }
 
-  yesBtn.addEventListener("click", ()=>{
-    ensureAudio(); // unlock audio
-    startContractScene();
-  });
+  // =========================================================
+  // FINAL SCENE (photo animates in + typed message)
+  // =========================================================
+  const finalBtn   = document.getElementById("finalBtn");
+  const finalPhoto = document.getElementById("finalPhoto");
+  const finalText  = document.getElementById("finalText");
 
-  document.getElementById("toCoffeeBtn").addEventListener("click", startCoffeeScene);
-  document.getElementById("toEndBtn").addEventListener("click", startEndScene);
+  async function typeFinalMessage(){
+    finalText.textContent = "";
+    const msg = "Happy Valentine's Day!!\nI love you!!\nNiloo";
+    for(let i=0;i<msg.length;i++){
+      finalText.textContent += msg[i];
+      await wait(70);
+    }
+  }
 
-  // ---------- Celebration ----------
+  async function startFinalScene(){
+    hide(sceneEnd);
+    show(sceneFinal);
+
+    // little reward sound
+    yay();
+    coin();
+
+    // animate photo in
+    requestAnimationFrame(()=>{
+      finalPhoto.style.opacity = "1";
+      finalPhoto.style.transform = "translateY(0) scale(1)";
+    });
+
+    await wait(900);
+    typeFinalMessage();
+  }
+
+  // =========================================================
+  // CELEBRATION (visual + firework sound)
+  // =========================================================
   function spawnConfetti(){
     const c = document.createElement("div");
     c.className = "confetti";
@@ -574,41 +854,40 @@
     c.style.top  = "-10px";
     c.style.fontSize = (18 + Math.random()*28) + "px";
     document.body.appendChild(c);
-    setTimeout(()=> c.remove(), 2300);
+    setTimeout(()=> c.remove(), 2600);
   }
+
   function spawnFirework(){
     const f = document.createElement("div");
     f.className = "firework";
     f.textContent = "🎆";
     f.style.left = (Math.random()*innerWidth) + "px";
     f.style.top  = (Math.random()*innerHeight) + "px";
-    f.style.fontSize = (36 + Math.random()*22) + "px";
+    f.style.fontSize = (38 + Math.random()*22) + "px";
     document.body.appendChild(f);
-    setTimeout(()=> f.remove(), 1200);
+    setTimeout(()=> f.remove(), 1300);
   }
+
   function celebrate(){
     let conf = 0;
     const confTimer = setInterval(()=>{
       conf++;
       spawnConfetti();
-      if(conf > 80) clearInterval(confTimer);
-    }, 55);
+      if(conf > 90) clearInterval(confTimer);
+    }, 60 * SPEED);
 
     let bursts = 0;
     const fwTimer = setInterval(()=>{
       bursts++;
       for(let i=0;i<5;i++) spawnFirework();
-      popFirework();
-      if(bursts > 7) clearInterval(fwTimer);
-    }, 420);
+      fireworkBoom();
+      if(bursts > 8) clearInterval(fwTimer);
+    }, 520 * SPEED);
   }
 
-  // ---------- Song button ----------
-  document.getElementById("songBtn").addEventListener("click", ()=>{
-    window.open("https://www.youtube.com/watch?v=rLoGGMbF-YQ", "_blank", "noopener,noreferrer");
-  });
-
-  // ---------- PDF ----------
+  // =========================================================
+  // PDF Receipt (cute printable)
+  // =========================================================
   document.getElementById("pdfBtn").addEventListener("click", ()=>{
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({unit:"pt", format:"a4"});
@@ -657,6 +936,28 @@
 
     doc.save("Angelo_Niloo_Starbucks_Receipt.pdf");
   });
+
+  // =========================================================
+  // BUTTON WIRING
+  // =========================================================
+  document.getElementById("toCoffeeBtn").addEventListener("click", startCoffeeScene);
+  document.getElementById("toEndBtn").addEventListener("click", startEndScene);
+  finalBtn.addEventListener("click", startFinalScene);
+
+  // Start contract on YES click (also unlock audio context)
+  yesBtn.addEventListener("click", ()=>{
+    ensureAudio();
+    yay();
+    startContractScene();
+  });
+
+  // Song button (direct link you provided earlier)
+  document.getElementById("songBtn").addEventListener("click", ()=>{
+    window.open("https://www.youtube.com/watch?v=rLoGGMbF-YQ", "_blank", "noopener,noreferrer");
+  });
+
+  // Restart (simple reload)
+  document.getElementById("restartBtn").addEventListener("click", ()=>location.reload());
 </script>
 </body>
 </html>
