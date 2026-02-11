@@ -1,488 +1,263 @@
-
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Angelo, will you be my Valentine? 💘</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Angelo, will you be my Valentine?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --pink:#ff2d55; --bg1:#ffb6c1; --bg2:#ff69b4; }
+  html,body{height:100%;margin:0}
+  body{
+    overflow:hidden;
+    background: radial-gradient(var(--bg1), var(--bg2));
+    font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    display:grid;
+    place-items:center;
+  }
+  .card{
+    width:min(880px,92vw);
+    background: rgba(255,255,255,.92);
+    border-radius: 28px;
+    padding: 34px 26px 26px;
+    box-shadow: 0 18px 45px rgba(0,0,0,.22);
+    position:relative;
+    text-align:center;
+  }
+  h1{
+    margin:0 0 16px;
+    font-family: "Great Vibes", cursive;
+    font-size: clamp(46px, 6vw, 84px);
+    color: var(--pink);
+  }
+  .sub{
+    margin:0 0 22px;
+    opacity:.75;
+    font-size: 15px;
+  }
+  .row{ display:flex; justify-content:center; gap:16px; flex-wrap:wrap; }
+  button{
+    border:0; cursor:pointer;
+    border-radius: 999px;
+    font-weight:800;
+    padding: 16px 34px;
+    font-size: 22px;
+    box-shadow: 0 10px 22px rgba(0,0,0,.15);
+    transition: transform .15s ease;
+    user-select:none;
+  }
+  button:active{ transform: translateY(2px) scale(.98); }
+  #yesBtn{
+    background: linear-gradient(180deg, #ff2d55, #ff0033);
+    color:#fff;
+    font-size: 34px;
+    padding: 18px 44px;
+  }
+  #noBtn{
+    background: #f3f3f3;
+    color:#333;
+    position: absolute;
+    left: 50%;
+    top: calc(100% - 56px);
+    transform: translateX(-50%);
+    font-size: 18px;
+    padding: 12px 18px;
+  }
 
-  <!-- Pretty fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  /* Love meter */
+  .meterWrap{
+    margin: 18px auto 0;
+    width:min(520px, 86%);
+    text-align:left;
+  }
+  .meterLabel{ font-size: 13px; opacity:.7; margin-bottom:8px; }
+  .bar{
+    height: 14px;
+    background: rgba(0,0,0,.08);
+    border-radius: 999px;
+    overflow:hidden;
+  }
+  .fill{
+    height:100%;
+    width: 5%;
+    background: linear-gradient(90deg, #ff2d55, #ff69b4);
+    border-radius: 999px;
+    transition: width .25s ease;
+  }
 
-  <!-- jsPDF for downloadable receipt PDF -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  /* Floating hearts */
+  .heart{
+    position:fixed;
+    font-size: 18px;
+    pointer-events:none;
+    animation: floatUp 2.4s linear forwards;
+    opacity:.9;
+  }
+  @keyframes floatUp{
+    from{ transform: translateY(0) scale(1); opacity:.9; }
+    to{ transform: translateY(-240px) scale(1.25); opacity:0; }
+  }
 
-  <style>
-    :root{
-      --pink1:#ffb6c1;
-      --pink2:#ff69b4;
-      --shadow: 0 10px 30px rgba(0,0,0,.22);
-    }
-
-    html, body { height:100%; margin:0; }
-    body{
-      overflow:hidden;
-      background: radial-gradient(var(--pink1), var(--pink2));
-      font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    }
-
-    /* Floating hearts */
-    .heart{
-      position:fixed;
-      font-size: 22px;
-      pointer-events:none;
-      animation: floatUp 2.2s linear forwards;
-      opacity:.9;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.18));
-    }
-    @keyframes floatUp{
-      from{ transform: translateY(0) scale(1); opacity:.95; }
-      to{ transform: translateY(-220px) scale(1.25); opacity:0; }
-    }
-
-    /* HOME SCREEN */
-    #home{
-      position:fixed;
-      inset:0;
-      display:grid;
-      place-items:center;
-      background:
-        radial-gradient(rgba(255,255,255,.10), rgba(255,255,255,0)),
-        url("home.png") center/contain no-repeat;
-    }
-
-    /* overlay so text/buttons pop even if the image is bright */
-    #home::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: radial-gradient(rgba(0,0,0,.08), rgba(0,0,0,0));
-      pointer-events:none;
-    }
-
-    /* Title (in case your art has text already, this still looks nice) */
-    #titleWrap{
-      position:absolute;
-      top: 5vh;
-      width:min(980px, 92vw);
-      text-align:center;
-      pointer-events:none;
-    }
-    #title{
-      font-family: "Great Vibes", cursive;
-      color: #fff;
-      font-size: clamp(44px, 6vw, 84px);
-      text-shadow: 0 0 24px rgba(255,255,255,.55), 0 10px 28px rgba(0,0,0,.25);
-      margin:0;
-    }
-
-    /* Buttons */
-    #buttons{
-      position:absolute;
-      bottom: 10vh;
-      width:min(980px, 92vw);
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap: 22px;
-      z-index:5;
-    }
-
-    button{
-      border:0;
-      cursor:pointer;
-      border-radius: 999px;
-      font-weight:800;
-      box-shadow: var(--shadow);
-      transition: transform .15s ease, filter .15s ease;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    button:active{ transform: translateY(2px) scale(.98); }
-
-    #yesBtn{
-      font-size: clamp(30px, 4.5vw, 54px);
-      padding: 18px 54px;
-      color:#fff;
-      background: linear-gradient(180deg, #ff2d55, #ff0033);
-      text-shadow: 0 2px 0 rgba(0,0,0,.15);
-      filter: drop-shadow(0 0 14px rgba(255,255,255,.55));
-      transform-origin:center;
-    }
-    #yesBtn:hover{ transform: scale(1.03); }
-
-    #noBtn{
-      font-size: clamp(16px, 2.2vw, 22px);
-      padding: 14px 22px;
-      background: rgba(255,255,255,.92);
-      color:#333;
-      position:fixed; /* so it can run anywhere */
-      left: 56%;
-      top: 78%;
-      z-index: 6;
-    }
-
-    /* CUTSCENE */
-    #cutscene{
-      position:fixed;
-      inset:0;
-      display:none;
-      place-items:center;
-      background: radial-gradient(#ffe6f2, #ffd1e6);
-    }
-
-    /* Cinematic stage */
-    #stage{
-      position:relative;
-      width:min(860px, 92vw);
-      height:min(560px, 70vh);
-      display:grid;
-      place-items:center;
-      transition: transform 2.2s ease-in-out;
-      transform: translateZ(0);
-    }
-
-    /* Sprite box centered */
-    #niloo{
-      width: 512px;
-      height: 512px;
-      background-image: url("niloo_sprite.png");
-      background-size: 1024px 1536px; /* EXACT image size */
-      background-position: 0px 0px;
-      filter: drop-shadow(0 20px 30px rgba(0,0,0,.22));
-      border-radius: 28px;
-    }
-
-    /* Zoom overlay for cup moment (we “punch in” the whole stage) */
-    .zoomed #stage{
-      transform: scale(1.55);
-    }
-
-    /* Fireworks emojis */
-    .firework{
-      position:fixed;
-      font-size: 46px;
-      pointer-events:none;
-      animation: boom 1.1s ease-out forwards;
-      filter: drop-shadow(0 10px 20px rgba(0,0,0,.22));
-    }
-    @keyframes boom{
-      from{ transform: scale(.1); opacity:1; }
-      to{ transform: scale(2.2); opacity:0; }
-    }
-
-    /* Receipt */
-    #receipt{
-      display:none;
-      position:fixed;
-      left:50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      width: min(560px, 92vw);
-      background: rgba(255,255,255,.95);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 14px 16px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      text-align:left;
-      animation: slideUp .9s ease-out forwards;
-      z-index:20;
-    }
-    @keyframes slideUp{
-      from{ transform: translateX(-50%) translateY(140px); opacity:0; }
-      to{ transform: translateX(-50%) translateY(0); opacity:1; }
-    }
-    #receipt .small{ opacity:.75; font-size:12px; }
-    #receipt .row{ display:flex; justify-content:space-between; gap:12px; }
-    #receipt .hr{ border-top:1px dashed rgba(0,0,0,.25); margin:10px 0; }
-    #downloadPdf{
-      margin-top: 10px;
-      width:100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: #111;
-      color:#fff;
-      font-weight:800;
-      box-shadow: none;
-    }
-
-    /* Fake phone notification */
-    #phone{
-      display:none;
-      position:fixed;
-      top: 18px;
-      right: 18px;
-      background: rgba(0,0,0,.9);
-      color:#fff;
-      padding: 12px 14px;
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      font-size: 13px;
-      max-width: 280px;
-      z-index: 30;
-      animation: popIn .45s ease-out forwards;
-    }
-    @keyframes popIn{
-      from{ transform: translateY(-12px); opacity:0; }
-      to{ transform: translateY(0); opacity:1; }
-    }
-
-    /* Contract photo (optional) */
-    #contractWrap{
-      display:none;
-      position:fixed;
-      top: 88px;
-      right: 18px;
-      width: min(260px, 46vw);
-      border-radius: 18px;
-      overflow:hidden;
-      box-shadow: var(--shadow);
-      border: 3px solid rgba(255,255,255,.9);
-      z-index: 28;
-      background:#fff;
-    }
-    #contractWrap img{ width:100%; display:block; }
-
-    /* Smooth fade between home and cutscene */
-    .fadeOut{
-      animation: fadeOut .55s ease forwards;
-    }
-    @keyframes fadeOut{
-      to{ opacity:0; transform: scale(1.02); }
-    }
-  </style>
+  /* Modal */
+  .modal{
+    position:fixed; inset:0;
+    display:none;
+    place-items:center;
+    background: rgba(0,0,0,.35);
+  }
+  .modal .box{
+    width:min(520px, 92vw);
+    background:#fff;
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 18px 55px rgba(0,0,0,.35);
+    text-align:center;
+  }
+  .modal h2{ margin: 6px 0 8px; color:#111; }
+  .modal p{ margin:0 0 14px; opacity:.8; }
+  .modal .row{ gap:10px; }
+  .ghost{
+    background:#111; color:#fff;
+  }
+</style>
 </head>
-
 <body>
 
-  <!-- HOME -->
-  <div id="home">
-    <div id="titleWrap">
-      <h1 id="title">Angelo, will you be my Valentine? 💘</h1>
-    </div>
+<div class="card" id="card">
+  <h1>Angelo, will you be my Valentine? 💘</h1>
+  <p class="sub">Answer carefully. This page is legally optimized for romance.</p>
 
-    <div id="buttons">
-      <button id="yesBtn">YES 💖</button>
-      <!-- NO is positioned fixed so it can run anywhere -->
-      <button id="noBtn">No 😒</button>
-    </div>
+  <div class="row">
+    <button id="yesBtn">YES 😍</button>
   </div>
 
-  <!-- CUTSCENE -->
-  <div id="cutscene">
-    <div id="stage">
-      <div id="niloo" aria-label="Niloo animation"></div>
-    </div>
+  <div class="meterWrap">
+    <div class="meterLabel">Niloo’s delusion level:</div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </div>
 
-    <div id="phone">📱 Niloo saw you click <b>YES</b> 👀💘</div>
+  <button id="noBtn">No 🙄</button>
+</div>
 
-    <div id="contractWrap">
-      <img src="contract.jpg" alt="Contract proof">
-    </div>
-
-    <div id="receipt">
-      <div class="row"><b>STARBUCKS RECEIPT ☕</b><span class="small">#VALENTINE-001</span></div>
-      <div class="hr"></div>
-      Order: <b>Grande Love Latte</b><br>
-      Customer: <b>ANGELO 💘</b><br>
-      Barista: <b>Niloo (Angelo’s Favorite Barista)</b><br>
-      <div class="hr"></div>
-      Message: “<b>Angelo — you are amazing!! Love, Niloo</b>”<br><br>
-      Extras:
-      <ul style="margin:8px 0 0 18px;">
-        <li>Extra Foam: <b>YES</b></li>
-        <li>Extra Love: <b>ALWAYS</b></li>
-        <li>Extra Chaos: <b>MAXIMUM</b></li>
-      </ul>
-      Total: <b>Your Heart</b> 💞<br>
-      <button id="downloadPdf">Download this receipt as a PDF</button>
-      <div class="small" style="margin-top:8px;">*Valid under Sicilian, Kansas, and Internet Law.</div>
+<div class="modal" id="modal">
+  <div class="box">
+    <h2 id="mTitle">Are you sure?</h2>
+    <p id="mText">Because… Niloo will be dramatic about it.</p>
+    <div class="row">
+      <button id="mBack">Ok fine 😅</button>
+      <button class="ghost" id="mProceed">I’m sure</button>
     </div>
   </div>
+</div>
 
 <script>
-  // ---------- hearts (background ambience) ----------
-  function spawnHeart(x = Math.random()*innerWidth, y = innerHeight - 20, emoji="💖"){
-    const h = document.createElement("div");
+  // hearts ambience
+  setInterval(()=>{
+    const h=document.createElement("div");
     h.className="heart";
-    h.textContent = emoji;
-    h.style.left = x + "px";
-    h.style.top  = y + "px";
-    h.style.fontSize = (18 + Math.random()*22) + "px";
+    h.textContent = Math.random()>.5 ? "💖" : "💘";
+    h.style.left = (Math.random()*innerWidth)+"px";
+    h.style.top  = (innerHeight-20)+"px";
+    h.style.fontSize = (14+Math.random()*22)+"px";
     document.body.appendChild(h);
-    setTimeout(()=>h.remove(), 2300);
-  }
-  const heartsInterval = setInterval(()=>spawnHeart(), 260);
+    setTimeout(()=>h.remove(), 2400);
+  }, 260);
 
-  // ---------- NO button runs away + fades out + disappears ----------
   const noBtn = document.getElementById("noBtn");
-  let noDodges = 0;
+  const yesBtn = document.getElementById("yesBtn");
+  const fill = document.getElementById("fill");
+  const modal = document.getElementById("modal");
+  const mTitle = document.getElementById("mTitle");
+  const mText  = document.getElementById("mText");
+  const mBack  = document.getElementById("mBack");
+  const mProceed = document.getElementById("mProceed");
 
-  function moveNo(){
-    noDodges++;
-    const pad = 14;
+  let dodges = 0;
+  let meter = 5;
+  let stage = 0;
+
+  function updateMeter(){
+    fill.style.width = Math.min(100, meter) + "%";
+  }
+
+  function yeetNo(){
+    dodges++;
+    meter += 14;
+    updateMeter();
+
+    // make YES grow a bit too
+    const grow = 1 + dodges * 0.06;
+    yesBtn.style.transform = `scale(${grow})`;
+
+    // move NO somewhere random inside the viewport
+    const pad = 16;
     const w = noBtn.offsetWidth;
     const h = noBtn.offsetHeight;
     const x = pad + Math.random()*(innerWidth - w - pad*2);
     const y = pad + Math.random()*(innerHeight - h - pad*2);
     noBtn.style.left = x + "px";
     noBtn.style.top  = y + "px";
+    noBtn.style.transform = "none";
 
-    // make it progressively more doomed
-    const scale = Math.max(0.55, 1 - noDodges*0.08);
-    const op    = Math.max(0.08, 1 - noDodges*0.14);
-    noBtn.style.transform = `scale(${scale})`;
-    noBtn.style.opacity = op;
-
-    if(noDodges >= 6){
-      noBtn.style.pointerEvents = "none";
+    // after enough dodges: fade out and vanish
+    if(dodges >= 6){
       noBtn.style.opacity = "0";
-      setTimeout(()=> noBtn.remove(), 400);
+      noBtn.style.pointerEvents = "none";
+      setTimeout(()=> noBtn.remove(), 450);
     }
-  }
-  noBtn.addEventListener("mouseenter", moveNo);
-  noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNo(); }, {passive:false});
 
-  // ---------- YES click -> cutscene ----------
-  const yesBtn = document.getElementById("yesBtn");
-  const home = document.getElementById("home");
-  const cutscene = document.getElementById("cutscene");
-  const niloo = document.getElementById("niloo");
-
-  // Sprite sheet math for YOUR 1024x1536 sheet (2 cols x 3 rows, frame 512)
-  const SHEET_W = 1024, SHEET_H = 1536;
-  const COLS = 2, ROWS = 3;
-  const FRAME_W = SHEET_W / COLS; // 512
-  const FRAME_H = SHEET_H / ROWS; // 512
-
-  // A “storyboard” path through frames (x,y): pour -> write -> wink -> jump -> spin -> blush -> cheer
-  // This assumes your sprite sheet’s key actions are arranged sensibly in those 6 slots.
-  // If your actions are in a different order, tell me and I’ll remap these coords.
-  const storyboard = [
-    [0,0], // pour
-    [1,0], // write
-    [0,1], // wink/hold cup (or next action)
-    [1,1], // jump/spin (or next)
-    [0,2], // blush/shy
-    [1,2], // happy/cheer
-  ];
-
-  function setFrame(x,y){
-    niloo.style.backgroundPosition = `-${x*FRAME_W}px -${y*FRAME_H}px`;
-  }
-
-  function fireworksBurst(count=26){
-    for(let i=0;i<count;i++){
-      const f = document.createElement("div");
-      f.className="firework";
-      f.textContent = "🎆";
-      f.style.left = (Math.random()*innerWidth) + "px";
-      f.style.top  = (Math.random()*innerHeight) + "px";
-      document.body.appendChild(f);
-      setTimeout(()=>f.remove(), 1200);
+    // occasionally show the ridiculous confirmation modal
+    if(dodges === 2 || dodges === 4){
+      openModal();
     }
   }
 
-  function heartsExplosion(){
-    const cx = innerWidth/2, cy = innerHeight/2;
-    for(let i=0;i<55;i++){
-      spawnHeart(cx + (Math.random()*60-30), cy + (Math.random()*30-15), Math.random()>.5 ? "💘" : "💖");
+  function openModal(){
+    stage++;
+    modal.style.display = "grid";
+    if(stage === 1){
+      mTitle.textContent = "Are you sure? 😶";
+      mText.textContent = "Niloo is currently drafting a legal romance document.";
+    } else if(stage === 2){
+      mTitle.textContent = "Final confirmation. ⚖️";
+      mText.textContent = "Choosing 'No' triggers the Sicilian heartbreak protocol.";
+    } else {
+      mTitle.textContent = "Okay wow.";
+      mText.textContent = "At this point the No button is filing for witness protection.";
     }
   }
 
-  function playCutscene(){
-    // Start at first frame
-    setFrame(storyboard[0][0], storyboard[0][1]);
+  mBack.onclick = ()=>{ modal.style.display="none"; };
+  mProceed.onclick = ()=>{
+    modal.style.display="none";
+    yeetNo();
+  };
 
-    let i = 0;
-    const stepMs = 650; // pacing
-    const timer = setInterval(()=>{
-      i++;
-      if(i >= storyboard.length){
-        clearInterval(timer);
-        return;
-      }
-      setFrame(storyboard[i][0], storyboard[i][1]);
-    }, stepMs);
+  noBtn.addEventListener("mouseenter", yeetNo);
+  noBtn.addEventListener("click", yeetNo);
 
-    // Cinematic punch-in right when the cup is “written” (tune if you want)
-    setTimeout(()=> document.body.classList.add("zoomed"), 1200);
-    setTimeout(()=> heartsExplosion(), 1700);
-    setTimeout(()=> fireworksBurst(30), 2300);
-
-    // Fake iPhone notif + receipt + optional contract proof
-    setTimeout(()=> document.getElementById("phone").style.display="block", 2600);
-    setTimeout(()=> document.getElementById("receipt").style.display="block", 3200);
-
-    // If contract.jpg exists it will show; if not, it’ll just be a broken image *unless we hide it*
-    // We’ll detect load error and hide automatically:
-    const img = document.querySelector("#contractWrap img");
-    if(img){
-      img.onload = ()=> setTimeout(()=> document.getElementById("contractWrap").style.display="block", 3600);
-      img.onerror = ()=> document.getElementById("contractWrap").style.display="none";
+  // Secret cheat code
+  let typed = "";
+  window.addEventListener("keydown", (e)=>{
+    typed += (e.key || "").toLowerCase();
+    typed = typed.slice(-10);
+    if(typed.includes("niloo")){
+      yesBtn.click();
     }
-  }
-
-  yesBtn.addEventListener("click", ()=>{
-    // fade home out
-    home.classList.add("fadeOut");
-    setTimeout(()=>{
-      home.style.display="none";
-      cutscene.style.display="grid";
-      // stop hearts interval? keep it for ambience, but slightly calmer:
-      // (leave it running—it's cute)
-      playCutscene();
-    }, 520);
   });
 
-  // ---------- Download receipt as PDF ----------
-  document.getElementById("downloadPdf").addEventListener("click", ()=>{
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({unit:"pt", format:"a4"});
-    const margin = 42;
+  // YES click (you can replace this with your cutscene later)
+  yesBtn.onclick = ()=>{
+    document.getElementById("card").innerHTML =
+      `<h1 style="font-family:Great Vibes; color:#ff2d55; font-size:clamp(50px,6vw,90px); margin:12px 0;">Correct choice 😌💘</h1>
+       <p style="opacity:.8; font-size:16px;">Loading your Valentine rewards…</p>
+       <p style="font-size:22px;">☕💖🎆</p>`;
+  };
 
-    doc.setFont("courier", "normal");
-    doc.setFontSize(14);
-    doc.text("STARBUCKS RECEIPT  ☕", margin, 72);
-
-    doc.setLineDash([4,4], 0);
-    doc.line(margin, 86, 540, 86);
-    doc.setLineDash([], 0);
-
-    doc.setFontSize(12);
-    const lines = [
-      "Order: Grande Love Latte",
-      "Customer: ANGELO 💘",
-      "Barista: Niloo (Angelo’s Favorite Barista)",
-      "",
-      "Message:",
-      "“Angelo — you are amazing!! Love, Niloo”",
-      "",
-      "Extras:",
-      " - Extra Foam: YES",
-      " - Extra Love: ALWAYS",
-      " - Extra Chaos: MAXIMUM",
-      "",
-      "Total: Your Heart 💞",
-      "",
-      "*Valid under Sicilian, Kansas, and Internet Law."
-    ];
-
-    let y = 118;
-    lines.forEach(line=>{
-      doc.text(line, margin, y);
-      y += 18;
-    });
-
-    doc.save("Starbucks_Receipt_Angelo_Niloo.pdf");
-  });
-
-  // Keep NO from going off-screen on resize
-  addEventListener("resize", ()=>{
-    if(noBtn && document.body.contains(noBtn)) moveNo();
-  });
+  updateMeter();
 </script>
 </body>
 </html>
+
