@@ -3,12 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Valentine Contract 💘</title>
+  <title>Angelo Valentine Agreement 💘</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <!-- jsPDF + html2canvas (for graphic PDF export of receipt) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
     :root{
@@ -17,19 +20,20 @@
       --hot:#ff2d55;
       --shadow: 0 18px 45px rgba(0,0,0,.25);
       --card: rgba(255,255,255,.92);
+      --ink: #111;
     }
+
     html, body { height:100%; margin:0; }
     body{
       overflow:hidden;
       background: radial-gradient(var(--pink1), var(--pink2));
       font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:#111;
+      color: var(--ink);
     }
 
-    /* wrappers / panels */
     .wrap{ position:fixed; inset:0; display:grid; place-items:center; padding:18px; }
     .panel{
-      width:min(900px, 94vw);
+      width:min(920px, 94vw);
       max-height: calc(100vh - 36px);
       overflow:auto;
       background: var(--card);
@@ -40,7 +44,7 @@
       position:relative;
     }
 
-    /* headline question */
+    /* Question */
     #question{
       font-family: "Great Vibes", cursive;
       font-size: clamp(44px, 6vw, 92px);
@@ -52,13 +56,13 @@
     }
     #sub{ margin:0 0 18px; opacity:.75; font-size:15px; min-height:1.2em; }
 
-    /* buttons */
-    .row{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top: 10px; }
+    /* Buttons */
+    .row{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top: 12px; }
     button{
       border:0; cursor:pointer; border-radius:999px;
       font-weight:900;
       box-shadow: 0 12px 24px rgba(0,0,0,.16);
-      transition: transform .15s ease, opacity .2s ease;
+      transition: transform .15s ease, opacity .2s ease, filter .2s ease;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -73,12 +77,11 @@
       filter: drop-shadow(0 0 16px rgba(255,255,255,.55));
     }
 
-    /* question buttons hidden until typing completes */
     #btnRow{
       opacity:0;
       pointer-events:none;
       transform: translateY(10px);
-      transition: opacity .5s ease, transform .5s ease;
+      transition: opacity .6s ease, transform .6s ease;
     }
     #btnRow.ready{
       opacity:1;
@@ -86,7 +89,6 @@
       transform: translateY(0);
     }
 
-    /* NO button */
     #noBtn{
       font-size: 18px;
       padding: 12px 18px;
@@ -95,7 +97,7 @@
       position: fixed;
       left: 60%;
       top: 72%;
-      z-index: 20;
+      z-index: 50;
       opacity:0;
       pointer-events:none;
       transform: scale(1);
@@ -103,8 +105,17 @@
     }
     #noBtn.ready{ opacity:1; pointer-events:auto; }
 
-    /* loading line */
-    #loadingLine{ font-size:18px; opacity:.85; min-height:1.6em; margin: 10px 0 6px; }
+    .miniBtn{
+      padding: 12px 16px;
+      font-size: 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.88);
+      color:#fff;
+      box-shadow: 0 12px 24px rgba(0,0,0,.18);
+    }
+
+    /* Loading line */
+    #loadingLine{ font-size:18px; opacity:.9; min-height:1.6em; margin: 10px 0 10px; }
     .dots::after{ content:""; animation:dots 1.2s steps(4,end) infinite; }
     @keyframes dots{ 0%{content:""} 25%{content:"."} 50%{content:".."} 75%{content:"..."} 100%{content:""} }
 
@@ -112,7 +123,7 @@
     #stamp{
       display:none;
       position:relative;
-      margin: 6px auto 0;
+      margin: 8px auto 0;
       width: fit-content;
       padding: 12px 20px;
       border: 10px solid #1bb24a;
@@ -125,89 +136,53 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       opacity:0;
+      transform: rotate(-10deg) scale(1);
     }
-    .stampIn{ animation: stampIn .7s cubic-bezier(.2,1.4,.2,1) forwards; }
+    .stampIn{ animation: stampIn .75s cubic-bezier(.2,1.4,.2,1) forwards; }
     @keyframes stampIn{
       0%{ opacity:0; transform: rotate(-10deg) scale(2); }
       65%{ opacity:1; transform: rotate(-10deg) scale(1); }
       100%{ opacity:1; transform: rotate(-10deg) scale(1); }
     }
 
-    /* heart photo */
-    #photoWrap{
-      width:min(440px, 80vw);
-      aspect-ratio:1/1;
-      margin: 18px auto 10px;
-      position:relative;
-      filter: drop-shadow(0 18px 38px rgba(0,0,0,.25));
-      display:none;
-    }
-    #heart{
-      width:100%; height:100%;
-      clip-path: path("M 210 380 C 130 320 40 250 40 160 C 40 95 85 55 140 55 C 175 55 200 75 210 95 C 220 75 245 55 280 55 C 335 55 380 95 380 160 C 380 250 290 320 210 380 Z");
-      overflow:hidden;
-      background:#fff;
-      position:relative;
-    }
-    #contractPhoto{ width:100%; height:100%; object-fit:cover; transform: scale(1.03); }
-    #glitter{
-      position:absolute; inset:-14px;
-      clip-path: path("M 210 380 C 130 320 40 250 40 160 C 40 95 85 55 140 55 C 175 55 200 75 210 95 C 220 75 245 55 280 55 C 335 55 380 95 380 160 C 380 250 290 320 210 380 Z");
-      pointer-events:none;
-      border: 16px solid rgba(255,105,180,.55);
-      box-shadow: inset 0 0 0 6px rgba(255,255,255,.65);
-      background:
-        radial-gradient(circle at 15% 25%, rgba(255,255,255,.85) 0 2px, rgba(255,255,255,0) 3px),
-        radial-gradient(circle at 55% 15%, rgba(255,255,255,.75) 0 2px, rgba(255,255,255,0) 3px),
-        radial-gradient(circle at 80% 45%, rgba(255,255,255,.75) 0 2px, rgba(255,255,255,0) 3px),
-        radial-gradient(circle at 25% 75%, rgba(255,255,255,.8) 0 2px, rgba(255,255,255,0) 3px),
-        radial-gradient(circle at 70% 82%, rgba(255,255,255,.75) 0 2px, rgba(255,255,255,0) 3px),
-        repeating-linear-gradient(45deg, rgba(255,255,255,.10) 0 8px, rgba(255,105,180,.16) 8px 16px);
-      animation: sparkle 1.45s linear infinite;
-      opacity:.95;
-    }
-    @keyframes sparkle{
-      0%{ filter: brightness(1) saturate(1.05); }
-      50%{ filter: brightness(1.28) saturate(1.28); }
-      100%{ filter: brightness(1) saturate(1.05); }
+    /* Contract photo (plain rectangle) */
+    #photoWrap{ display:none; margin: 16px auto 6px; }
+    #contractPhotoPlain{
+      width:min(760px, 92vw);
+      max-width: 100%;
+      border-radius: 22px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.22);
+      display:block;
+      margin: 0 auto;
     }
 
-   .toastCenter{
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0,0,0,.88);
-  color: #fff;
-  padding: 18px 18px;
-  border-radius: 18px;
-  font-size: 16px;
-  font-weight: 800;
-  box-shadow: 0 18px 45px rgba(0,0,0,.35);
-  z-index: 999;
-  max-width: min(680px, 92vw);
-  text-align: center;
-  opacity: 0;
-  animation: toastCenterIn 3.4s ease forwards;
-}
-
-@keyframes toastCenterIn{
-  0%{ opacity:0; transform: translate(-50%, -50%) scale(.96); }
-  12%{ opacity:1; transform: translate(-50%, -50%) scale(1); }
-  86%{ opacity:1; }
-  100%{ opacity:0; }
-}
-function toastCenter(message){
-  const t = document.createElement("div");
-  t.className = "toastCenter";
-  t.innerHTML = message;
-  document.body.appendChild(t);
-  setTimeout(()=> t.remove(), 3400 * SPEED);
-}
-
+    /* Center popups (big + dramatic) */
+    .toastCenter{
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,.88);
+      color: #fff;
+      padding: 20px 20px;
+      border-radius: 20px;
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 18px 55px rgba(0,0,0,.38);
+      z-index: 9999;
+      max-width: min(720px, 92vw);
+      text-align: center;
+      opacity: 0;
+      animation: toastCenterIn 3.6s ease forwards;
+    }
+    @keyframes toastCenterIn{
+      0%{ opacity:0; transform: translate(-50%, -50%) scale(.96); }
+      12%{ opacity:1; transform: translate(-50%, -50%) scale(1); }
+      86%{ opacity:1; }
+      100%{ opacity:0; }
     }
 
-    /* Niloo bounce */
+    /* Niloo */
     #nilooImg{
       width:min(320px, 70vw);
       filter: drop-shadow(0 18px 30px rgba(0,0,0,.22));
@@ -217,10 +192,16 @@ function toastCenter(message){
     }
     @keyframes bounce{ from{transform:translateY(0)} to{transform:translateY(-14px)} }
 
-    /* receipt */
-    #receipt{
+    /* Print area wrapper (receipt + cup art) */
+    #printArea{
+      width:min(560px, 92vw);
       margin: 14px auto 0;
-      width:min(540px, 92vw);
+    }
+
+    /* Torn receipt styling */
+    #receipt{
+      margin: 0 auto;
+      width: 100%;
       background: #fffdf7;
       border-radius: 18px;
       box-shadow: 0 12px 24px rgba(0,0,0,.16);
@@ -229,10 +210,26 @@ function toastCenter(message){
       text-align:left;
       position:relative;
       overflow:hidden;
+      background-image: linear-gradient(rgba(0,0,0,.02) 1px, transparent 1px);
+      background-size: 100% 22px;
     }
+    #receipt::before,
+    #receipt::after{
+      content:"";
+      position:absolute;
+      left:0; right:0;
+      height:18px;
+      background:
+        radial-gradient(circle at 10px 9px, transparent 9px, #fffdf7 10px) left/20px 18px repeat-x;
+      pointer-events:none;
+    }
+    #receipt::before{ top:-9px; }
+    #receipt::after { bottom:-9px; transform: rotate(180deg); }
+
     #receiptPrint{ height:0; overflow:hidden; }
     .printing #receiptPrint{ animation: print 2.8s ease-out forwards; }
     @keyframes print{ to{ height: 560px; } }
+
     .rTitle{ font-weight:900; }
     .rSmall{ font-size:12px; opacity:.7; }
     .rHr{ border-top: 1px dashed rgba(0,0,0,.25); margin:10px 0; }
@@ -240,14 +237,7 @@ function toastCenter(message){
     .fadeInLater{ opacity:0; }
     .printing .fadeInLater{ animation: fadeIn 1.3s ease forwards; animation-delay: 2.8s; }
     @keyframes fadeIn{ to{opacity:1} }
-    #receipt::after{
-      content:""; position:absolute; left:0; right:0; bottom:-18px;
-      height:46px;
-      background: radial-gradient(closest-side, rgba(0,0,0,.10), rgba(0,0,0,0));
-      transform: rotate(1.5deg);
-      opacity:.35;
-      pointer-events:none;
-    }
+
     #pdfBtn{
       width:100%;
       margin-top:10px;
@@ -259,8 +249,17 @@ function toastCenter(message){
       font-size:14px;
     }
 
-    /* clauses */
-    #clauses{ margin: 10px auto 14px; width:min(660px,92vw); text-align:left; font-size:16px; opacity:.92; }
+    /* Cup art under receipt */
+    #cupArt{
+      width:min(320px, 70vw);
+      margin: 14px auto 0;
+      display:block;
+      border-radius: 18px;
+      box-shadow: 0 14px 30px rgba(0,0,0,.18);
+    }
+
+    /* Clauses (slower reveal) */
+    #clauses{ margin: 10px auto 14px; width:min(680px,92vw); text-align:left; font-size:16px; opacity:.92; }
     #clauses div{ margin:8px 0; opacity:0; transform:translateY(8px); }
     .showClauses #clauses div{ animation: clauseIn 1.35s ease forwards; }
     .showClauses #clauses div:nth-child(1){ animation-delay: 0.8s; }
@@ -268,16 +267,16 @@ function toastCenter(message){
     .showClauses #clauses div:nth-child(3){ animation-delay: 4.0s; }
     @keyframes clauseIn{ to{opacity:1; transform:translateY(0)} }
 
-    /* confetti + fireworks visuals */
-    .confetti{ position:fixed; pointer-events:none; animation: fall 2.6s linear forwards; opacity:.95; z-index: 70; }
+    /* Confetti + fireworks */
+    .confetti{ position:fixed; pointer-events:none; animation: fall 2.6s linear forwards; opacity:.95; z-index: 80; }
     @keyframes fall{
       from{transform:translateY(-20px) rotate(0) scale(1); opacity:1}
       to{transform:translateY(110vh) rotate(420deg) scale(1.1); opacity:0}
     }
-    .firework{ position:fixed; pointer-events:none; animation: boom 1.3s ease-out forwards; opacity:1; z-index:70; }
+    .firework{ position:fixed; pointer-events:none; animation: boom 1.3s ease-out forwards; opacity:1; z-index:80; }
     @keyframes boom{ from{transform:scale(.2); opacity:1} to{transform:scale(2.4); opacity:0} }
 
-    /* final photo */
+    /* Final photo + message */
     #finalPhoto{
       width:min(560px, 92vw);
       border-radius: 26px;
@@ -295,21 +294,11 @@ function toastCenter(message){
       min-height: 1.4em;
       white-space: pre-wrap;
     }
-
-    /* tiny helper buttons */
-    .miniBtn{
-      padding: 12px 16px;
-      font-size: 14px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.88);
-      color:#fff;
-      box-shadow: 0 12px 24px rgba(0,0,0,.18);
-    }
   </style>
 </head>
 
 <body>
-  <!-- BGM starts on coffee scene -->
+  <!-- Music (starts on first click anywhere) -->
   <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
 
   <!-- Scene 1: Question -->
@@ -317,10 +306,13 @@ function toastCenter(message){
     <div class="panel">
       <h1 id="question"></h1>
       <p id="sub"></p>
+
       <div class="row" id="btnRow">
         <button id="yesBtn">Sign Valentine Agreement ✍️</button>
       </div>
-      <div class="row" style="margin-top:14px;">
+
+      <div class="row">
+        <button class="miniBtn" id="musicToggle">Music: ON</button>
         <button class="miniBtn" id="sfxToggle">SFX: ON</button>
       </div>
     </div>
@@ -335,28 +327,14 @@ function toastCenter(message){
 
       <div id="stamp">APPROVED</div>
 
-     <div id="photoWrap" style="display:none;">
-  <img id="contractPhotoPlain" src="contract.jpg" alt="Contract signing photo"
-    style="
-      width:min(720px, 92vw);
-      max-width: 100%;
-      border-radius: 22px;
-      box-shadow: 0 18px 45px rgba(0,0,0,.22);
-      display:block;
-      margin: 14px auto 6px;
-    "
-  />
-</div>
-
+      <div id="photoWrap">
+        <img id="contractPhotoPlain" src="contract.jpg" alt="Contract signing photo">
+      </div>
 
       <div class="row" style="margin-top:10px;">
         <button id="toCoffeeBtn" style="display:none; font-size:18px; padding:14px 18px;">
           Redeem my Valentine’s Day coffee ☕
         </button>
-      </div>
-
-      <div class="row" style="margin-top:12px;">
-        <button class="miniBtn" id="musicToggleContract">Music: OFF</button>
       </div>
     </div>
   </div>
@@ -365,37 +343,40 @@ function toastCenter(message){
   <div class="wrap" id="sceneCoffee" style="display:none;">
     <div class="panel">
       <div style="font-weight:900; margin:0 0 10px;">Barista Niloo is pleased with your decision ☕💘</div>
-
       <img id="nilooImg" src="niloo.png" alt="Niloo barista">
 
-      <div id="receipt">
-        <div id="receiptPrint">
-          <div class="rRow">
-            <div class="rTitle">STARBUCKS RECEIPT ☕</div>
-            <div class="rSmall">#VAL-02014</div>
+      <div id="printArea">
+        <div id="receipt">
+          <div id="receiptPrint">
+            <div class="rRow">
+              <div class="rTitle">STARBUCKS RECEIPT</div>
+              <div class="rSmall">#VAL-02014</div>
+            </div>
+            <div class="rHr"></div>
+            Order: <b>Grande Love Latte</b><br>
+            Customer: <b>ANGELO</b><br>
+            Barista: <b>Niloo (Angelo’s Favorite Barista)</b><br>
+            <div class="rHr"></div>
+            Message:<br>
+            “<b>Angelo — You are amazing!!!</b>”<br>
+            <div class="rHr"></div>
+            Extras:
+            <ul style="margin:8px 0 0 18px;">
+              <li>Extra Foam: <b>YES</b></li>
+              <li>Extra Love: <b>ALWAYS</b></li>
+              <li>Lifetime Membership: <b>ACTIVE</b></li>
+            </ul>
+            Total: <b>Your Heart</b><br>
+            <div class="rHr"></div>
+            <b>Return policy:</b> absolutely not.
+            <div class="fadeInLater" style="margin-top:10px; font-weight:900;">
+              Best decision you’ve ever made.
+            </div>
           </div>
-          <div class="rHr"></div>
-          Order: <b>Grande Love Latte</b><br>
-          Customer: <b>ANGELO 💘</b><br>
-          Barista: <b>Niloo (Angelo’s Favorite Barista)</b><br>
-          <div class="rHr"></div>
-          Message:<br>
-          <b>Angelo — You are amazing!!</b><br>
-          <div class="rHr"></div>
-          Extras:
-          <ul style="margin:8px 0 0 18px;">
-            <li>Extra Foam: <b>YES</b></li>
-            <li>Extra Love: <b>ALWAYS</b></li>
-            <li>Lifetime Membership: <b>ACTIVE</b></li>
-          </ul>
-          Total: <b>Your Heart</b> 💞<br>
-          <div class="rHr"></div>
-          <b>Return policy:</b> absolutely not.
-          <div class="fadeInLater" style="margin-top:10px; font-weight:900;">
-            Best decision you’ve ever made.
-          </div>
+          <button id="pdfBtn">Download receipt as a cute printable PDF</button>
         </div>
-        <button id="pdfBtn">Download receipt as a cute printable PDF</button>
+
+        <img id="cupArt" src="angelocoffee.png" alt="Coffee cup message">
       </div>
 
       <div class="row" style="margin-top:14px;">
@@ -404,8 +385,8 @@ function toastCenter(message){
         </button>
       </div>
 
-      <div class="row" style="margin-top:12px;">
-        <button class="miniBtn" id="musicToggle">Music: ON</button>
+      <div class="row">
+        <button class="miniBtn" id="musicToggle2">Music: ON</button>
         <button class="miniBtn" id="sfxToggle2">SFX: ON</button>
       </div>
     </div>
@@ -415,6 +396,7 @@ function toastCenter(message){
   <div class="wrap" id="sceneEnd" style="display:none;">
     <div class="panel" id="endPanel">
       <h2 style="margin:0 0 6px; font-weight:900;">Valentine Agreement Successfully Executed ✅</h2>
+
       <div id="clauses">
         <div>• This agreement auto-renews every year.</div>
         <div>• No cancellations. No refunds. Only kisses.</div>
@@ -422,11 +404,13 @@ function toastCenter(message){
       </div>
 
       <div class="row">
-        <button id="finalBtn" style="font-size:18px; padding:14px 18px;">Claim final reward 💝</button>
+        <button id="toFinalBtn" style="font-size:18px; padding:14px 18px;">
+          Proceed to final reward 💝
+        </button>
       </div>
 
-      <div class="row" style="margin-top:12px;">
-        <button class="miniBtn" id="musicToggleEnd">Music: ON</button>
+      <div class="row">
+        <button class="miniBtn" id="musicToggle3">Music: ON</button>
         <button class="miniBtn" id="sfxToggle3">SFX: ON</button>
       </div>
     </div>
@@ -437,12 +421,15 @@ function toastCenter(message){
     <div class="panel">
       <img id="finalPhoto" src="final.jpg" alt="Us 💘">
       <div id="finalText"></div>
-      <div class="row" style="margin-top:10px;">
-      <div class="row" style="margin-top:10px;">
-  <button class="miniBtn" id="songBtn">Play our song 🎶</button>
-  <button class="miniBtn" id="restartBtn">Restart (for replay 😌)</button>
-</div>
 
+      <div class="row" style="margin-top:10px;">
+        <button class="miniBtn" id="songBtn">Play our song 🎶</button>
+        <button class="miniBtn" id="restartBtn">Replay 😌</button>
+      </div>
+
+      <div class="row">
+        <button class="miniBtn" id="musicToggle4">Music: ON</button>
+        <button class="miniBtn" id="sfxToggle4">SFX: ON</button>
       </div>
     </div>
   </div>
@@ -450,25 +437,13 @@ function toastCenter(message){
 <script>
   // =========================================================
   // GLOBAL PACING
-  // Bigger = slower animations/timing feel.
   // =========================================================
-  const SPEED = 1.6; // try 1.4–2.0
+  const SPEED = 1.55;              // bigger = slower feel
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   const wait  = (ms) => sleep(ms * SPEED);
 
   // =========================================================
-  // TOAST
-  // =========================================================
-  function toast(message){
-    const t = document.createElement("div");
-    t.className = "toast";
-    t.innerHTML = message;
-    document.body.appendChild(t);
-    setTimeout(()=> t.remove(), 3200 * SPEED);
-  }
-
-  // =========================================================
-  // SCENES
+  // ELEMENTS
   // =========================================================
   const sceneQuestion = document.getElementById("sceneQuestion");
   const sceneContract = document.getElementById("sceneContract");
@@ -479,105 +454,86 @@ function toastCenter(message){
   const show = (el) => el.style.display = "grid";
   const hide = (el) => el.style.display = "none";
 
-  // =========================================================
-  // INTRO TYPEWRITER (append, don’t replace)
-  // =========================================================
   const questionEl = document.getElementById("question");
   const subEl      = document.getElementById("sub");
   const btnRow     = document.getElementById("btnRow");
+  const yesBtn     = document.getElementById("yesBtn");
   const noBtn      = document.getElementById("noBtn");
 
-  async function typeAppend(el, text, speed=65){
-    for(let i=0;i<text.length;i++){
-      el.textContent += text[i];
-      await wait(speed);
-    }
-  }
+  const loadingLine = document.getElementById("loadingLine");
+  const stampEl     = document.getElementById("stamp");
+  const photoWrap   = document.getElementById("photoWrap");
+  const toCoffeeBtn = document.getElementById("toCoffeeBtn");
 
-  (async ()=>{
-    questionEl.textContent = "";
-    await typeAppend(questionEl, "Angelo…", 95);
-    await wait(1100);
-    await typeAppend(questionEl, " will you be my Valentine? 💘", 65);
-    subEl.textContent = "Please respond with honesty and romantic compliance.";
-    btnRow.classList.add("ready");
-    noBtn.classList.add("ready");
-  })();
+  const receipt = document.getElementById("receipt");
+  const toEndBtn = document.getElementById("toEndBtn");
+  const endPanel = document.getElementById("endPanel");
+  const toFinalBtn = document.getElementById("toFinalBtn");
+
+  const finalPhoto = document.getElementById("finalPhoto");
+  const finalText  = document.getElementById("finalText");
 
   // =========================================================
-  // NO BUTTON DODGE (6 times), YES grows
+  // MUSIC (starts on first click anywhere)
   // =========================================================
-  const yesBtn = document.getElementById("yesBtn");
-  let dodges = 0;
-
-  function moveNo(){
-    dodges++;
-    yesBtn.style.transform = `scale(${1 + dodges * 0.07})`;
-
-    const pad = 14;
-    const w = noBtn.offsetWidth;
-    const h = noBtn.offsetHeight;
-    const x = pad + Math.random() * (innerWidth - w - pad*2);
-    const y = pad + Math.random() * (innerHeight - h - pad*2);
-    noBtn.style.left = x + "px";
-    noBtn.style.top  = y + "px";
-
-    const scale = Math.max(0.55, 1 - dodges*0.08);
-    const op    = Math.max(0.06, 1 - dodges*0.16);
-    noBtn.style.transform = `scale(${scale})`;
-    noBtn.style.opacity = op;
-
-    if(dodges >= 6){
-      noBtn.style.pointerEvents = "none";
-      noBtn.style.opacity = "0";
-      setTimeout(()=> noBtn.remove(), 350);
-      toast("No has left the chat.");
-    }
-  }
-  noBtn.addEventListener("mouseenter", moveNo);
-  noBtn.addEventListener("click", moveNo);
-  noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNo(); }, {passive:false});
-
-  // =========================================================
-  // AUDIO (SFX + BGM)
-  // =========================================================
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  let audioCtx;
-  let sfxOn = true;
-
   const bgm = document.getElementById("bgm");
   let musicOn = true;
-
-  function ensureAudio(){
-    if(!audioCtx) audioCtx = new AudioCtx();
-  }
 
   function startBgm(){
     if(!musicOn) return;
     try{
-      bgm.volume = 0.22;
+      // gentle fade-in
+      bgm.volume = 0;
       bgm.play().catch(()=>{});
+      let v = 0;
+      const fade = setInterval(()=>{
+        v += 0.02;
+        if(v >= 0.22){
+          bgm.volume = 0.22;
+          clearInterval(fade);
+        } else {
+          bgm.volume = v;
+        }
+      }, 120);
     }catch(e){}
   }
   function stopBgm(){
     try{ bgm.pause(); }catch(e){}
   }
 
-  function setSfx(on){
-    sfxOn = on;
-    document.getElementById("sfxToggle").textContent  = `SFX: ${on ? "ON" : "OFF"}`;
-    document.getElementById("sfxToggle2").textContent = `SFX: ${on ? "ON" : "OFF"}`;
-    document.getElementById("sfxToggle3").textContent = `SFX: ${on ? "ON" : "OFF"}`;
-  }
   function setMusic(on){
     musicOn = on;
-    document.getElementById("musicToggle").textContent        = `Music: ${on ? "ON" : "OFF"}`;
-    document.getElementById("musicToggleEnd").textContent     = `Music: ${on ? "ON" : "OFF"}`;
-    document.getElementById("musicToggleContract").textContent= `Music: ${on ? "ON" : "OFF"}`;
+    for(const id of ["musicToggle","musicToggle2","musicToggle3","musicToggle4"]){
+      const b = document.getElementById(id);
+      if(b) b.textContent = `Music: ${on ? "ON" : "OFF"}`;
+    }
     if(on) startBgm(); else stopBgm();
   }
 
-  // SFX primitives
+  // Start music on FIRST click anywhere (autoplay-safe)
+  window.addEventListener("pointerdown", () => {
+    startBgm();
+  }, { once:true });
+
+  // =========================================================
+  // SFX (WebAudio)
+  // =========================================================
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let audioCtx;
+  let sfxOn = true;
+
+  function ensureAudio(){
+    if(!audioCtx) audioCtx = new AudioCtx();
+  }
+
+  function setSfx(on){
+    sfxOn = on;
+    for(const id of ["sfxToggle","sfxToggle2","sfxToggle3","sfxToggle4"]){
+      const b = document.getElementById(id);
+      if(b) b.textContent = `SFX: ${on ? "ON" : "OFF"}`;
+    }
+  }
+
   function thunk(){
     if(!sfxOn) return;
     ensureAudio();
@@ -591,27 +547,7 @@ function toastCenter(message){
     gain.gain.exponentialRampToValueAtTime(0.45, t + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
     osc.connect(gain).connect(audioCtx.destination);
-    osc.start(t);
-    osc.stop(t + 0.18);
-  }
-
-  function yay(){
-    if(!sfxOn) return;
-    ensureAudio();
-    const t = audioCtx.currentTime;
-    const notes = [523.25, 659.25, 783.99]; // C5 E5 G5
-    notes.forEach((f, idx) => {
-      const osc = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      osc.type = "square";
-      osc.frequency.setValueAtTime(f, t + idx*0.06);
-      g.gain.setValueAtTime(0.0001, t + idx*0.06);
-      g.gain.exponentialRampToValueAtTime(0.11, t + idx*0.06 + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + idx*0.06 + 0.22);
-      osc.connect(g).connect(audioCtx.destination);
-      osc.start(t + idx*0.06);
-      osc.stop(t + idx*0.06 + 0.24);
-    });
+    osc.start(t); osc.stop(t + 0.18);
   }
 
   function coin(){
@@ -627,8 +563,26 @@ function toastCenter(message){
     g.gain.exponentialRampToValueAtTime(0.12, t + 0.01);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
     osc.connect(g).connect(audioCtx.destination);
-    osc.start(t);
-    osc.stop(t + 0.14);
+    osc.start(t); osc.stop(t + 0.14);
+  }
+
+  function yay(){
+    if(!sfxOn) return;
+    ensureAudio();
+    const t = audioCtx.currentTime;
+    const notes = [523.25, 659.25, 783.99];
+    notes.forEach((f, idx) => {
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = "square";
+      osc.frequency.setValueAtTime(f, t + idx*0.06);
+      g.gain.setValueAtTime(0.0001, t + idx*0.06);
+      g.gain.exponentialRampToValueAtTime(0.11, t + idx*0.06 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + idx*0.06 + 0.22);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(t + idx*0.06);
+      osc.stop(t + idx*0.06 + 0.24);
+    });
   }
 
   function printerBrrt(){
@@ -653,8 +607,7 @@ function toastCenter(message){
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.70);
 
     noise.connect(filter).connect(gain).connect(audioCtx.destination);
-    noise.start(t);
-    noise.stop(t + 0.75);
+    noise.start(t); noise.stop(t + 0.75);
   }
 
   function kiss(){
@@ -679,11 +632,9 @@ function toastCenter(message){
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
 
     src.connect(lp).connect(g).connect(audioCtx.destination);
-    src.start(t);
-    src.stop(t + 0.18);
+    src.start(t); src.stop(t + 0.18);
   }
 
-  // More firework-y boom (low thump + crackle)
   function fireworkBoom(){
     if(!sfxOn) return;
     ensureAudio();
@@ -723,27 +674,81 @@ function toastCenter(message){
     osc.start(t);   osc.stop(t + 0.36);
   }
 
-  // Toggles
-  document.getElementById("sfxToggle").addEventListener("click", ()=>setSfx(!sfxOn));
-  document.getElementById("sfxToggle2").addEventListener("click", ()=>setSfx(!sfxOn));
-  document.getElementById("sfxToggle3").addEventListener("click", ()=>setSfx(!sfxOn));
-
-  document.getElementById("musicToggle").addEventListener("click", ()=>setMusic(!musicOn));
-  document.getElementById("musicToggleEnd").addEventListener("click", ()=>setMusic(!musicOn));
-  document.getElementById("musicToggleContract").addEventListener("click", ()=>setMusic(!musicOn));
-
-  // initial UI label state
-  setSfx(true);
+  // wire toggles
+  for(const id of ["musicToggle","musicToggle2","musicToggle3","musicToggle4"]){
+    document.getElementById(id).addEventListener("click", ()=>setMusic(!musicOn));
+  }
+  for(const id of ["sfxToggle","sfxToggle2","sfxToggle3","sfxToggle4"]){
+    document.getElementById(id).addEventListener("click", ()=>setSfx(!sfxOn));
+  }
   setMusic(true);
+  setSfx(true);
 
   // =========================================================
-  // CONTRACT SCENE (loading → stamp → photo → toCoffee button)
+  // CENTER POPUP
   // =========================================================
-  const loadingLine = document.getElementById("loadingLine");
-  const stampEl     = document.getElementById("stamp");
-  const photoWrap   = document.getElementById("photoWrap");
-  const toCoffeeBtn = document.getElementById("toCoffeeBtn");
+  function toastCenter(message){
+    const t = document.createElement("div");
+    t.className = "toastCenter";
+    t.innerHTML = message;
+    document.body.appendChild(t);
+    setTimeout(()=> t.remove(), 3600 * SPEED);
+  }
 
+  // =========================================================
+  // TYPEWRITER INTRO
+  // =========================================================
+  async function typeAppend(el, text, speed=65){
+    for(let i=0;i<text.length;i++){
+      el.textContent += text[i];
+      await wait(speed);
+    }
+  }
+
+  (async ()=>{
+    questionEl.textContent = "";
+    await typeAppend(questionEl, "Angelo…", 95);
+    await wait(1100);
+    await typeAppend(questionEl, " will you be my Valentine? 💘", 65);
+    subEl.textContent = "Please respond with honesty and romantic compliance.";
+    btnRow.classList.add("ready");
+    noBtn.classList.add("ready");
+  })();
+
+  // =========================================================
+  // NO BUTTON DODGE
+  // =========================================================
+  let dodges = 0;
+  function moveNo(){
+    dodges++;
+    yesBtn.style.transform = `scale(${1 + dodges * 0.07})`;
+
+    const pad = 14;
+    const w = noBtn.offsetWidth;
+    const h = noBtn.offsetHeight;
+    const x = pad + Math.random() * (innerWidth - w - pad*2);
+    const y = pad + Math.random() * (innerHeight - h - pad*2);
+    noBtn.style.left = x + "px";
+    noBtn.style.top  = y + "px";
+
+    const scale = Math.max(0.55, 1 - dodges*0.08);
+    const op    = Math.max(0.06, 1 - dodges*0.16);
+    noBtn.style.transform = `scale(${scale})`;
+    noBtn.style.opacity = op;
+
+    if(dodges >= 6){
+      noBtn.style.pointerEvents = "none";
+      noBtn.style.opacity = "0";
+      setTimeout(()=> noBtn.remove(), 350);
+    }
+  }
+  noBtn.addEventListener("mouseenter", moveNo);
+  noBtn.addEventListener("click", moveNo);
+  noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNo(); }, {passive:false});
+
+  // =========================================================
+  // CONTRACT LOADING
+  // =========================================================
   function setLoading(text){
     loadingLine.textContent = text;
     loadingLine.classList.add("dots");
@@ -756,19 +761,25 @@ function toastCenter(message){
     hide(sceneQuestion);
     show(sceneContract);
 
-    // game-style suspense loading (longer + more steps)
+    photoWrap.style.display = "none";
+    stampEl.style.display = "none";
+    toCoffeeBtn.style.display = "none";
+
     const steps = [
       "Booting romantic compliance module",
       "Reviewing terms & conditions",
       "Verifying boyfriend status",
       "Cross-checking Sicilian servers",
       "Syncing Valentine credentials",
+      "Preparing APPROVAL stamp"
     ];
+
     let i = 0;
     setLoading(steps[i]);
 
-    const total = 5800; // longer tension (pre-multiplier)
+    const total = 5800;
     const stepTime = total / steps.length;
+
     const interval = setInterval(()=>{
       i++;
       if(i >= steps.length){ clearInterval(interval); return; }
@@ -786,60 +797,54 @@ function toastCenter(message){
     thunk();
     coin();
 
-    // show photo
-    await wait(900);
+    await wait(850);
     photoWrap.style.display = "block";
 
-    // legal popups
-    await wait(850);
-    toast("📸 Contract screenshot captured and sent to <b>Niloo</b>.");
-    await wait(1100);
-    toast("⚖️ Binding under <b>American</b>, <b>Italian</b>, and <b>Internet</b> Law.");
+    await wait(900);
+    toastCenter("📸 Contract screenshot captured and sent to <b>Niloo</b>.");
+    await wait(1200);
+    toastCenter("⚖️ Binding under <b>American</b>, <b>Italian</b>, and <b>Internet</b> Law.");
 
-    // wait for user to proceed
     await wait(900);
     toCoffeeBtn.style.display = "inline-block";
   }
-
-  // =========================================================
-  // COFFEE SCENE (starts BGM here)
-  // =========================================================
-  const receipt = document.getElementById("receipt");
-  const toEndBtn = document.getElementById("toEndBtn");
 
   function startCoffeeScene(){
     hide(sceneContract);
     show(sceneCoffee);
 
-    // Start BGM on coffee scene (user gesture click)
-    startBgm();
-
-    // receipt printing
+    receipt.classList.remove("printing");
+    void receipt.offsetWidth;
     receipt.classList.add("printing");
     printerBrrt();
-
-    // cute kissy sounds (optional)
-    setTimeout(()=>kiss(), 300);
-    setTimeout(()=>kiss(), 620);
+    setTimeout(()=>kiss(), 320);
+    setTimeout(()=>kiss(), 640);
   }
 
-  // =========================================================
-  // END SCENE
-  // =========================================================
-  const endPanel = document.getElementById("endPanel");
   function startEndScene(){
     hide(sceneCoffee);
     show(sceneEnd);
+    endPanel.classList.remove("showClauses");
+    void endPanel.offsetWidth;
     endPanel.classList.add("showClauses");
     celebrate();
   }
 
-  // =========================================================
-  // FINAL SCENE (photo animates in + typed message)
-  // =========================================================
-  const finalBtn   = document.getElementById("finalBtn");
-  const finalPhoto = document.getElementById("finalPhoto");
-  const finalText  = document.getElementById("finalText");
+  async function startFinalScene(){
+    hide(sceneEnd);
+    show(sceneFinal);
+
+    yay();
+    coin();
+
+    requestAnimationFrame(()=>{
+      finalPhoto.style.opacity = "1";
+      finalPhoto.style.transform = "translateY(0) scale(1)";
+    });
+
+    await wait(900);
+    typeFinalMessage();
+  }
 
   async function typeFinalMessage(){
     finalText.textContent = "";
@@ -850,35 +855,18 @@ function toastCenter(message){
     }
   }
 
-  async function startFinalScene(){
-    hide(sceneEnd);
-    show(sceneFinal);
-
-    // little reward sound
-    yay();
-    coin();
-
-    // animate photo in
-    requestAnimationFrame(()=>{
-      finalPhoto.style.opacity = "1";
-      finalPhoto.style.transform = "translateY(0) scale(1)";
-    });
-
-    await wait(900);
-    typeFinalMessage();
-  }
-
   // =========================================================
-  // CELEBRATION (visual + firework sound)
+  // CELEBRATION
   // =========================================================
   function spawnConfetti(){
     const c = document.createElement("div");
     c.className = "confetti";
-    const emojis = ["🎊","🎉","💖","💘","✨"];
-    c.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    const symbols = ["✦","✧","❀","❋","✺","✹"];
+    c.textContent = symbols[Math.floor(Math.random()*symbols.length)];
     c.style.left = (Math.random()*innerWidth) + "px";
     c.style.top  = "-10px";
-    c.style.fontSize = (18 + Math.random()*28) + "px";
+    c.style.fontSize = (16 + Math.random()*22) + "px";
+    c.style.filter = "drop-shadow(0 0 10px rgba(255,255,255,.35))";
     document.body.appendChild(c);
     setTimeout(()=> c.remove(), 2600);
   }
@@ -886,10 +874,12 @@ function toastCenter(message){
   function spawnFirework(){
     const f = document.createElement("div");
     f.className = "firework";
-    f.textContent = "🎆";
+    f.textContent = "✦";
     f.style.left = (Math.random()*innerWidth) + "px";
-    f.style.top  = (Math.random()*innerHeight) + "px";
-    f.style.fontSize = (38 + Math.random()*22) + "px";
+    f.style.top  = (Math.random()*innerHeight*0.8) + "px";
+    f.style.fontSize = (42 + Math.random()*22) + "px";
+    f.style.color = "rgba(255,255,255,.95)";
+    f.style.textShadow = "0 0 18px rgba(255,255,255,.65)";
     document.body.appendChild(f);
     setTimeout(()=> f.remove(), 1300);
   }
@@ -899,212 +889,76 @@ function toastCenter(message){
     const confTimer = setInterval(()=>{
       conf++;
       spawnConfetti();
-      if(conf > 90) clearInterval(confTimer);
+      if(conf > 95) clearInterval(confTimer);
     }, 60 * SPEED);
 
     let bursts = 0;
     const fwTimer = setInterval(()=>{
       bursts++;
-      for(let i=0;i<5;i++) spawnFirework();
+      for(let i=0;i<6;i++) spawnFirework();
       fireworkBoom();
-      if(bursts > 8) clearInterval(fwTimer);
+      if(bursts > 9) clearInterval(fwTimer);
     }, 520 * SPEED);
   }
 
   // =========================================================
-  // PDF Receipt (cute printable)
+  // PDF EXPORT (graphic capture of receipt + cup art)
   // =========================================================
-  
-document.getElementById("pdfBtn").addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  document.getElementById("pdfBtn").addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+    const printArea = document.getElementById("printArea");
 
-  const W = doc.internal.pageSize.getWidth();
-  const H = doc.internal.pageSize.getHeight();
+    const canvas = await html2canvas(printArea, {
+      backgroundColor: null,
+      scale: 2
+    });
 
-  // Background
-  doc.setFillColor(255, 243, 249);
-  doc.rect(0, 0, W, H, "F");
+    const imgData = canvas.toDataURL("image/png");
 
-  // Card
-  const cardX = 56, cardY = 64;
-  const cardW = W - cardX * 2;
-  const cardH = H - cardY * 2;
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    const W = pdf.internal.pageSize.getWidth();
+    const H = pdf.internal.pageSize.getHeight();
 
-  doc.setFillColor(255, 253, 247);
-  doc.roundedRect(cardX, cardY, cardW, cardH, 18, 18, "F");
+    const margin = 40;
+    const maxW = W - margin * 2;
+    const maxH = H - margin * 2;
 
-  doc.setDrawColor(255, 105, 180);
-  doc.setLineWidth(2);
-  doc.roundedRect(cardX, cardY, cardW, cardH, 18, 18, "S");
+    const imgW = canvas.width;
+    const imgH = canvas.height;
 
-  // Header band
-  doc.setFillColor(255, 105, 180);
-  doc.roundedRect(cardX, cardY, cardW, 62, 18, 18, "F");
+    const ratio = Math.min(maxW / imgW, maxH / imgH);
+    const drawW = imgW * ratio;
+    const drawH = imgH * ratio;
 
-  // Title
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.text("STARBUCKS RECEIPT", cardX + 18, cardY + 38);
+    const x = (W - drawW) / 2;
+    const y = (H - drawH) / 2;
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.text("#VAL-02014", cardX + cardW - 18, cardY + 38, { align: "right" });
+    pdf.addImage(imgData, "PNG", x, y, drawW, drawH);
+    pdf.save("Angelo_Receipt_Printable.pdf");
+  });
 
-  // Little vector heart
-  function drawHeart(cx, cy, size) {
-    // Simple heart built from curves
-    const s = size;
-    doc.setFillColor(255, 105, 180);
-    doc.setDrawColor(255, 105, 180);
-    doc.setLineWidth(1);
+  // =========================================================
+  // SONG BUTTON (final scene)
+  // =========================================================
+  document.getElementById("songBtn").addEventListener("click", ()=>{
+    window.open("https://www.youtube.com/watch?v=rLoGGMbF-YQ", "_blank", "noopener,noreferrer");
+  });
 
-    // Two circles-ish + triangle-ish bottom using bezier curves
-    doc.path([
-      { op: "m", c: [cx, cy + s * 0.35] },
-      { op: "c", c: [cx - s * 0.9, cy - s * 0.25, cx - s * 0.55, cy - s * 1.05, cx, cy - s * 0.55] },
-      { op: "c", c: [cx + s * 0.55, cy - s * 1.05, cx + s * 0.9, cy - s * 0.25, cx, cy + s * 0.35] },
-      { op: "l", c: [cx, cy + s * 1.05] },
-      { op: "z" }
-    ], "F");
-  }
-
-  // Hearts row (instead of emojis)
-  const heartsY = cardY + 96;
-  const midX = cardX + cardW / 2;
-  const gap = 34;
-  drawHeart(midX - gap * 2, heartsY, 12);
-  drawHeart(midX - gap,     heartsY, 12);
-  drawHeart(midX,           heartsY, 12);
-  drawHeart(midX + gap,     heartsY, 12);
-  drawHeart(midX + gap * 2, heartsY, 12);
-
-  // Body
-  let y = cardY + 135;
-  const left = cardX + 26;
-  const right = cardX + cardW - 26;
-
-  doc.setTextColor(20, 20, 20);
-
-  doc.setFont("courier", "bold");
-  doc.setFontSize(12);
-  doc.text("Order:", left, y);
-  doc.setFont("courier", "normal");
-  doc.text("Grande Love Latte", left + 70, y);
-  y += 20;
-
-  doc.setFont("courier", "bold");
-  doc.text("Customer:", left, y);
-  doc.setFont("courier", "normal");
-  doc.text("ANGELO", left + 90, y);
-  y += 20;
-
-  doc.setFont("courier", "bold");
-  doc.text("Barista:", left, y);
-  doc.setFont("courier", "normal");
-  doc.text("Niloo (favorite barista)", left + 80, y);
-  y += 24;
-
-  // Divider
-  doc.setDrawColor(160, 160, 160);
-  doc.setLineWidth(1);
-  doc.setLineDash([4, 4], 0);
-  doc.line(left, y, right, y);
-  doc.setLineDash([], 0);
-  y += 28;
-
-  // Message label
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.setTextColor(255, 45, 85);
-  doc.text("Message:", left, y);
-  y += 28;
-
-  // Message box
-  doc.setFillColor(255, 248, 252);
-  doc.setDrawColor(255, 105, 180);
-  doc.setLineWidth(1.5);
-  doc.roundedRect(left, y, (right - left), 96, 14, 14, "FD");
-
-  // Message text (no emoji)
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.setTextColor(25, 25, 25);
-  doc.text("Angelo — You are amazing!!!", cardX + cardW / 2, y + 56, { align: "center" });
-
-  y += 118;
-
-  // Extras
-  doc.setFont("courier", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(20, 20, 20);
-  doc.text("Extras:", left, y); y += 18;
-
-  doc.setFont("courier", "normal");
-  doc.text("• Extra Foam: YES", left, y); y += 16;
-  doc.text("• Extra Love: ALWAYS", left, y); y += 16;
-  doc.text("• Lifetime Membership: ACTIVE", left, y); y += 22;
-
-  // Divider
-  doc.setDrawColor(160, 160, 160);
-  doc.setLineDash([4, 4], 0);
-  doc.line(left, y, right, y);
-  doc.setLineDash([], 0);
-  y += 22;
-
-  // Total / return policy (no emoji)
-  doc.setFont("courier", "bold");
-  doc.text("Total:", left, y);
-  doc.setFont("courier", "normal");
-  doc.text("Your Heart", left + 60, y);
-  y += 18;
-
-  doc.setFont("courier", "bold");
-  doc.text("Return policy:", left, y);
-  doc.setFont("courier", "normal");
-  doc.text("absolutely not.", left + 110, y);
-  y += 34;
-
-  // Footer
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.setTextColor(255, 45, 85);
-  doc.text("Best decision you’ve ever made.", cardX + cardW / 2, y, { align: "center" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(90, 90, 90);
-  doc.text("Valid under American, Italian, and Internet Law.", cardX + cardW / 2, H - 88, { align: "center" });
-
-  // Corner heart stamp (vector)
-  drawHeart(cardX + cardW - 26, cardY + cardH - 28, 14);
-
-  doc.save("Angelo_Receipt_Printable.pdf");
-});
-
+  // Replay
+  document.getElementById("restartBtn").addEventListener("click", ()=>location.reload());
 
   // =========================================================
   // BUTTON WIRING
   // =========================================================
-  document.getElementById("toCoffeeBtn").addEventListener("click", startCoffeeScene);
-  document.getElementById("toEndBtn").addEventListener("click", startEndScene);
-  finalBtn.addEventListener("click", startFinalScene);
-
-  // Start contract on YES click (also unlock audio context)
   yesBtn.addEventListener("click", ()=>{
     ensureAudio();
     yay();
     startContractScene();
   });
 
-  // Song button (direct link you provided earlier)
-  document.getElementById("songBtn").addEventListener("click", ()=>{
-    window.open("https://www.youtube.com/watch?v=rLoGGMbF-YQ", "_blank", "noopener,noreferrer");
-  });
-
-  // Restart (simple reload)
-  document.getElementById("restartBtn").addEventListener("click", ()=>location.reload());
+  toCoffeeBtn.addEventListener("click", startCoffeeScene);
+  toEndBtn.addEventListener("click", startEndScene);
+  toFinalBtn.addEventListener("click", startFinalScene);
 </script>
 </body>
 </html>
