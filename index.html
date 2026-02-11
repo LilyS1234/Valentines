@@ -172,21 +172,39 @@
       100%{ filter: brightness(1) saturate(1.05); }
     }
 
-    /* toast */
-    .toast{
-      position:fixed; left:50%; top:14px; transform:translateX(-50%);
-      background: rgba(0,0,0,.88); color:#fff;
-      padding: 12px 14px; border-radius: 16px; font-size:13px;
-      box-shadow: var(--shadow);
-      z-index: 80; opacity:0;
-      animation: toastIn 3.2s ease forwards;
-      max-width: min(560px, 92vw);
-    }
-    @keyframes toastIn{
-      0%{ opacity:0; transform: translateX(-50%) translateY(-8px); }
-      12%{ opacity:1; transform: translateX(-50%) translateY(0); }
-      86%{ opacity:1; }
-      100%{ opacity:0; }
+   .toastCenter{
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,.88);
+  color: #fff;
+  padding: 18px 18px;
+  border-radius: 18px;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: 0 18px 45px rgba(0,0,0,.35);
+  z-index: 999;
+  max-width: min(680px, 92vw);
+  text-align: center;
+  opacity: 0;
+  animation: toastCenterIn 3.4s ease forwards;
+}
+
+@keyframes toastCenterIn{
+  0%{ opacity:0; transform: translate(-50%, -50%) scale(.96); }
+  12%{ opacity:1; transform: translate(-50%, -50%) scale(1); }
+  86%{ opacity:1; }
+  100%{ opacity:0; }
+}
+function toastCenter(message){
+  const t = document.createElement("div");
+  t.className = "toastCenter";
+  t.innerHTML = message;
+  document.body.appendChild(t);
+  setTimeout(()=> t.remove(), 3400 * SPEED);
+}
+
     }
 
     /* Niloo bounce */
@@ -362,7 +380,7 @@
           Barista: <b>Niloo (Angelo’s Favorite Barista)</b><br>
           <div class="rHr"></div>
           Message:<br>
-          “<b>Angelo — You are amazing!!</b><br>
+          <b>Angelo — You are amazing!!</b><br>
           <div class="rHr"></div>
           Extras:
           <ul style="margin:8px 0 0 18px;">
@@ -404,7 +422,6 @@
       </div>
 
       <div class="row">
-        <button id="songBtn" class="miniBtn">Play our song 🎶</button>
         <button id="finalBtn" style="font-size:18px; padding:14px 18px;">Claim final reward 💝</button>
       </div>
 
@@ -421,7 +438,11 @@
       <img id="finalPhoto" src="final.jpg" alt="Us 💘">
       <div id="finalText"></div>
       <div class="row" style="margin-top:10px;">
-        <button class="miniBtn" id="restartBtn">Restart (for replay 😌)</button>
+      <div class="row" style="margin-top:10px;">
+  <button class="miniBtn" id="songBtn">Play our song 🎶</button>
+  <button class="miniBtn" id="restartBtn">Restart (for replay 😌)</button>
+</div>
+
       </div>
     </div>
   </div>
