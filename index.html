@@ -894,28 +894,25 @@
   // PDF Receipt (cute printable)
   // =========================================================
   
-document.getElementById("pdfBtn").addEventListener("click", ()=>{
+document.getElementById("pdfBtn").addEventListener("click", () => {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit:"pt", format:"a4" });
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
 
-  // Page helpers
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
 
   // Background
-  doc.setFillColor(255, 243, 249); // very light pink
+  doc.setFillColor(255, 243, 249);
   doc.rect(0, 0, W, H, "F");
 
-  // Receipt card
+  // Card
   const cardX = 56, cardY = 64;
-  const cardW = W - cardX*2;
-  const cardH = H - cardY*2;
+  const cardW = W - cardX * 2;
+  const cardH = H - cardY * 2;
 
-  // Card fill
-  doc.setFillColor(255, 253, 247); // warm paper
+  doc.setFillColor(255, 253, 247);
   doc.roundedRect(cardX, cardY, cardW, cardH, 18, 18, "F");
 
-  // Card border
   doc.setDrawColor(255, 105, 180);
   doc.setLineWidth(2);
   doc.roundedRect(cardX, cardY, cardW, cardH, 18, 18, "S");
@@ -925,26 +922,49 @@ document.getElementById("pdfBtn").addEventListener("click", ()=>{
   doc.roundedRect(cardX, cardY, cardW, 62, 18, 18, "F");
 
   // Title
-  doc.setTextColor(255,255,255);
+  doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.text("STARBUCKS RECEIPT ☕", cardX + 18, cardY + 38);
+  doc.text("STARBUCKS RECEIPT", cardX + 18, cardY + 38);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
-  doc.text("#VAL-02014", cardX + cardW - 18, cardY + 38, { align:"right" });
+  doc.text("#VAL-02014", cardX + cardW - 18, cardY + 38, { align: "right" });
 
-  // Cute hearts row
-  doc.setTextColor(255, 105, 180);
-  doc.setFontSize(14);
-  doc.text("💖   💘   💖   💘   💖", cardX + cardW/2, cardY + 92, { align:"center" });
+  // Little vector heart
+  function drawHeart(cx, cy, size) {
+    // Simple heart built from curves
+    const s = size;
+    doc.setFillColor(255, 105, 180);
+    doc.setDrawColor(255, 105, 180);
+    doc.setLineWidth(1);
 
-  // Body text
-  let y = cardY + 130;
+    // Two circles-ish + triangle-ish bottom using bezier curves
+    doc.path([
+      { op: "m", c: [cx, cy + s * 0.35] },
+      { op: "c", c: [cx - s * 0.9, cy - s * 0.25, cx - s * 0.55, cy - s * 1.05, cx, cy - s * 0.55] },
+      { op: "c", c: [cx + s * 0.55, cy - s * 1.05, cx + s * 0.9, cy - s * 0.25, cx, cy + s * 0.35] },
+      { op: "l", c: [cx, cy + s * 1.05] },
+      { op: "z" }
+    ], "F");
+  }
+
+  // Hearts row (instead of emojis)
+  const heartsY = cardY + 96;
+  const midX = cardX + cardW / 2;
+  const gap = 34;
+  drawHeart(midX - gap * 2, heartsY, 12);
+  drawHeart(midX - gap,     heartsY, 12);
+  drawHeart(midX,           heartsY, 12);
+  drawHeart(midX + gap,     heartsY, 12);
+  drawHeart(midX + gap * 2, heartsY, 12);
+
+  // Body
+  let y = cardY + 135;
   const left = cardX + 26;
   const right = cardX + cardW - 26;
 
-  doc.setTextColor(20,20,20);
+  doc.setTextColor(20, 20, 20);
 
   doc.setFont("courier", "bold");
   doc.setFontSize(12);
@@ -956,7 +976,7 @@ document.getElementById("pdfBtn").addEventListener("click", ()=>{
   doc.setFont("courier", "bold");
   doc.text("Customer:", left, y);
   doc.setFont("courier", "normal");
-  doc.text("ANGELO 💘", left + 90, y);
+  doc.text("ANGELO", left + 90, y);
   y += 20;
 
   doc.setFont("courier", "bold");
@@ -966,14 +986,14 @@ document.getElementById("pdfBtn").addEventListener("click", ()=>{
   y += 24;
 
   // Divider
-  doc.setDrawColor(160,160,160);
+  doc.setDrawColor(160, 160, 160);
   doc.setLineWidth(1);
-  doc.setLineDash([4,4], 0);
+  doc.setLineDash([4, 4], 0);
   doc.line(left, y, right, y);
   doc.setLineDash([], 0);
   y += 28;
 
-  // Big handwritten-style message area (fake “graphic” look)
+  // Message label
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   doc.setTextColor(255, 45, 85);
@@ -984,20 +1004,20 @@ document.getElementById("pdfBtn").addEventListener("click", ()=>{
   doc.setFillColor(255, 248, 252);
   doc.setDrawColor(255, 105, 180);
   doc.setLineWidth(1.5);
-  doc.roundedRect(left, y, (right-left), 96, 14, 14, "FD");
+  doc.roundedRect(left, y, (right - left), 96, 14, 14, "FD");
 
-  // Message text
+  // Message text (no emoji)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
-  doc.setTextColor(25,25,25);
-  doc.text("Angelo — You are amazing!!!", cardX + cardW/2, y + 56, { align:"center" });
+  doc.setTextColor(25, 25, 25);
+  doc.text("Angelo — You are amazing!!!", cardX + cardW / 2, y + 56, { align: "center" });
 
   y += 118;
 
   // Extras
   doc.setFont("courier", "bold");
   doc.setFontSize(12);
-  doc.setTextColor(20,20,20);
+  doc.setTextColor(20, 20, 20);
   doc.text("Extras:", left, y); y += 18;
 
   doc.setFont("courier", "normal");
@@ -1006,17 +1026,17 @@ document.getElementById("pdfBtn").addEventListener("click", ()=>{
   doc.text("• Lifetime Membership: ACTIVE", left, y); y += 22;
 
   // Divider
-  doc.setDrawColor(160,160,160);
-  doc.setLineDash([4,4], 0);
+  doc.setDrawColor(160, 160, 160);
+  doc.setLineDash([4, 4], 0);
   doc.line(left, y, right, y);
   doc.setLineDash([], 0);
   y += 22;
 
-  // Total / return policy
+  // Total / return policy (no emoji)
   doc.setFont("courier", "bold");
   doc.text("Total:", left, y);
   doc.setFont("courier", "normal");
-  doc.text("Your Heart 💞", left + 60, y);
+  doc.text("Your Heart", left + 60, y);
   y += 18;
 
   doc.setFont("courier", "bold");
@@ -1025,21 +1045,19 @@ document.getElementById("pdfBtn").addEventListener("click", ()=>{
   doc.text("absolutely not.", left + 110, y);
   y += 34;
 
-  // Cute footer
+  // Footer
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
   doc.setTextColor(255, 45, 85);
-  doc.text("Best decision you’ve ever made.", cardX + cardW/2, y, { align:"center" });
+  doc.text("Best decision you’ve ever made.", cardX + cardW / 2, y, { align: "center" });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.setTextColor(90,90,90);
-  doc.text("Valid under American, Italian, and Internet Law.", cardX + cardW/2, H - 88, { align:"center" });
+  doc.setTextColor(90, 90, 90);
+  doc.text("Valid under American, Italian, and Internet Law.", cardX + cardW / 2, H - 88, { align: "center" });
 
-  // Small heart stamp corner
-  doc.setTextColor(255, 105, 180);
-  doc.setFontSize(18);
-  doc.text("♥", right, cardY + cardH - 18, { align:"right" });
+  // Corner heart stamp (vector)
+  drawHeart(cardX + cardW - 26, cardY + cardH - 28, 14);
 
   doc.save("Angelo_Receipt_Printable.pdf");
 });
