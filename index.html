@@ -2,13 +2,26 @@
 <html>
 <head>
 <title>Angelo, Be My Valentine?</title>
+
+<!-- Romantic Font -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
 
 body {
   background: radial-gradient(#ffb6c1, #ff69b4);
   overflow: hidden;
   text-align: center;
-  font-family: 'Comic Sans MS', cursive;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Big romantic title */
+#question {
+  font-family: 'Great Vibes', cursive;
+  font-size: 80px;
+  color: white;
+  text-shadow: 0 0 20px hotpink;
+  margin-top: 40px;
 }
 
 #scene {
@@ -19,24 +32,38 @@ body {
   transition: transform 3s ease-in-out;
 }
 
+/* FIXED sprite size for YOUR image */
 #niloo {
-  width: 300px;
-  height: 300px;
+  width: 512px;
+  height: 512px;
   background-image: url("niloo_sprite.png");
-  background-size: 1800px 300px;
+  background-size: 1024px 1536px;
+  background-position: 0px 0px;
 }
 
+/* Buttons */
 button {
-  font-size: 40px;
-  padding: 15px 50px;
-  border-radius: 25px;
+  font-size: 36px;
+  padding: 18px 55px;
+  border-radius: 40px;
   border: none;
   cursor: pointer;
+  font-weight: bold;
 }
 
-#yesBtn { background: red; color: white; }
-#noBtn { position: absolute; font-size: 20px; }
+#yesBtn {
+  background: red;
+  color: white;
+  box-shadow: 0 0 20px white;
+}
 
+#noBtn {
+  position: absolute;
+  font-size: 20px;
+  background: white;
+}
+
+/* Floating hearts */
 .heart {
   position: fixed;
   font-size: 30px;
@@ -48,6 +75,7 @@ button {
   to {transform: translateY(-200px); opacity: 0;}
 }
 
+/* Fireworks */
 .firework {
   position: fixed;
   font-size: 50px;
@@ -59,97 +87,28 @@ button {
   to {transform: scale(2); opacity: 0;}
 }
 
-/* Receipt */
-#receipt {
-  display: none;
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 15px;
-  font-family: monospace;
-  border-radius: 10px;
-  box-shadow: 0 0 20px black;
-  text-align: left;
-  animation: slideUp 2s forwards;
-}
-
-@keyframes slideUp {
-  from {bottom:-300px;}
-  to {bottom:20px;}
-}
-
-/* Fake phone popup */
-#phone {
-  display:none;
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: black;
-  color: white;
-  padding: 15px;
-  border-radius: 20px;
-  font-size: 14px;
-  box-shadow: 0 0 15px black;
-}
-
-/* Handwriting SVG */
-#cupText {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: write 4s forwards;
-}
-
-@keyframes write {
-  to {stroke-dashoffset: 0;}
-}
-
 </style>
 </head>
 
 <body>
 
+<div id="question">Angelo, will you be my Valentine? 💘</div>
+
 <div id="scene">
   <div id="niloo"></div>
-  <br>
-  <button id="yesBtn">YES 💘</button>
+  <br><br>
+  <button id="yesBtn">YES 💖</button>
   <button id="noBtn">No 😒</button>
 </div>
 
-<!-- HANDWRITING MESSAGE ON CUP -->
-<svg width="500" height="200" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:none;" id="cupSVG">
-  <path id="cupText" d="M10 50 Q100 10 200 50 T400 50 
-   M10 100 Q200 160 400 100 
-   M10 150 Q200 180 400 150"
-   stroke="brown" stroke-width="3" fill="none"/>
-  <text x="50" y="60" font-size="22">Angelo - you are amazing!!</text>
-  <text x="100" y="140" font-size="20">Love, Niloo</text>
-</svg>
-
-<div id="receipt">
-STARBUCKS RECEIPT ☕<br>
--------------------------<br>
-Order: Grande Chaos Latte<br>
-Customer: ANGELO 💖<br>
-Barista: Niloo<br><br>
-Message:<br>
-"Angelo is legally required to be my Valentine"<br><br>
-Extra Foam: YES<br>
-Extra Chaos: YES<br>
-Price: His Heart<br>
-</div>
-
-<div id="phone">📱 Niloo saw you clicked YES 👀💘</div>
-
 <script>
 
-let frame = 0;
-let totalFrames = 6;
+let frameX = 0;
+let frameY = 0;
 let niloo = document.getElementById("niloo");
 let scene = document.getElementById("scene");
 
-// floating hearts before YES
+/* Floating hearts */
 setInterval(() => {
   let h = document.createElement("div");
   h.className = "heart";
@@ -160,49 +119,39 @@ setInterval(() => {
   setTimeout(()=>h.remove(),2000);
 }, 300);
 
-// NO button chaos
+/* No button runs away */
 noBtn.onmouseover = () => {
   noBtn.style.left = Math.random()*(window.innerWidth-100)+"px";
   noBtn.style.top = Math.random()*(window.innerHeight-100)+"px";
 };
 
-// YES CUTSCENE
+/* YES cutscene */
 yesBtn.onclick = () => {
 
   yesBtn.remove();
   noBtn.remove();
+  document.getElementById("question").innerHTML = "";
 
-  // Animate Niloo sprite
+  /* Animate sprite sheet (2 columns x 3 rows example) */
   let anim = setInterval(() => {
-    niloo.style.backgroundPosition = `-${frame*300}px 0px`;
-    frame++;
-    if(frame >= totalFrames) clearInterval(anim);
+    niloo.style.backgroundPosition = `-${frameX*512}px -${frameY*512}px`;
+    frameX++;
+
+    if(frameX >= 2){
+      frameX = 0;
+      frameY++;
+    }
+
+    if(frameY >= 3) clearInterval(anim);
+
   }, 500);
 
-  // Camera zoom into cup
+  /* Zoom camera */
   setTimeout(() => {
-    scene.style.transform = "translate(-50%, -50%) scale(2.5)";
+    scene.style.transform = "translate(-50%, -50%) scale(2)";
   }, 2000);
 
-  // Show handwriting
-  setTimeout(() => {
-    document.getElementById("cupSVG").style.display = "block";
-  }, 3000);
-
-  // Heart explosion
-  setTimeout(() => {
-    for(let i=0;i<60;i++){
-      let h = document.createElement("div");
-      h.className = "heart";
-      h.innerHTML = "💘";
-      h.style.left = window.innerWidth/2+"px";
-      h.style.top = window.innerHeight/2+"px";
-      document.body.appendChild(h);
-      setTimeout(()=>h.remove(),2000);
-    }
-  }, 4000);
-
-  // Fireworks
+  /* Fireworks */
   setTimeout(() => {
     for(let i=0;i<40;i++){
       let f = document.createElement("div");
@@ -213,17 +162,7 @@ yesBtn.onclick = () => {
       document.body.appendChild(f);
       setTimeout(()=>f.remove(),2000);
     }
-  }, 5000);
-
-  // Receipt pop up
-  setTimeout(() => {
-    document.getElementById("receipt").style.display="block";
-  }, 6000);
-
-  // Fake phone notification
-  setTimeout(() => {
-    document.getElementById("phone").style.display="block";
-  }, 7000);
+  }, 4000);
 
 };
 
