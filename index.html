@@ -317,12 +317,19 @@
 
       <div id="stamp">APPROVED</div>
 
-      <div id="photoWrap">
-        <div id="heart">
-          <img id="contractPhoto" src="contract.jpg" alt="Contract signing photo">
-          <div id="glitter"></div>
-        </div>
-      </div>
+     <div id="photoWrap" style="display:none;">
+  <img id="contractPhotoPlain" src="contract.jpg" alt="Contract signing photo"
+    style="
+      width:min(720px, 92vw);
+      max-width: 100%;
+      border-radius: 22px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.22);
+      display:block;
+      margin: 14px auto 6px;
+    "
+  />
+</div>
+
 
       <div class="row" style="margin-top:10px;">
         <button id="toCoffeeBtn" style="display:none; font-size:18px; padding:14px 18px;">
@@ -356,7 +363,6 @@
           <div class="rHr"></div>
           Message:<br>
           “<b>Angelo — You are amazing!!</b><br>
-          <b>Love, Niloo</b>”<br>
           <div class="rHr"></div>
           Extras:
           <ul style="margin:8px 0 0 18px;">
@@ -736,7 +742,6 @@
       "Verifying boyfriend status",
       "Cross-checking Sicilian servers",
       "Syncing Valentine credentials",
-      "Preparing APPROVAL stamp"
     ];
     let i = 0;
     setLoading(steps[i]);
@@ -888,54 +893,157 @@
   // =========================================================
   // PDF Receipt (cute printable)
   // =========================================================
-  document.getElementById("pdfBtn").addEventListener("click", ()=>{
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({unit:"pt", format:"a4"});
-    const margin = 48;
-    let y = 72;
+  
+document.getElementById("pdfBtn").addEventListener("click", ()=>{
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:"pt", format:"a4" });
 
-    doc.setFillColor(255, 253, 247);
-    doc.rect(36, 36, 523, 770, "F");
+  // Page helpers
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
 
-    doc.setFont("courier", "bold");
-    doc.setFontSize(16);
-    doc.text("STARBUCKS RECEIPT  ☕", margin, y); y += 18;
+  // Background
+  doc.setFillColor(255, 243, 249); // very light pink
+  doc.rect(0, 0, W, H, "F");
 
-    doc.setFont("courier", "normal");
-    doc.setFontSize(10);
-    doc.text("#VAL-02014", 520, 72, {align:"right"});
+  // Receipt card
+  const cardX = 56, cardY = 64;
+  const cardW = W - cardX*2;
+  const cardH = H - cardY*2;
 
-    doc.setLineDash([4,4], 0);
-    doc.line(margin, y, 555 - margin, y); y += 18;
-    doc.setLineDash([], 0);
+  // Card fill
+  doc.setFillColor(255, 253, 247); // warm paper
+  doc.roundedRect(cardX, cardY, cardW, cardH, 18, 18, "F");
 
-    doc.setFontSize(12);
-    const lines = [
-      "Order: Grande Love Latte",
-      "Customer: ANGELO 💘",
-      "Barista: Niloo (Angelo’s Favorite Barista)",
-      "",
-      "Message:",
-      "“Angelo — You are amazing!!",
-      "Love, Niloo”",
-      "",
-      "Extras:",
-      " - Extra Foam: YES",
-      " - Extra Love: ALWAYS",
-      " - Lifetime Membership: ACTIVE",
-      "",
-      "Total: Your Heart 💞",
-      "",
-      "Return policy: absolutely not.",
-      "",
-      "Best decision you’ve ever made.",
-      "",
-      "*Valid under American, Italian, and Internet Law."
-    ];
-    lines.forEach(line=>{ doc.text(line, margin, y); y += 16; });
+  // Card border
+  doc.setDrawColor(255, 105, 180);
+  doc.setLineWidth(2);
+  doc.roundedRect(cardX, cardY, cardW, cardH, 18, 18, "S");
 
-    doc.save("Angelo_Niloo_Starbucks_Receipt.pdf");
-  });
+  // Header band
+  doc.setFillColor(255, 105, 180);
+  doc.roundedRect(cardX, cardY, cardW, 62, 18, 18, "F");
+
+  // Title
+  doc.setTextColor(255,255,255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text("STARBUCKS RECEIPT ☕", cardX + 18, cardY + 38);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.text("#VAL-02014", cardX + cardW - 18, cardY + 38, { align:"right" });
+
+  // Cute hearts row
+  doc.setTextColor(255, 105, 180);
+  doc.setFontSize(14);
+  doc.text("💖   💘   💖   💘   💖", cardX + cardW/2, cardY + 92, { align:"center" });
+
+  // Body text
+  let y = cardY + 130;
+  const left = cardX + 26;
+  const right = cardX + cardW - 26;
+
+  doc.setTextColor(20,20,20);
+
+  doc.setFont("courier", "bold");
+  doc.setFontSize(12);
+  doc.text("Order:", left, y);
+  doc.setFont("courier", "normal");
+  doc.text("Grande Love Latte", left + 70, y);
+  y += 20;
+
+  doc.setFont("courier", "bold");
+  doc.text("Customer:", left, y);
+  doc.setFont("courier", "normal");
+  doc.text("ANGELO 💘", left + 90, y);
+  y += 20;
+
+  doc.setFont("courier", "bold");
+  doc.text("Barista:", left, y);
+  doc.setFont("courier", "normal");
+  doc.text("Niloo (favorite barista)", left + 80, y);
+  y += 24;
+
+  // Divider
+  doc.setDrawColor(160,160,160);
+  doc.setLineWidth(1);
+  doc.setLineDash([4,4], 0);
+  doc.line(left, y, right, y);
+  doc.setLineDash([], 0);
+  y += 28;
+
+  // Big handwritten-style message area (fake “graphic” look)
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(255, 45, 85);
+  doc.text("Message:", left, y);
+  y += 28;
+
+  // Message box
+  doc.setFillColor(255, 248, 252);
+  doc.setDrawColor(255, 105, 180);
+  doc.setLineWidth(1.5);
+  doc.roundedRect(left, y, (right-left), 96, 14, 14, "FD");
+
+  // Message text
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(25,25,25);
+  doc.text("Angelo — You are amazing!!!", cardX + cardW/2, y + 56, { align:"center" });
+
+  y += 118;
+
+  // Extras
+  doc.setFont("courier", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(20,20,20);
+  doc.text("Extras:", left, y); y += 18;
+
+  doc.setFont("courier", "normal");
+  doc.text("• Extra Foam: YES", left, y); y += 16;
+  doc.text("• Extra Love: ALWAYS", left, y); y += 16;
+  doc.text("• Lifetime Membership: ACTIVE", left, y); y += 22;
+
+  // Divider
+  doc.setDrawColor(160,160,160);
+  doc.setLineDash([4,4], 0);
+  doc.line(left, y, right, y);
+  doc.setLineDash([], 0);
+  y += 22;
+
+  // Total / return policy
+  doc.setFont("courier", "bold");
+  doc.text("Total:", left, y);
+  doc.setFont("courier", "normal");
+  doc.text("Your Heart 💞", left + 60, y);
+  y += 18;
+
+  doc.setFont("courier", "bold");
+  doc.text("Return policy:", left, y);
+  doc.setFont("courier", "normal");
+  doc.text("absolutely not.", left + 110, y);
+  y += 34;
+
+  // Cute footer
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(255, 45, 85);
+  doc.text("Best decision you’ve ever made.", cardX + cardW/2, y, { align:"center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(90,90,90);
+  doc.text("Valid under American, Italian, and Internet Law.", cardX + cardW/2, H - 88, { align:"center" });
+
+  // Small heart stamp corner
+  doc.setTextColor(255, 105, 180);
+  doc.setFontSize(18);
+  doc.text("♥", right, cardY + cardH - 18, { align:"right" });
+
+  doc.save("Angelo_Receipt_Printable.pdf");
+});
+
 
   // =========================================================
   // BUTTON WIRING
