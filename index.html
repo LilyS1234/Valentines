@@ -155,9 +155,9 @@
       width: 100%;
       height: min(58vh, 520px);        /* big, cinematic */
       object-fit: contain;             /* IMPORTANT: no crop */
-      background: rgba(255,255,255,.65);
-      border-radius: 26px;
-      box-shadow: 0 18px 45px rgba(0,0,0,.22);
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
       opacity: 0;
       transform: translateY(18px) scale(.98);
       filter: blur(8px);
@@ -279,7 +279,7 @@
 
     /* slower rollout */
     #receiptPrint{ height:0; overflow:hidden; }
-    .printing #receiptPrint{ animation: print 4.8s ease-out forwards; }
+    .printing #receiptPrint{ animation: print 2.2s ease-out forwards; }
     @keyframes print{ to{ height: 680px; } }
 
     .rTitle{ font-weight:900; }
@@ -287,7 +287,7 @@
     .rHr{ border-top: 1px dashed rgba(0,0,0,.25); margin:10px 0; }
     .rRow{ display:flex; justify-content:space-between; gap:10px; }
     .fadeInLater{ opacity:0; }
-    .printing .fadeInLater{ animation: fadeIn 1.3s ease forwards; animation-delay: 4.8s; }
+    .printing .fadeInLater{ animation: fadeIn .7s ease forwards; animation-delay: 2.2s; }
     @keyframes fadeIn{ to{opacity:1} }
 
     /* Capture mode for PDF */
@@ -905,7 +905,6 @@
   noBtn.addEventListener("mouseenter", moveNo);
   noBtn.addEventListener("click", (e)=>{ e.preventDefault(); moveNo(); });
   noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNo(); }, {passive:false});
-
   // =========================
   // CONFETTI HELPERS
   // =========================
