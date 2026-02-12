@@ -100,6 +100,7 @@
       transform: scale(1);
       opacity:1;
       position: static; /* inline next to yes initially */
+      transform-origin: top left;
       z-index: 50;
     }
 
@@ -835,6 +836,11 @@
   // =========================
   let dodges = 0;
   let noIsLoose = false;
+  let noScale = 1;
+
+  function clamp(v, min, max){
+    return Math.min(max, Math.max(min, v));
+  }
 
   function moveNo(){
     dodges++;
@@ -855,28 +861,38 @@
       noBtn.style.zIndex = "50";
     }
 
-    // Shrink + move
-    const scaleNo = Math.max(0.50, 1 - dodges * 0.10);
-    const opacityNo = Math.max(0.06, 1 - dodges * 0.16);
+    // Shrink each dodge, but keep visible on screen forever
+    noScale = Math.max(0.60, 1 - dodges * 0.06);
 
-    const pad = 14;
-    const w = noBtn.offsetWidth;
-    const h = noBtn.offsetHeight;
+    const pad = 12;
+    const w = noBtn.offsetWidth * noScale;
+    const h = noBtn.offsetHeight * noScale;
 
-    const x = pad + Math.random() * (innerWidth - w - pad*2);
-    const y = pad + Math.random() * (innerHeight - h - pad*2);
+    const maxX = Math.max(pad, innerWidth - w - pad);
+    const maxY = Math.max(pad, innerHeight - h - pad);
+
+    const x = clamp(pad + Math.random() * (maxX - pad), pad, maxX);
+    const y = clamp(pad + Math.random() * (maxY - pad), pad, maxY);
 
     noBtn.style.left = x + "px";
     noBtn.style.top  = y + "px";
-    noBtn.style.transform = `scale(${scaleNo})`;
-    noBtn.style.opacity = opacityNo;
-
-    if(dodges >= 6){
-      noBtn.style.pointerEvents = "none";
-      noBtn.style.opacity = "0";
-      setTimeout(()=> noBtn.remove(), 350);
-    }
+    noBtn.style.transform = `scale(${noScale})`;
+    noBtn.style.opacity = "1";
   }
+
+  // Keep the loose NO button visible after viewport changes/rotation
+  window.addEventListener("resize", ()=>{
+    if(!noIsLoose) return;
+    const pad = 12;
+    const w = noBtn.offsetWidth * noScale;
+    const h = noBtn.offsetHeight * noScale;
+    const maxX = Math.max(pad, innerWidth - w - pad);
+    const maxY = Math.max(pad, innerHeight - h - pad);
+    const currentX = parseFloat(noBtn.style.left || "0");
+    const currentY = parseFloat(noBtn.style.top || "0");
+    noBtn.style.left = clamp(currentX, pad, maxX) + "px";
+    noBtn.style.top  = clamp(currentY, pad, maxY) + "px";
+  });
 
   noBtn.addEventListener("mouseenter", moveNo);
   noBtn.addEventListener("click", (e)=>{ e.preventDefault(); moveNo(); });
