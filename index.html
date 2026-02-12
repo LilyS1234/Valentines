@@ -159,8 +159,11 @@
       border-radius: 0;
       box-shadow: none;
       opacity: 0;
-      transform: translateY(18px) scale(.98);
-      filter: blur(8px);
+      transform: translateY(18px) scale(.99);
+      filter: none;
+      image-rendering: auto;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
     .photoReveal{
@@ -168,9 +171,9 @@
     }
 
     @keyframes photoReveal{
-      0%   { opacity:0; transform: translateY(18px) scale(.98); filter: blur(8px); }
-      60%  { opacity:1; transform: translateY(-4px) scale(1.01); filter: blur(0px); }
-      100% { opacity:1; transform: translateY(0) scale(1); filter: blur(0px); }
+      0%   { opacity:0; transform: translateY(18px) scale(.99); }
+      60%  { opacity:1; transform: translateY(-4px) scale(1.005); }
+      100% { opacity:1; transform: translateY(0) scale(1); }
     }
 
     /* Flash */
