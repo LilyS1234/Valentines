@@ -104,7 +104,6 @@
       z-index: 50;
     }
 
-    #printBtn,
     #toEndBtn,
     #toFinalBtn{
       color:#fff;
@@ -132,8 +131,8 @@
     #stamp{
       display:none;
       position:absolute;
-      left: 50%;
-      top: -20px;
+      left:50%;
+      top: 53%;
       margin: 0;
       width: fit-content;
       padding: 10px 18px;
@@ -147,14 +146,14 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       opacity:0;
-      transform: translateX(-50%) rotate(-10deg);
+      transform: translate(-50%, -50%) rotate(-10deg);
       z-index: 35;
       pointer-events:none;
     }
     .stampIn{ animation: stampIn .65s cubic-bezier(.2,1.2,.2,1) forwards; }
     @keyframes stampIn{
-      0%{ opacity:0; transform: translateX(-50%) rotate(-10deg) scale(1.25); }
-      100%{ opacity:1; transform: translateX(-50%) rotate(-10deg) scale(1); }
+      0%{ opacity:0; transform: translate(-50%, -50%) rotate(-10deg) scale(1.25); }
+      100%{ opacity:1; transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
     }
 
     /* Contract photo cinematic reveal (NO CROP) */
@@ -174,13 +173,11 @@
       border-radius: 0;
       box-shadow: none;
       opacity: 0;
-      transform: translateY(14px);
+      transform: translateY(18px) scale(.99);
       filter: none;
       image-rendering: auto;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
-      transform-origin: center center;
-      will-change: opacity, transform;
     }
 
     .photoReveal{
@@ -188,8 +185,9 @@
     }
 
     @keyframes photoReveal{
-      0%   { opacity:0; transform: translateY(14px); }
-      100% { opacity:1; transform: translateY(0); }
+      0%   { opacity:0; transform: translateY(18px) scale(.99); }
+      60%  { opacity:1; transform: translateY(-4px) scale(1.005); }
+      100% { opacity:1; transform: translateY(0) scale(1); }
     }
 
     /* Flash */
@@ -342,10 +340,10 @@
     /* Clauses */
     #clauses{ margin: 10px auto 14px; width:min(680px,92vw); text-align:center; font-size:16px; opacity:.92; }
     #clauses div{ margin:8px 0; opacity:0; transform:translateY(8px); }
-    .showClauses #clauses div{ animation: clauseIn 1.1s ease forwards; }
-    .showClauses #clauses div:nth-child(1){ animation-delay: 0.35s; }
-    .showClauses #clauses div:nth-child(2){ animation-delay: 1.15s; }
-    .showClauses #clauses div:nth-child(3){ animation-delay: 1.95s; }
+    .showClauses #clauses div{ animation: clauseIn 1.35s ease forwards; }
+    .showClauses #clauses div:nth-child(1){ animation-delay: 0.6s; }
+    .showClauses #clauses div:nth-child(2){ animation-delay: 1.7s; }
+    .showClauses #clauses div:nth-child(3){ animation-delay: 2.8s; }
     @keyframes clauseIn{ to{opacity:1; transform:translateY(0)} }
 
     /* Confetti + fireworks */
@@ -584,7 +582,6 @@
   const finalPhoto = document.getElementById("finalPhoto");
   const finalText  = document.getElementById("finalText");
   const techGirlImg = document.getElementById("techGirlImg");
-  const finalPanel = sceneFinal.querySelector(".panel");
 
   // =========================
   // MUSIC
@@ -870,18 +867,9 @@
   let dodges = 0;
   let noIsLoose = false;
   let noScale = 1;
-  let noDetached = false;
-  let noBaseWidth = 0;
-  let noBaseHeight = 0;
 
   function clamp(v, min, max){
     return Math.min(max, Math.max(min, v));
-  }
-
-  function getViewportSize(){
-    const vw = window.visualViewport ? window.visualViewport.width : innerWidth;
-    const vh = window.visualViewport ? window.visualViewport.height : innerHeight;
-    return { vw, vh };
   }
 
   function moveNo(){
@@ -897,8 +885,6 @@
 
       // get current viewport position before detaching
       const rect = noBtn.getBoundingClientRect();
-      noBaseWidth = noBtn.offsetWidth;
-      noBaseHeight = noBtn.offsetHeight;
 
       // move out of #btnRow (which has transform) to avoid fixed-position clipping
       if(!noDetached){
@@ -914,27 +900,17 @@
     }
 
     // Shrink each dodge, but keep visible on screen forever
-    noScale = Math.max(0.55, 1 - dodges * 0.06);
+    noScale = Math.max(0.60, 1 - dodges * 0.06);
 
     const pad = 12;
-    const { vw, vh } = getViewportSize();
-    const w = (noBaseWidth || noBtn.offsetWidth) * noScale;
-    const h = (noBaseHeight || noBtn.offsetHeight) * noScale;
+    const w = noBtn.offsetWidth * noScale;
+    const h = noBtn.offsetHeight * noScale;
 
-    const maxX = Math.max(pad, vw - w - pad);
-    const maxY = Math.max(pad, vh - h - pad);
+    const maxX = Math.max(pad, innerWidth - w - pad);
+    const maxY = Math.max(pad, innerHeight - h - pad);
 
-    const currentX = parseFloat(noBtn.style.left || "0");
-    const currentY = parseFloat(noBtn.style.top || "0");
-
-    let x = clamp(pad + Math.random() * Math.max(1, (maxX - pad)), pad, maxX);
-    let y = clamp(pad + Math.random() * Math.max(1, (maxY - pad)), pad, maxY);
-
-    // ensure it actually dodges instead of landing almost same spot
-    if(Math.abs(x - currentX) < 24 && Math.abs(y - currentY) < 24){
-      x = clamp(x + (x < vw/2 ? 140 : -140), pad, maxX);
-      y = clamp(y + (y < vh/2 ? 90 : -90), pad, maxY);
-    }
+    const x = clamp(pad + Math.random() * (maxX - pad), pad, maxX);
+    const y = clamp(pad + Math.random() * (maxY - pad), pad, maxY);
 
     noBtn.style.left = x + "px";
     noBtn.style.top  = y + "px";
@@ -946,18 +922,17 @@
   window.addEventListener("resize", ()=>{
     if(!noIsLoose) return;
     const pad = 12;
-    const { vw, vh } = getViewportSize();
-    const w = (noBaseWidth || noBtn.offsetWidth) * noScale;
-    const h = (noBaseHeight || noBtn.offsetHeight) * noScale;
-    const maxX = Math.max(pad, vw - w - pad);
-    const maxY = Math.max(pad, vh - h - pad);
+    const w = noBtn.offsetWidth * noScale;
+    const h = noBtn.offsetHeight * noScale;
+    const maxX = Math.max(pad, innerWidth - w - pad);
+    const maxY = Math.max(pad, innerHeight - h - pad);
     const currentX = parseFloat(noBtn.style.left || "0");
     const currentY = parseFloat(noBtn.style.top || "0");
     noBtn.style.left = clamp(currentX, pad, maxX) + "px";
     noBtn.style.top  = clamp(currentY, pad, maxY) + "px";
   });
 
-  noBtn.addEventListener("pointerenter", moveNo);
+  noBtn.addEventListener("mouseenter", moveNo);
   noBtn.addEventListener("click", (e)=>{ e.preventDefault(); moveNo(); });
   noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNo(); }, {passive:false});
   // =========================
@@ -1121,7 +1096,7 @@
     celebrate();
 
     // Wait until all three clause lines have finished appearing.
-    await sleep(3200);
+    await wait(6400);
     toFinalBtn.style.display = "inline-block";
   }
 
@@ -1138,8 +1113,6 @@
 
     await wait(220);
     techGirlImg.style.display = "block";
-    finalPanel.scrollTo({ top: finalPanel.scrollHeight, behavior:"smooth" });
-    techGirlImg.scrollIntoView({ behavior:"smooth", block:"nearest" });
     techGirlImg.classList.remove("techGirlIn");
     void techGirlImg.offsetWidth;
     techGirlImg.classList.add("techGirlIn");
