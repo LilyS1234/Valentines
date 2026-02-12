@@ -868,18 +868,14 @@
   // =========================
   let dodges = 0;
   let noIsLoose = false;
-  let noScale = 1;
+  let noDetached = false;
 
   function clamp(v, min, max){
     return Math.min(max, Math.max(min, v));
   }
 
-  function moveNo(){
+  function moveNo(pointerX = innerWidth / 2, pointerY = innerHeight / 2){
     dodges++;
-
-    // YES grows each dodge
-    const yesScale = 1 + dodges * 0.06;
-    yesBtn.style.transform = `scale(${yesScale})`;
 
     // First dodge: detach NO from transformed row so fixed uses full viewport
     if(!noIsLoose){
@@ -901,22 +897,28 @@
       noBtn.style.zIndex = "9997";
     }
 
-    // Shrink each dodge, but keep visible on screen forever
-    noScale = Math.max(0.60, 1 - dodges * 0.06);
-
     const pad = 12;
-    const w = noBtn.offsetWidth * noScale;
-    const h = noBtn.offsetHeight * noScale;
+    const w = noBtn.offsetWidth;
+    const h = noBtn.offsetHeight;
 
     const maxX = Math.max(pad, innerWidth - w - pad);
     const maxY = Math.max(pad, innerHeight - h - pad);
 
-    const x = clamp(pad + Math.random() * (maxX - pad), pad, maxX);
-    const y = clamp(pad + Math.random() * (maxY - pad), pad, maxY);
+    const currentX = parseFloat(noBtn.style.left || "0");
+    const currentY = parseFloat(noBtn.style.top || "0");
+    const dx = currentX - pointerX;
+    const dy = currentY - pointerY;
+    const len = Math.hypot(dx, dy) || 1;
+    const runDistance = 120 + Math.random() * 170;
+    const jitterX = (Math.random() - 0.5) * 140;
+    const jitterY = (Math.random() - 0.5) * 140;
+
+    const x = clamp(currentX + (dx / len) * runDistance + jitterX, pad, maxX);
+    const y = clamp(currentY + (dy / len) * runDistance + jitterY, pad, maxY);
 
     noBtn.style.left = x + "px";
     noBtn.style.top  = y + "px";
-    noBtn.style.transform = `scale(${noScale})`;
+    noBtn.style.transform = "scale(1)";
     noBtn.style.opacity = "1";
   }
 
@@ -924,8 +926,8 @@
   window.addEventListener("resize", ()=>{
     if(!noIsLoose) return;
     const pad = 12;
-    const w = noBtn.offsetWidth * noScale;
-    const h = noBtn.offsetHeight * noScale;
+    const w = noBtn.offsetWidth;
+    const h = noBtn.offsetHeight;
     const maxX = Math.max(pad, innerWidth - w - pad);
     const maxY = Math.max(pad, innerHeight - h - pad);
     const currentX = parseFloat(noBtn.style.left || "0");
@@ -934,9 +936,21 @@
     noBtn.style.top  = clamp(currentY, pad, maxY) + "px";
   });
 
-  noBtn.addEventListener("mouseenter", moveNo);
-  noBtn.addEventListener("click", (e)=>{ e.preventDefault(); moveNo(); });
-  noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNo(); }, {passive:false});
+  window.addEventListener("pointermove", (e)=>{
+    if(!noIsLoose) return;
+    const rect = noBtn.getBoundingClientRect();
+    const nearX = e.clientX > rect.left - 80 && e.clientX < rect.right + 80;
+    const nearY = e.clientY > rect.top - 80 && e.clientY < rect.bottom + 80;
+    if(nearX && nearY) moveNo(e.clientX, e.clientY);
+  });
+
+  noBtn.addEventListener("mouseenter", (e)=> moveNo(e.clientX, e.clientY));
+  noBtn.addEventListener("click", (e)=>{ e.preventDefault(); moveNo(e.clientX, e.clientY); });
+  noBtn.addEventListener("touchstart", (e)=>{
+    e.preventDefault();
+    const touch = e.touches[0] || e.changedTouches[0];
+    moveNo(touch?.clientX, touch?.clientY);
+  }, {passive:false});
   // =========================
   // CONFETTI HELPERS
   // =========================
