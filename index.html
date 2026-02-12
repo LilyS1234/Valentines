@@ -920,6 +920,11 @@
     noBtn.style.opacity = "1";
   }
 
+  function hideNoButton(){
+    noBtn.style.display = "none";
+    noBtn.style.pointerEvents = "none";
+  }
+
   // Keep the loose NO button visible after viewport changes/rotation
   window.addEventListener("resize", ()=>{
     if(!noIsLoose) return;
@@ -935,20 +940,17 @@
   });
 
   window.addEventListener("pointermove", (e)=>{
-    if(!noIsLoose) return;
     const rect = noBtn.getBoundingClientRect();
     const nearX = e.clientX > rect.left - 80 && e.clientX < rect.right + 80;
     const nearY = e.clientY > rect.top - 80 && e.clientY < rect.bottom + 80;
     if(nearX && nearY) moveNo(e.clientX, e.clientY);
   });
 
-  noBtn.addEventListener("mouseenter", (e)=> moveNo(e.clientX, e.clientY));
-  noBtn.addEventListener("click", (e)=>{ e.preventDefault(); moveNo(e.clientX, e.clientY); });
-  noBtn.addEventListener("touchstart", (e)=>{
+  window.addEventListener("pointerdown", (e)=>{
+    if(e.target !== noBtn) return;
     e.preventDefault();
-    const touch = e.touches[0] || e.changedTouches[0];
-    moveNo(touch?.clientX, touch?.clientY);
-  }, {passive:false});
+    moveNo(e.clientX, e.clientY);
+  });
   // =========================
   // CONFETTI HELPERS
   // =========================
@@ -980,6 +982,7 @@
   function stopDots(){ loadingLine.classList.remove("dots"); }
 
   async function startContractScene(){
+    hideNoButton();
     hide(sceneQuestion);
     show(sceneContract);
 
