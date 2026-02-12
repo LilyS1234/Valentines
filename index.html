@@ -69,7 +69,19 @@
     }
     button:active{ transform: translateY(2px) scale(.98); }
 
-    /* Start more equal */
+    #btnRow{
+      opacity:0;
+      pointer-events:none;
+      transform: translateY(12px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    #btnRow.ready{
+      opacity:1;
+      pointer-events:auto;
+      transform: translateY(0);
+    }
+
+    /* Start equal-sized choices */
     #yesBtn{
       font-size: clamp(24px, 3.0vw, 36px);
       padding: 16px 30px;
@@ -79,20 +91,17 @@
       filter: drop-shadow(0 0 16px rgba(255,255,255,.55));
       transform: scale(1);
     }
-#noBtn{
-  font-size: clamp(24px, 3.0vw, 36px);
-  padding: 16px 30px;
-  background: rgba(255,255,255,.96);
-  color:#333;
-  transform: scale(1);
-  opacity: 0;              /* hidden until ready */
-  pointer-events:none;     /* not clickable until ready */
-  position: static;        /* INLINE next to YES */
-}
-#noBtn.ready{
-  opacity: 1;
-  pointer-events:auto;
-}
+
+    #noBtn{
+      font-size: clamp(24px, 3.0vw, 36px);
+      padding: 16px 30px;
+      background: rgba(255,255,255,.96);
+      color:#333;
+      transform: scale(1);
+      opacity:1;
+      position: static; /* inline next to yes initially */
+      z-index: 50;
+    }
 
     .miniBtn{
       padding: 12px 16px;
@@ -108,7 +117,7 @@
     .dots::after{ content:""; animation:dots 1.2s steps(4,end) infinite; }
     @keyframes dots{ 0%{content:""} 25%{content:"."} 50%{content:".."} 75%{content:"..."} 100%{content:""} }
 
-    /* APPROVED stamp (small + simple) */
+    /* APPROVED stamp (simple) */
     #stamp{
       display:none;
       position:relative;
@@ -133,54 +142,34 @@
       100%{ opacity:1; transform: rotate(-10deg) scale(1); }
     }
 
-    /* Heart reveal container (BIG) */
+    /* Contract photo cinematic reveal (NO CROP) */
     #photoWrap{
       display:none;
-      width: min(880px, 96vw);
+      width: min(900px, 96vw);
       margin: 14px auto 8px;
       position: relative;
     }
-    #heartFrame{
+
+    #contractPhoto{
       width: 100%;
-      aspect-ratio: 16 / 9; /* wide so it shows both of you */
+      height: min(58vh, 520px);        /* big, cinematic */
+      object-fit: contain;             /* IMPORTANT: no crop */
+      background: rgba(255,255,255,.65);
       border-radius: 26px;
-      overflow: hidden;
       box-shadow: 0 18px 45px rgba(0,0,0,.22);
-      background: rgba(255,255,255,.85);
-      transform: scale(0.05) rotate(-10deg);
       opacity: 0;
-    }
-    /* SVG scales perfectly inside frame */
-    #heartSvg{
-      width:100%;
-      height:100%;
-      display:block;
-      background: rgba(255,255,255,.75);
+      transform: translateY(18px) scale(.98);
+      filter: blur(8px);
     }
 
-    /* Reveal anim */
-    #photoWrap.reveal #heartFrame{
-      animation: heartPop 1.25s cubic-bezier(.2,1.3,.2,1) forwards;
-    }
-    @keyframes heartPop{
-      0%   { transform: scale(0.05) rotate(-10deg); opacity:0; }
-      55%  { transform: scale(1.04) rotate(2deg); opacity:1; }
-      100% { transform: scale(1.00) rotate(0deg); opacity:1; }
+    .photoReveal{
+      animation: photoReveal 1.35s cubic-bezier(.2,1.1,.2,1) forwards;
     }
 
-    /* Heart glow overlay */
-    #heartGlow{
-      position:absolute;
-      inset:-12px;
-      pointer-events:none;
-      opacity:0;
-      filter: drop-shadow(0 16px 32px rgba(0,0,0,.18));
-    }
-    #photoWrap.reveal #heartGlow{ animation: glowPop 1.25s ease forwards; }
-    @keyframes glowPop{
-      0%   { opacity:0; transform: scale(0.96); }
-      40%  { opacity:1; transform: scale(1.02); }
-      100% { opacity:0; transform: scale(1.05); }
+    @keyframes photoReveal{
+      0%   { opacity:0; transform: translateY(18px) scale(.98); filter: blur(8px); }
+      60%  { opacity:1; transform: translateY(-4px) scale(1.01); filter: blur(0px); }
+      100% { opacity:1; transform: translateY(0) scale(1); filter: blur(0px); }
     }
 
     /* Flash */
@@ -256,7 +245,7 @@
     #printArea{
       width:min(560px, 92vw);
       margin: 14px auto 0;
-      display:none; /* hidden until "Print my receipt" clicked */
+      display:none; /* hidden until Print clicked */
     }
 
     /* Torn receipt styling */
@@ -290,7 +279,7 @@
     /* slower rollout */
     #receiptPrint{ height:0; overflow:hidden; }
     .printing #receiptPrint{ animation: print 4.8s ease-out forwards; }
-    @keyframes print{ to{ height: 640px; } }
+    @keyframes print{ to{ height: 680px; } }
 
     .rTitle{ font-weight:900; }
     .rSmall{ font-size:12px; opacity:.7; }
@@ -330,7 +319,7 @@
       box-shadow: 0 14px 30px rgba(0,0,0,.18);
     }
 
-    /* Clauses (slow reveal) */
+    /* Clauses */
     #clauses{ margin: 10px auto 14px; width:min(680px,92vw); text-align:left; font-size:16px; opacity:.92; }
     #clauses div{ margin:8px 0; opacity:0; transform:translateY(8px); }
     .showClauses #clauses div{ animation: clauseIn 1.35s ease forwards; }
@@ -371,7 +360,6 @@
 
 <body>
   <div id="flash"></div>
-
   <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
 
   <!-- Scene 1 -->
@@ -382,7 +370,7 @@
 
       <div class="row" id="btnRow">
         <button id="yesBtn">Sign Valentine Agreement ✍️</button>
-<button id="noBtn">No 😒</button>
+        <button id="noBtn">No 😒</button>
       </div>
 
       <div class="row">
@@ -401,33 +389,7 @@
       <div id="stamp">APPROVED</div>
 
       <div id="photoWrap">
-        <div id="heartFrame">
-          <!-- SVG mask scales perfectly (minimal crop) -->
-          <svg id="heartSvg" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-              <clipPath id="heartClip">
-                <path d="M50 88 C20 68 8 52 8 35 C8 22 18 12 31 12 C40 12 47 17 50 22 C53 17 60 12 69 12 C82 12 92 22 92 35 C92 52 80 68 50 88 Z"/>
-              </clipPath>
-            </defs>
-
-            <!-- Background -->
-            <rect x="0" y="0" width="100" height="100" fill="rgba(255,255,255,0.85)"></rect>
-
-            <!-- Photo (CONTAIN so it shows both of you) -->
-            <image href="contract.jpg" x="0" y="0" width="100" height="100"
-                   preserveAspectRatio="xMidYMid meet"
-                   clip-path="url(#heartClip)"></image>
-
-            <!-- subtle white inner glow -->
-            <path d="M50 88 C20 68 8 52 8 35 C8 22 18 12 31 12 C40 12 47 17 50 22 C53 17 60 12 69 12 C82 12 92 22 92 35 C92 52 80 68 50 88 Z"
-                  fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="2.5"></path>
-          </svg>
-        </div>
-
-        <svg id="heartGlow" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path d="M50 88 C20 68 8 52 8 35 C8 22 18 12 31 12 C40 12 47 17 50 22 C53 17 60 12 69 12 C82 12 92 22 92 35 C92 52 80 68 50 88 Z"
-                fill="none" stroke="rgba(255,105,180,0.55)" stroke-width="7"></path>
-        </svg>
+        <img id="contractPhoto" src="contract.jpg" alt="Contract signing photo" crossorigin="anonymous">
       </div>
 
       <div class="row" style="margin-top:10px;">
@@ -447,7 +409,7 @@
   <div class="wrap" id="sceneCoffee" style="display:none;">
     <div class="panel" id="coffeePanel">
       <div style="font-weight:900; margin:0 0 10px;">Barista Niloo is pleased with your decision</div>
-      <img id="nilooImg" src="niloo.png" alt="Niloo barista">
+      <img id="nilooImg" src="niloo.png" alt="Niloo barista" crossorigin="anonymous">
 
       <div class="row" style="margin-top:14px;">
         <button id="printBtn" style="font-size:18px; padding:14px 18px;">
@@ -487,7 +449,7 @@
           <button id="pdfBtn">Download receipt as a cute printable PDF</button>
         </div>
 
-        <img id="cupArt" src="angelocoffee.png" alt="Coffee cup message">
+        <img id="cupArt" src="angelocoffee.png" alt="Coffee cup message" crossorigin="anonymous">
       </div>
 
       <div class="row" style="margin-top:14px;">
@@ -530,7 +492,7 @@
   <!-- Scene 5 -->
   <div class="wrap" id="sceneFinal" style="display:none;">
     <div class="panel">
-      <img id="finalPhoto" src="final.jpg" alt="Us">
+      <img id="finalPhoto" src="final.jpg" alt="Us" crossorigin="anonymous">
       <div id="finalText"></div>
 
       <div class="row" style="margin-top:10px;">
@@ -576,9 +538,9 @@
   const loadingLine = document.getElementById("loadingLine");
   const stampEl     = document.getElementById("stamp");
   const photoWrap   = document.getElementById("photoWrap");
+  const contractPhoto = document.getElementById("contractPhoto");
   const toCoffeeBtn = document.getElementById("toCoffeeBtn");
 
-  const coffeePanel = document.getElementById("coffeePanel");
   const printBtn = document.getElementById("printBtn");
   const printArea = document.getElementById("printArea");
   const receipt = document.getElementById("receipt");
@@ -624,6 +586,7 @@
     if(on) startBgm(); else stopBgm();
   }
 
+  // autoplay-safe: start music on first click/tap anywhere
   window.addEventListener("pointerdown", ()=>startBgm(), { once:true });
 
   // =========================
@@ -632,7 +595,6 @@
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   let audioCtx;
   let sfxOn = true;
-
   function ensureAudio(){ if(!audioCtx) audioCtx = new AudioCtx(); }
 
   function setSfx(on){
@@ -855,32 +817,52 @@
     }
   }
 
+  // Start with buttons hidden until typing finishes
+  btnRow.classList.remove("ready");
+
   (async ()=>{
     questionEl.textContent = "";
+    subEl.textContent = "";
     await typeAppend(questionEl, "Angelo…", 95);
     await wait(1100);
     await typeAppend(questionEl, " will you be my Valentine? 💘", 65);
     subEl.textContent = "Please respond with honesty and romantic compliance.";
-    btnRow.classList.add("ready");
-    noBtn.classList.add("ready");
+    btnRow.classList.add("ready");  // NOW buttons appear
   })();
 
   // =========================
-  // NO BUTTON DODGE (shrinks) + YES grows
+  // NO BUTTON DODGE (starts fair then goes rogue)
   // =========================
   let dodges = 0;
+  let noIsLoose = false;
+
   function moveNo(){
     dodges++;
 
+    // YES grows each dodge
     const yesScale = 1 + dodges * 0.06;
     yesBtn.style.transform = `scale(${yesScale})`;
 
+    // First dodge: pop NO out of the row into fixed position
+    if(!noIsLoose){
+      noIsLoose = true;
+
+      // get current position before changing to fixed
+      const rect = noBtn.getBoundingClientRect();
+      noBtn.style.position = "fixed";
+      noBtn.style.left = rect.left + "px";
+      noBtn.style.top  = rect.top + "px";
+      noBtn.style.zIndex = "50";
+    }
+
+    // Shrink + move
     const scaleNo = Math.max(0.50, 1 - dodges * 0.10);
     const opacityNo = Math.max(0.06, 1 - dodges * 0.16);
 
     const pad = 14;
     const w = noBtn.offsetWidth;
     const h = noBtn.offsetHeight;
+
     const x = pad + Math.random() * (innerWidth - w - pad*2);
     const y = pad + Math.random() * (innerHeight - h - pad*2);
 
@@ -895,8 +877,9 @@
       setTimeout(()=> noBtn.remove(), 350);
     }
   }
+
   noBtn.addEventListener("mouseenter", moveNo);
-  noBtn.addEventListener("click", moveNo);
+  noBtn.addEventListener("click", (e)=>{ e.preventDefault(); moveNo(); });
   noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNo(); }, {passive:false});
 
   // =========================
@@ -914,7 +897,7 @@
     document.body.appendChild(c);
     setTimeout(()=> c.remove(), 2600);
   }
-  function confettiBurst(amount = 60){
+  function confettiBurst(amount = 80){
     for(let i=0;i<amount;i++) setTimeout(spawnConfetti, i * 9);
   }
 
@@ -932,7 +915,7 @@
     show(sceneContract);
 
     photoWrap.style.display = "none";
-    photoWrap.classList.remove("reveal");
+    contractPhoto.classList.remove("photoReveal");
     stampEl.style.display = "none";
     toCoffeeBtn.style.display = "none";
 
@@ -965,25 +948,26 @@
     thunk();
     coin();
 
-    await wait(850);
+    await wait(650);
     photoWrap.style.display = "block";
-    photoWrap.classList.remove("reveal");
-    void photoWrap.offsetWidth;
-    photoWrap.classList.add("reveal");
+    contractPhoto.classList.remove("photoReveal");
+    void contractPhoto.offsetWidth;
+    contractPhoto.classList.add("photoReveal");
 
-    // Snapshot moment
+    // Big moment: flash + snap + yay + confetti
     setTimeout(()=>{
       cameraFlash();
       cameraSnap();
-      confettiBurst(62);
-    }, 700 * SPEED);
+      yay();
+      confettiBurst(90);
+    }, 650 * SPEED);
 
-    await wait(1100);
+    await wait(1150);
     popupWin("System Notification", "📸 Contract screenshot captured and sent to <b>Niloo</b>.");
     await wait(1300);
     popupWin("Legal Notice", "⚖️ Binding under <b>American</b>, <b>Italian</b>, and <b>Internet</b> Law.");
 
-    await wait(1000);
+    await wait(950);
     toCoffeeBtn.style.display = "inline-block";
   }
 
@@ -997,18 +981,11 @@
     receipt.classList.remove("printing");
   }
 
-  // Print receipt flow (B: smooth scroll + start rollout)
   async function printReceiptFlow(){
-    // show area first (so it can be scrolled to)
     printArea.style.display = "block";
-
-    // smooth scroll to receipt center
     receipt.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    // wait for scroll to settle
     await wait(900);
 
-    // start printing
     receipt.classList.remove("printing");
     void receipt.offsetWidth;
     receipt.classList.add("printing");
@@ -1016,7 +993,6 @@
     setTimeout(()=>kiss(), 420);
     setTimeout(()=>kiss(), 820);
 
-    // show finalize button after rollout
     await wait(5200);
     toEndBtn.style.display = "inline-block";
   }
@@ -1073,6 +1049,7 @@
       await wait(70);
     }
   }
+
   async function startFinalScene(){
     hide(sceneEnd);
     show(sceneFinal);
@@ -1095,7 +1072,6 @@
   document.getElementById("pdfBtn").addEventListener("click", async () => {
     const { jsPDF } = window.jspdf;
 
-    // Capture full content
     printArea.classList.add("capture");
     await new Promise(r => setTimeout(r, 250));
 
