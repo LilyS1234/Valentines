@@ -849,16 +849,24 @@
     const yesScale = 1 + dodges * 0.06;
     yesBtn.style.transform = `scale(${yesScale})`;
 
-    // First dodge: pop NO out of the row into fixed position
+    // First dodge: detach NO from transformed row so fixed uses full viewport
     if(!noIsLoose){
       noIsLoose = true;
 
-      // get current position before changing to fixed
+      // get current viewport position before detaching
       const rect = noBtn.getBoundingClientRect();
+
+      // move out of #btnRow (which has transform) to avoid fixed-position clipping
+      if(!noDetached){
+        document.body.appendChild(noBtn);
+        noDetached = true;
+      }
+
       noBtn.style.position = "fixed";
       noBtn.style.left = rect.left + "px";
       noBtn.style.top  = rect.top + "px";
-      noBtn.style.zIndex = "50";
+      noBtn.style.margin = "0";
+      noBtn.style.zIndex = "9997";
     }
 
     // Shrink each dodge, but keep visible on screen forever
