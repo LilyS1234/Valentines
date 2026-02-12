@@ -104,6 +104,15 @@
       z-index: 50;
     }
 
+    #toEndBtn,
+    #toFinalBtn{
+      color:#fff;
+      background: linear-gradient(180deg, #ff2d55, #ff0033);
+      text-shadow: 0 2px 0 rgba(0,0,0,.15);
+      filter: drop-shadow(0 0 14px rgba(255,255,255,.45));
+      font-weight:900;
+    }
+
     .miniBtn{
       padding: 12px 16px;
       font-size: 14px;
@@ -332,9 +341,9 @@
     #clauses{ margin: 10px auto 14px; width:min(680px,92vw); text-align:center; font-size:16px; opacity:.92; }
     #clauses div{ margin:8px 0; opacity:0; transform:translateY(8px); }
     .showClauses #clauses div{ animation: clauseIn 1.35s ease forwards; }
-    .showClauses #clauses div:nth-child(1){ animation-delay: 1.0s; }
-    .showClauses #clauses div:nth-child(2){ animation-delay: 2.9s; }
-    .showClauses #clauses div:nth-child(3){ animation-delay: 4.8s; }
+    .showClauses #clauses div:nth-child(1){ animation-delay: 0.6s; }
+    .showClauses #clauses div:nth-child(2){ animation-delay: 1.7s; }
+    .showClauses #clauses div:nth-child(3){ animation-delay: 2.8s; }
     @keyframes clauseIn{ to{opacity:1; transform:translateY(0)} }
 
     /* Confetti + fireworks */
@@ -466,9 +475,6 @@
             Total: <b>Your Heart</b><br>
             <div class="rHr"></div>
             <b>Return policy:</b> absolutely not.
-            <div class="fadeInLater" style="margin-top:10px; font-weight:900;">
-              Best decision you’ve ever made.
-            </div>
           </div>
           <button id="pdfBtn">Download receipt as a cute printable PDF</button>
         </div>
@@ -936,12 +942,14 @@
   function spawnConfetti(){
     const c = document.createElement("div");
     c.className = "confetti";
-    const symbols = ["✦","✧","❀","❋","✺","✹"];
+    const symbols = ["💖","💘","💕","💞","✨","🌟","💝"];
     c.textContent = symbols[Math.floor(Math.random()*symbols.length)];
     c.style.left = (Math.random()*innerWidth) + "px";
     c.style.top  = "-10px";
-    c.style.fontSize = (16 + Math.random()*22) + "px";
-    c.style.filter = "drop-shadow(0 0 10px rgba(255,255,255,.35))";
+    c.style.fontSize = (18 + Math.random()*20) + "px";
+    const colors = ["#ff3f8e", "#ff7eb6", "#ffd166", "#f5f5f5", "#d9d9d9", "#ffc8dd"];
+    c.style.color = colors[Math.floor(Math.random()*colors.length)];
+    c.style.filter = "drop-shadow(0 0 10px rgba(255,255,255,.5))";
     document.body.appendChild(c);
     setTimeout(()=> c.remove(), 2600);
   }
@@ -1041,7 +1049,7 @@
     setTimeout(()=>kiss(), 420);
     setTimeout(()=>kiss(), 820);
 
-    await wait(5200);
+    await wait(3000);
     toEndBtn.style.display = "inline-block";
   }
 
@@ -1051,12 +1059,14 @@
   function spawnFirework(){
     const f = document.createElement("div");
     f.className = "firework";
-    f.textContent = "✦";
+    const fwSymbols = ["💗","💖","💘","✨","🌟","💞"];
+    f.textContent = fwSymbols[Math.floor(Math.random()*fwSymbols.length)];
     f.style.left = (Math.random()*innerWidth) + "px";
     f.style.top  = (Math.random()*innerHeight*0.8) + "px";
-    f.style.fontSize = (42 + Math.random()*22) + "px";
-    f.style.color = "rgba(255,255,255,.95)";
-    f.style.textShadow = "0 0 18px rgba(255,255,255,.65)";
+    f.style.fontSize = (34 + Math.random()*20) + "px";
+    const fwColors = ["#ff4fa3", "#ffd166", "#f5f5f5", "#ffc8dd", "#d9d9d9"];
+    f.style.color = fwColors[Math.floor(Math.random()*fwColors.length)];
+    f.style.textShadow = "0 0 18px rgba(255,255,255,.75)";
     document.body.appendChild(f);
     setTimeout(()=> f.remove(), 1300);
   }
