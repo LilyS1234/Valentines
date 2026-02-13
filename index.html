@@ -598,8 +598,17 @@
   const sceneCoffee   = document.getElementById("sceneCoffee");
   const sceneEnd      = document.getElementById("sceneEnd");
   const sceneFinal    = document.getElementById("sceneFinal");
+  const scenes = [sceneQuestion, sceneContract, sceneCoffee, sceneEnd, sceneFinal];
   const show = (el) => el.style.display = "grid";
   const hide = (el) => el.style.display = "none";
+  function goToScene(nextScene){
+    scenes.forEach(hide);
+    show(nextScene);
+  }
+
+  function clearPopups(){
+    document.querySelectorAll(".popupWin").forEach((popup)=>popup.remove());
+  }
 
   // =========================
   // ELEMENTS
@@ -1070,8 +1079,8 @@
 
   async function startContractScene(){
     hideNoButton();
-    hide(sceneQuestion);
-    show(sceneContract);
+    clearPopups();
+    goToScene(sceneContract);
 
     photoWrap.style.display = "none";
     contractPhoto.classList.remove("photoReveal");
@@ -1131,8 +1140,8 @@
   }
 
   function startCoffeeScene(){
-    hide(sceneContract);
-    show(sceneCoffee);
+    clearPopups();
+    goToScene(sceneCoffee);
 
     // reset coffee scene state
     printArea.style.display = "none";
@@ -1191,8 +1200,8 @@
   }
 
   async function startEndScene(){
-    hide(sceneContract);
-    show(sceneEnd);
+    clearPopups();
+    goToScene(sceneEnd);
     toCoffeeBtn.style.display = "none";
     endPanel.classList.remove("showClauses");
     void endPanel.offsetWidth;
@@ -1223,8 +1232,8 @@
   }
 
   async function startFinalScene(){
-    hide(sceneCoffee);
-    show(sceneFinal);
+    clearPopups();
+    goToScene(sceneFinal);
 
     yay();
     coin();
