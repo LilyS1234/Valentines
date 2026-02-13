@@ -296,17 +296,21 @@
     #receipt::before{ top:-9px; }
     #receipt::after { bottom:-9px; transform: rotate(180deg); }
 
-    /* slower rollout */
+    /* receipt rollout tuning */
+    #receipt{
+      --print-duration: 3.4s;
+      --print-height: 540px;
+    }
     #receiptPrint{ height:0; overflow:hidden; }
-    .printing #receiptPrint{ animation: print 2.2s ease-out forwards; }
-    @keyframes print{ to{ height: 680px; } }
+    .printing #receiptPrint{ animation: print var(--print-duration) ease-out forwards; }
+    @keyframes print{ to{ height: var(--print-height); } }
 
     .rTitle{ font-weight:900; }
     .rSmall{ font-size:12px; opacity:.7; }
     .rHr{ border-top: 1px dashed rgba(0,0,0,.25); margin:10px 0; }
     .rRow{ display:flex; justify-content:space-between; gap:10px; }
     .fadeInLater{ opacity:0; }
-    .printing .fadeInLater{ animation: fadeIn .7s ease forwards; animation-delay: 2.2s; }
+    .printing .fadeInLater{ animation: fadeIn .7s ease forwards; animation-delay: var(--print-duration); }
     @keyframes fadeIn{ to{opacity:1} }
 
     /* Capture mode for PDF */
@@ -1098,16 +1102,16 @@
   async function printReceiptFlow(){
     printArea.style.display = "block";
     receipt.scrollIntoView({ behavior: "smooth", block: "center" });
-    await wait(900);
+    await wait(260);
 
     receipt.classList.remove("printing");
     void receipt.offsetWidth;
     receipt.classList.add("printing");
     printerBrrt();
-    setTimeout(()=>kiss(), 420);
-    setTimeout(()=>kiss(), 820);
+    setTimeout(()=>kiss(), 760);
+    setTimeout(()=>kiss(), 1440);
 
-    await wait(3000);
+    await wait(3800);
     toEndBtn.style.display = "inline-block";
   }
 
