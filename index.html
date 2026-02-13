@@ -132,8 +132,10 @@
     /* APPROVED stamp (simple) */
     #stamp{
       display:none;
-      position:static;
-      margin: 0 auto 12px;
+      position:absolute;
+      top: 14px;
+      left: 50%;
+      margin: 0;
       width: fit-content;
       padding: 10px 18px;
       border: 9px solid #1bb24a;
@@ -146,14 +148,14 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       opacity:0;
-      transform: rotate(-10deg) scale(1.25);
-      z-index: 35;
+      transform: translateX(-50%) rotate(-10deg) scale(1.25);
+      z-index: 30;
       pointer-events:none;
     }
-    .stampIn{ animation: stampIn .65s cubic-bezier(.2,1.2,.2,1) forwards; }
+    .stampIn{ animation: stampIn .9s cubic-bezier(.2,1.2,.2,1) forwards; }
     @keyframes stampIn{
-      0%{ opacity:0; transform: rotate(-10deg) scale(1.25); }
-      100%{ opacity:1; transform: rotate(-10deg) scale(1); }
+      0%{ opacity:0; transform: translateX(-50%) rotate(-10deg) scale(1.25); }
+      100%{ opacity:1; transform: translateX(-50%) rotate(-10deg) scale(1); }
     }
 
     /* Contract photo cinematic reveal (NO CROP) */
@@ -181,7 +183,7 @@
     }
 
     .photoReveal{
-      animation: photoReveal 2.6s ease forwards;
+      animation: photoReveal 3.2s ease forwards;
     }
 
     @keyframes photoReveal{
@@ -541,7 +543,7 @@
   // =========================
   // GLOBAL PACING
   // =========================
-  const SPEED = 1.55; // bigger = slower
+  const SPEED = 1.75; // bigger = slower
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   const wait  = (ms) => sleep(ms * SPEED);
 
@@ -1044,6 +1046,12 @@
     await wait(total);
     stopDots();
 
+    photoWrap.style.display = "block";
+    contractPhoto.classList.remove("photoReveal");
+    void contractPhoto.offsetWidth;
+    contractPhoto.classList.add("photoReveal");
+
+    await wait(980);
     stampEl.style.display = "block";
     stampEl.classList.remove("stampIn");
     void stampEl.offsetWidth;
@@ -1051,19 +1059,13 @@
     thunk();
     coin();
 
-    await wait(650);
-    photoWrap.style.display = "block";
-    contractPhoto.classList.remove("photoReveal");
-    void contractPhoto.offsetWidth;
-    contractPhoto.classList.add("photoReveal");
-
     // Big moment: flash + snap + yay + confetti
     setTimeout(()=>{
       cameraFlash();
       cameraSnap();
       yay();
       confettiBurst(90);
-    }, 650 * SPEED);
+    }, 860 * SPEED);
 
     await wait(1150);
     popupWin("System Notification", "📸 Contract screenshot captured and sent to <b>Niloo</b>.");
