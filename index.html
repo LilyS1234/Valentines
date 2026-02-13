@@ -867,12 +867,14 @@
   let dodges = 0;
   let noIsLoose = false;
   let noDetached = false;
+  let pointerX = innerWidth / 2;
+  let pointerY = innerHeight / 2;
 
   function clamp(v, min, max){
     return Math.min(max, Math.max(min, v));
   }
 
-  function moveNo(pointerX = innerWidth / 2, pointerY = innerHeight / 2){
+  function moveNo(targetX = pointerX, targetY = pointerY){
     dodges++;
 
     // First dodge: detach NO from transformed row so fixed uses full viewport
@@ -904,15 +906,26 @@
 
     const currentX = parseFloat(noBtn.style.left || "0");
     const currentY = parseFloat(noBtn.style.top || "0");
-    const dx = currentX - pointerX;
-    const dy = currentY - pointerY;
+    const dx = currentX - targetX;
+    const dy = currentY - targetY;
     const len = Math.hypot(dx, dy) || 1;
     const runDistance = 120 + Math.random() * 170;
     const jitterX = (Math.random() - 0.5) * 140;
     const jitterY = (Math.random() - 0.5) * 140;
 
-    const x = clamp(currentX + (dx / len) * runDistance + jitterX, pad, maxX);
-    const y = clamp(currentY + (dy / len) * runDistance + jitterY, pad, maxY);
+    let x = clamp(currentX + (dx / len) * runDistance + jitterX, pad, maxX);
+    let y = clamp(currentY + (dy / len) * runDistance + jitterY, pad, maxY);
+
+    // If we get pinned near a corner/edge, jump to a fresh safe point far from cursor.
+    const edgeBuffer = 8;
+    const atEdge =
+      x <= pad + edgeBuffer || x >= maxX - edgeBuffer ||
+      y <= pad + edgeBuffer || y >= maxY - edgeBuffer;
+    const pointerTooClose = Math.hypot((x + w / 2) - targetX, (y + h / 2) - targetY) < 170;
+    if(atEdge && pointerTooClose){
+      x = clamp(Math.random() * (innerWidth - w - pad * 2) + pad, pad, maxX);
+      y = clamp(Math.random() * (innerHeight - h - pad * 2) + pad, pad, maxY);
+    }
 
     noBtn.style.left = x + "px";
     noBtn.style.top  = y + "px";
@@ -940,6 +953,8 @@
   });
 
   window.addEventListener("pointermove", (e)=>{
+    pointerX = e.clientX;
+    pointerY = e.clientY;
     const rect = noBtn.getBoundingClientRect();
     const nearX = e.clientX > rect.left - 80 && e.clientX < rect.right + 80;
     const nearY = e.clientY > rect.top - 80 && e.clientY < rect.bottom + 80;
@@ -947,10 +962,26 @@
   });
 
   window.addEventListener("pointerdown", (e)=>{
+    pointerX = e.clientX;
+    pointerY = e.clientY;
     if(e.target !== noBtn) return;
     e.preventDefault();
     moveNo(e.clientX, e.clientY);
   });
+
+  noBtn.addEventListener("mouseenter", ()=> moveNo(pointerX, pointerY));
+  noBtn.addEventListener("click", (e)=>{
+    e.preventDefault();
+    moveNo(pointerX, pointerY);
+  });
+
+  // Continuous evasive motion so the No button never stops running away.
+  setInterval(()=>{
+    if(!noIsLoose || noBtn.style.display === "none") return;
+    const rect = noBtn.getBoundingClientRect();
+    const dist = Math.hypot(pointerX - (rect.left + rect.width / 2), pointerY - (rect.top + rect.height / 2));
+    if(dist < 260 || Math.random() < 0.1) moveNo(pointerX, pointerY);
+  }, 120);
   // =========================
   // CONFETTI HELPERS
   // =========================
