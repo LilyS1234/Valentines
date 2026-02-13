@@ -850,8 +850,12 @@
     }
   }
 
+  // Keep No hidden and non-evasive until the full question rollout is done.
+  let questionPromptComplete = false;
+
   // Start with buttons hidden until typing finishes
   btnRow.classList.remove("ready");
+  noBtn.style.visibility = "hidden";
 
   (async ()=>{
     questionEl.textContent = "";
@@ -860,6 +864,8 @@
     await wait(1100);
     await typeAppend(questionEl, " will you be my Valentine? 💘", 65);
     subEl.textContent = "Please respond with honesty and romantic compliance.";
+    questionPromptComplete = true;
+    noBtn.style.visibility = "visible";
     btnRow.classList.add("ready");  // NOW buttons appear
   })();
 
@@ -877,6 +883,7 @@
   }
 
   function moveNo(targetX = pointerX, targetY = pointerY){
+    if(!questionPromptComplete) return;
     dodges++;
 
     // First dodge: detach NO from transformed row so fixed uses full viewport
@@ -955,6 +962,7 @@
   });
 
   window.addEventListener("pointermove", (e)=>{
+    if(!questionPromptComplete) return;
     pointerX = e.clientX;
     pointerY = e.clientY;
     const rect = noBtn.getBoundingClientRect();
@@ -964,6 +972,7 @@
   });
 
   window.addEventListener("pointerdown", (e)=>{
+    if(!questionPromptComplete) return;
     pointerX = e.clientX;
     pointerY = e.clientY;
     if(e.target !== noBtn) return;
@@ -979,7 +988,7 @@
 
   // Continuous evasive motion so the No button never stops running away.
   setInterval(()=>{
-    if(!noIsLoose || noBtn.style.display === "none") return;
+    if(!questionPromptComplete || !noIsLoose || noBtn.style.display === "none") return;
     const rect = noBtn.getBoundingClientRect();
     const dist = Math.hypot(pointerX - (rect.left + rect.width / 2), pointerY - (rect.top + rect.height / 2));
     if(dist < 260 || Math.random() < 0.1) moveNo(pointerX, pointerY);
