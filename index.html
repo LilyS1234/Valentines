@@ -115,6 +115,17 @@
       font-weight:900;
     }
 
+    .primaryCta{
+      font-size: clamp(20px, 2.6vw, 30px);
+      padding: 18px 34px;
+      margin: 8px 0;
+    }
+
+    .primaryActionRow{
+      margin-top: 28px !important;
+      margin-bottom: 14px;
+    }
+
     .miniBtn{
       padding: 12px 16px;
       font-size: 14px;
@@ -122,6 +133,37 @@
       background: rgba(0,0,0,.88);
       color:#fff;
       box-shadow: 0 12px 24px rgba(0,0,0,.18);
+    }
+
+    .audioDock{
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10001;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+      backdrop-filter: blur(4px);
+    }
+
+    .audioBtn{
+      min-width: 52px;
+      padding: 10px 12px;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: rgba(0,0,0,.88);
+      color: #fff;
+    }
+
+    .audioBtn.is-off{
+      background: rgba(0,0,0,.55);
+      color: rgba(255,255,255,.9);
     }
 
     /* Loading line */
@@ -403,6 +445,24 @@
 <body>
   <div id="flash"></div>
   <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
+  <div class="audioDock" role="group" aria-label="Audio controls">
+    <button
+      class="audioBtn"
+      id="musicToggle"
+      aria-label="Toggle background music"
+      aria-pressed="true"
+      title="Music">
+      <span aria-hidden="true">🎵</span><span class="audioState">ON</span>
+    </button>
+    <button
+      class="audioBtn"
+      id="sfxToggle"
+      aria-label="Toggle sound effects"
+      aria-pressed="true"
+      title="Sound effects">
+      <span aria-hidden="true">🔊</span><span class="audioState">ON</span>
+    </button>
+  </div>
 
   <!-- Scene 1 -->
   <div class="wrap" id="sceneQuestion">
@@ -410,14 +470,9 @@
       <h1 id="question"></h1>
       <p id="sub"></p>
 
-      <div class="row" id="btnRow">
-        <button id="yesBtn">Sign Valentine Agreement ✍️</button>
+      <div class="row primaryActionRow" id="btnRow">
+        <button id="yesBtn" class="primaryCta">Sign Valentine Agreement ✍️</button>
         <button id="noBtn">No 😒</button>
-      </div>
-
-      <div class="row">
-        <button class="miniBtn" id="musicToggle">Music: ON</button>
-        <button class="miniBtn" id="sfxToggle">SFX: ON</button>
       </div>
     </div>
   </div>
@@ -433,15 +488,10 @@
         <img id="contractPhoto" src="contract.jpg" alt="Contract signing photo" crossorigin="anonymous">
       </div>
 
-      <div class="row" style="margin-top:10px;">
-        <button id="toCoffeeBtn" style="display:none; font-size:18px; padding:14px 18px;">
+      <div class="row primaryActionRow" style="margin-top:10px;">
+        <button id="toCoffeeBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
           Redeem my Valentine’s Day coffee ☕
         </button>
-      </div>
-
-      <div class="row">
-        <button class="miniBtn" id="musicToggle2">Music: ON</button>
-        <button class="miniBtn" id="sfxToggle2">SFX: ON</button>
       </div>
     </div>
   </div>
@@ -452,8 +502,8 @@
       <div style="font-weight:900; margin:0 0 10px;">Barista Niloo is pleased with your decision</div>
       <img id="nilooImg" src="niloo.png" alt="Niloo barista" crossorigin="anonymous">
 
-      <div class="row" style="margin-top:14px;">
-        <button id="printBtn" style="font-size:18px; padding:14px 18px;">
+      <div class="row primaryActionRow" style="margin-top:14px;">
+        <button id="printBtn" class="primaryCta" style="font-size:18px; padding:14px 18px;">
           Print my receipt 🧾
         </button>
       </div>
@@ -490,15 +540,10 @@
         <img id="cupArt" src="angelocoffee.png" alt="Coffee cup message" crossorigin="anonymous">
       </div>
 
-      <div class="row" style="margin-top:14px;">
-        <button id="toEndBtn" style="display:none; font-size:18px; padding:14px 18px;">
+      <div class="row primaryActionRow" style="margin-top:14px;">
+        <button id="toEndBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
           Finalize my boyfriend status ✅
         </button>
-      </div>
-
-      <div class="row">
-        <button class="miniBtn" id="musicToggle3">Music: ON</button>
-        <button class="miniBtn" id="sfxToggle3">SFX: ON</button>
       </div>
     </div>
   </div>
@@ -514,15 +559,10 @@
         <div>• Return policy remains: absolutely not.</div>
       </div>
 
-      <div class="row">
-        <button id="toFinalBtn" style="display:none; font-size:18px; padding:14px 18px;">
+      <div class="row primaryActionRow">
+        <button id="toFinalBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
           Proceed to final reward 💝
         </button>
-      </div>
-
-      <div class="row">
-        <button class="miniBtn" id="musicToggle4">Music: ON</button>
-        <button class="miniBtn" id="sfxToggle4">SFX: ON</button>
       </div>
     </div>
   </div>
@@ -539,10 +579,6 @@
         <button class="miniBtn" id="restartBtn">Replay 😌</button>
       </div>
 
-      <div class="row">
-        <button class="miniBtn" id="musicToggle5">Music: ON</button>
-        <button class="miniBtn" id="sfxToggle5">SFX: ON</button>
-      </div>
     </div>
   </div>
 
@@ -619,10 +655,13 @@
 
   function setMusic(on){
     musicOn = on;
-    ["musicToggle","musicToggle2","musicToggle3","musicToggle4","musicToggle5"].forEach(id=>{
-      const b = document.getElementById(id);
-      if(b) b.textContent = `Music: ${on ? "ON" : "OFF"}`;
-    });
+    const b = document.getElementById("musicToggle");
+    if(b){
+      b.querySelector(".audioState").textContent = on ? "ON" : "OFF";
+      b.classList.toggle("is-off", !on);
+      b.setAttribute("aria-pressed", String(on));
+      b.setAttribute("title", `Music: ${on ? "ON" : "OFF"}`);
+    }
     if(on) startBgm(); else stopBgm();
   }
 
@@ -639,10 +678,13 @@
 
   function setSfx(on){
     sfxOn = on;
-    ["sfxToggle","sfxToggle2","sfxToggle3","sfxToggle4","sfxToggle5"].forEach(id=>{
-      const b = document.getElementById(id);
-      if(b) b.textContent = `SFX: ${on ? "ON" : "OFF"}`;
-    });
+    const b = document.getElementById("sfxToggle");
+    if(b){
+      b.querySelector(".audioState").textContent = on ? "ON" : "OFF";
+      b.classList.toggle("is-off", !on);
+      b.setAttribute("aria-pressed", String(on));
+      b.setAttribute("title", `SFX: ${on ? "ON" : "OFF"}`);
+    }
   }
 
   function thunk(){
@@ -817,12 +859,8 @@
     osc2.start(t + 0.03); osc2.stop(t + 0.13);
   }
 
-  ["musicToggle","musicToggle2","musicToggle3","musicToggle4","musicToggle5"].forEach(id=>{
-    document.getElementById(id).addEventListener("click", ()=>setMusic(!musicOn));
-  });
-  ["sfxToggle","sfxToggle2","sfxToggle3","sfxToggle4","sfxToggle5"].forEach(id=>{
-    document.getElementById(id).addEventListener("click", ()=>setSfx(!sfxOn));
-  });
+  document.getElementById("musicToggle").addEventListener("click", ()=>setMusic(!musicOn));
+  document.getElementById("sfxToggle").addEventListener("click", ()=>setSfx(!sfxOn));
   setMusic(true);
   setSfx(true);
 
