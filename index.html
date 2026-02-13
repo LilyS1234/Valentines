@@ -489,8 +489,8 @@
       </div>
 
       <div class="row primaryActionRow" style="margin-top:10px;">
-        <button id="toCoffeeBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
-          Redeem my Valentine’s Day coffee ☕
+        <button id="toEndBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
+          Finalize my boyfriend status ✅
         </button>
       </div>
     </div>
@@ -541,8 +541,8 @@
       </div>
 
       <div class="row primaryActionRow" style="margin-top:14px;">
-        <button id="toEndBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
-          Finalize my boyfriend status ✅
+        <button id="toFinalBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
+          Redeem my final reward 💝
         </button>
       </div>
     </div>
@@ -560,8 +560,8 @@
       </div>
 
       <div class="row primaryActionRow">
-        <button id="toFinalBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
-          Proceed to final reward 💝
+        <button id="toCoffeeBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
+          Redeem my Valentine’s Day coffee ☕
         </button>
       </div>
     </div>
@@ -1076,7 +1076,7 @@
     photoWrap.style.display = "none";
     contractPhoto.classList.remove("photoReveal");
     stampEl.style.display = "none";
-    toCoffeeBtn.style.display = "none";
+    toEndBtn.style.display = "none";
 
     const steps = [
       "Booting romantic compliance module",
@@ -1127,7 +1127,7 @@
     popupWin("Legal Notice", "⚖️ Binding under <b>American</b>, <b>Italian</b>, and <b>Internet</b> Law.");
 
     await wait(950);
-    toCoffeeBtn.style.display = "inline-block";
+    toEndBtn.style.display = "inline-block";
   }
 
   function startCoffeeScene(){
@@ -1136,7 +1136,7 @@
 
     // reset coffee scene state
     printArea.style.display = "none";
-    toEndBtn.style.display = "none";
+    toFinalBtn.style.display = "none";
     receipt.classList.remove("printing");
   }
 
@@ -1153,7 +1153,7 @@
     setTimeout(()=>kiss(), 1440);
 
     await wait(3800);
-    toEndBtn.style.display = "inline-block";
+    toFinalBtn.style.display = "inline-block";
   }
 
   // =========================
@@ -1191,9 +1191,9 @@
   }
 
   async function startEndScene(){
-    hide(sceneCoffee);
+    hide(sceneContract);
     show(sceneEnd);
-    toFinalBtn.style.display = "none";
+    toCoffeeBtn.style.display = "none";
     endPanel.classList.remove("showClauses");
     void endPanel.offsetWidth;
     endPanel.classList.add("showClauses");
@@ -1201,7 +1201,7 @@
 
     // Wait until all three clause lines have finished appearing.
     await wait(6400);
-    toFinalBtn.style.display = "inline-block";
+    toCoffeeBtn.style.display = "inline-block";
   }
 
   // =========================
@@ -1223,7 +1223,7 @@
   }
 
   async function startFinalScene(){
-    hide(sceneEnd);
+    hide(sceneCoffee);
     show(sceneFinal);
 
     yay();
@@ -1300,9 +1300,9 @@
     startContractScene();
   });
 
+  toEndBtn.addEventListener("click", startEndScene);
   toCoffeeBtn.addEventListener("click", startCoffeeScene);
   printBtn.addEventListener("click", printReceiptFlow);
-  toEndBtn.addEventListener("click", startEndScene);
   toFinalBtn.addEventListener("click", startFinalScene);
 </script>
 </body>
