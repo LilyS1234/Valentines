@@ -15,21 +15,34 @@
 
   <style>
     :root{
-      --pink1:#ffb6c1;
-      --pink2:#ff69b4;
-      --hot:#ff2d55;
-      --shadow: 0 18px 45px rgba(0,0,0,.25);
+      --pink1:#ffe3ef;
+      --pink2:#ffc4df;
+      --lavender:#e9ddff;
+      --hot:#e84a7a;
+      --shadow: 0 18px 45px rgba(158, 77, 122, .18);
+      --soft-shadow: 0 10px 24px rgba(171, 105, 143, .2);
       --card: rgba(255,255,255,.92);
-      --ink: #111;
+      --ink: #2a2430;
+      --space-xs: 8px;
+      --space-sm: 12px;
+      --space-md: 18px;
+      --space-lg: 28px;
+      --space-xl: 36px;
     }
 
     html, body { height:100%; margin:0; }
     body{
       overflow:hidden;
-      background: radial-gradient(var(--pink1), var(--pink2));
+      background: radial-gradient(circle at top, var(--pink1), var(--pink2));
       font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--ink);
+      line-height: 1.6;
     }
+
+    h1, h2, h3 { line-height: 1.25; }
+    h2, h3 { margin: 0 0 var(--space-sm); font-weight: 800; }
+    h2 { font-size: clamp(26px, 3.1vw, 38px); }
+    h3 { font-size: clamp(21px, 2.4vw, 30px); }
 
     .wrap{ position:fixed; inset:0; display:grid; place-items:center; padding:18px; }
     .panel{
@@ -39,35 +52,53 @@
       background: var(--card);
       border-radius: 30px;
       box-shadow: var(--shadow);
-      padding: 30px 24px 22px;
+      border: 1px solid rgba(232, 126, 170, .25);
+      padding: var(--space-xl) var(--space-lg) var(--space-lg);
       text-align:center;
       position:relative;
       scroll-behavior: smooth;
     }
 
+    .panel > * + * { margin-top: var(--space-md); }
+    .panel h1 + p,
+    .panel h2 + p,
+    .panel h3 + p,
+    .panel h2 + #loadingLine,
+    .panel h2 + #clauses { margin-top: var(--space-xs); }
+
     /* Question */
     #question{
       font-family: "Great Vibes", cursive;
-      font-size: clamp(44px, 6vw, 92px);
+      font-size: clamp(52px, 6.4vw, 98px);
       color: var(--hot);
-      margin: 0 0 10px;
+      margin: 0;
       text-shadow: 0 0 24px rgba(255,255,255,.6);
       min-height: 1.2em;
       white-space: pre-wrap;
+      letter-spacing: .02em;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.14em;
+      text-decoration-color: rgba(232, 74, 122, .35);
     }
-    #sub{ margin:0 0 18px; opacity:.75; font-size:15px; min-height:1.2em; }
+    #sub{ margin:0; opacity:.82; font-size:16px; min-height:1.2em; }
 
     /* Buttons */
-    .row{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top: 12px; }
+    .row{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top: 0; }
     button{
       border:0; cursor:pointer; border-radius:999px;
       font-weight:900;
-      box-shadow: 0 12px 24px rgba(0,0,0,.16);
-      transition: transform .15s ease, opacity .2s ease, filter .2s ease;
+      box-shadow: var(--soft-shadow);
+      transition: transform .18s ease, opacity .2s ease, filter .2s ease, box-shadow .2s ease;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
+    button:hover{ transform: translateY(-1px) scale(1.01); }
     button:active{ transform: translateY(2px) scale(.98); }
+    button:focus-visible{
+      outline: 3px solid rgba(130, 98, 213, .45);
+      outline-offset: 2px;
+    }
 
     #btnRow{
       opacity:0;
@@ -86,22 +117,24 @@
       font-size: clamp(24px, 3.0vw, 36px);
       padding: 16px 30px;
       color:#fff;
-      background: linear-gradient(180deg, #ff2d55, #ff0033);
+      background: linear-gradient(180deg, #ff7ca8, #e84a7a);
       text-shadow: 0 2px 0 rgba(0,0,0,.15);
       filter: drop-shadow(0 0 16px rgba(255,255,255,.55));
       transform: scale(1);
+      border-radius: 18px;
     }
 
     #noBtn{
       font-size: clamp(24px, 3.0vw, 36px);
       padding: 16px 30px;
-      background: rgba(255,255,255,.96);
-      color:#333;
+      background: linear-gradient(180deg, #ffffff, #f7ecff);
+      color:#4b3e57;
       transform: scale(1);
       opacity:1;
       position: static; /* inline next to yes initially */
       transform-origin: top left;
       z-index: 50;
+      border-radius: 18px;
     }
 
     #toCoffeeBtn,
@@ -109,7 +142,7 @@
     #toEndBtn,
     #toFinalBtn{
       color:#fff;
-      background: linear-gradient(180deg, #ff2d55, #ff0033);
+      background: linear-gradient(180deg, #ff7ca8, #e84a7a);
       text-shadow: 0 2px 0 rgba(0,0,0,.15);
       filter: drop-shadow(0 0 14px rgba(255,255,255,.45));
       font-weight:900;
@@ -119,13 +152,13 @@
       padding: 12px 16px;
       font-size: 14px;
       border-radius: 999px;
-      background: rgba(0,0,0,.88);
+      background: linear-gradient(180deg, #7a5ce2, #5d4ab6);
       color:#fff;
-      box-shadow: 0 12px 24px rgba(0,0,0,.18);
+      box-shadow: 0 10px 20px rgba(93, 74, 182, .26);
     }
 
     /* Loading line */
-    #loadingLine{ font-size:18px; opacity:.9; min-height:1.6em; margin: 10px 0 10px; }
+    #loadingLine{ font-size:18px; opacity:.9; min-height:1.6em; margin: 0; }
     .dots::after{ content:""; animation:dots 1.2s steps(4,end) infinite; }
     @keyframes dots{ 0%{content:""} 25%{content:"."} 50%{content:".."} 75%{content:"..."} 100%{content:""} }
 
@@ -376,7 +409,7 @@
 
     #techGirlImg{
       width:min(260px, 54vw);
-      margin: 10px auto 0;
+      margin: var(--space-sm) auto 0;
       display:none;
       opacity:0;
       transform: translateY(12px) scale(.94);
@@ -387,6 +420,19 @@
     @keyframes techGirlIn{
       0%{ opacity:0; transform: translateY(12px) scale(.94); }
       100%{ opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 640px){
+      .wrap{ padding: 14px; }
+      .panel{
+        max-height: calc(100vh - 28px);
+        padding: 24px 18px 20px;
+      }
+      .panel > * + * { margin-top: var(--space-sm); }
+      #sub{ font-size:15px; }
+      .row{ gap: 10px; }
+      #yesBtn,
+      #noBtn{ width: 100%; max-width: 360px; }
     }
   </style>
 </head>
@@ -416,7 +462,7 @@
   <!-- Scene 2 -->
   <div class="wrap" id="sceneContract" style="display:none;">
     <div class="panel">
-      <h2 style="margin:0 0 6px; font-weight:900;">Valentine Agreement Review</h2>
+      <h2>Valentine Agreement Review</h2>
       <div id="loadingLine" class="dots">Booting romantic compliance module</div>
 
       <div id="photoWrap">
@@ -440,7 +486,7 @@
   <!-- Scene 3 -->
   <div class="wrap" id="sceneCoffee" style="display:none;">
     <div class="panel" id="coffeePanel">
-      <div style="font-weight:900; margin:0 0 10px;">Barista Niloo is pleased with your decision</div>
+      <h3>Barista Niloo is pleased with your decision</h3>
       <img id="nilooImg" src="niloo.png" alt="Niloo barista" crossorigin="anonymous">
 
       <div class="row" style="margin-top:14px;">
@@ -497,7 +543,7 @@
   <!-- Scene 4 -->
   <div class="wrap" id="sceneEnd" style="display:none;">
     <div class="panel" id="endPanel">
-      <h2 style="margin:0 0 6px; font-weight:900;">Valentine Agreement Successfully Executed ✅</h2>
+      <h2>Valentine Agreement Successfully Executed ✅</h2>
 
       <div id="clauses">
         <div>• This agreement auto-renews every year.</div>
