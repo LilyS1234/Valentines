@@ -168,39 +168,46 @@
 
     .sceneDock{
       position: fixed;
-      top: 16px;
-      left: 16px;
+      top: 12px;
+      left: 12px;
       z-index: 10001;
       display:flex;
       align-items:center;
-      gap: 8px;
-      padding: 10px 12px;
+      gap: 6px;
+      padding: 7px 9px;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,240,246,.95), rgba(255,224,238,.9));
+      background: linear-gradient(180deg, rgba(255,240,246,.86), rgba(255,224,238,.82));
       border: 1px solid rgba(255,45,85,.25);
-      box-shadow: 0 14px 30px rgba(255,45,85,.22);
-      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 18px rgba(255,45,85,.16);
+      backdrop-filter: blur(5px);
+      transition: opacity .45s ease, transform .45s ease;
+    }
+
+    .sceneDock.is-hidden{
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-12px);
     }
 
     .sceneBtn{
-      min-width: 52px;
-      padding: 10px 12px;
-      font-size: 14px;
+      min-width: 42px;
+      padding: 8px 10px;
+      font-size: 12px;
       background: linear-gradient(180deg, #ff5b89, #ff2d55);
       color: #fff;
       display: inline-flex;
       align-items:center;
       justify-content:center;
       gap: 4px;
-      box-shadow: 0 8px 18px rgba(255,45,85,.35);
+      box-shadow: 0 7px 12px rgba(255,45,85,.26);
     }
 
     #sceneLabel{
-      min-width: 130px;
+      min-width: 110px;
       text-align: left;
       color:#911036;
       font-weight: 800;
-      font-size: 12px;
+      font-size: 10px;
       line-height: 1.1;
     }
 
@@ -210,8 +217,8 @@
     }
 
     #loveMeterTrack{
-      width: 130px;
-      height: 8px;
+      width: 104px;
+      height: 6px;
       border-radius: 999px;
       background: rgba(255,45,85,.2);
       overflow: hidden;
@@ -549,7 +556,7 @@
 <body>
   <div id="flash"></div>
   <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
-  <div class="sceneDock" role="group" aria-label="Scene navigation controls">
+  <div class="sceneDock is-hidden" id="sceneDock" role="group" aria-label="Scene navigation controls">
     <button class="sceneBtn" id="prevSceneBtn" title="Previous scene">⏮️ Prev</button>
     <button class="sceneBtn" id="replaySceneBtn" title="Replay current scene">🔁 Replay</button>
     <button class="sceneBtn" id="nextSceneBtn" title="Next scene">Next ⏭️</button>
@@ -719,6 +726,7 @@
   const sceneLabel = document.getElementById("sceneLabel");
   const loveMeterText = document.getElementById("loveMeterText");
   const loveMeterFill = document.getElementById("loveMeterFill");
+  const sceneDock = document.getElementById("sceneDock");
 
   const sceneOrder = [sceneQuestion, sceneContract, sceneEnd, sceneCoffee, sceneFinal];
   const SCENE = { QUESTION:0, CONTRACT:1, END:2, COFFEE:3, FINAL:4 };
@@ -748,6 +756,10 @@
 
   function clearPopups(){
     document.querySelectorAll(".popupWin").forEach((popup)=>popup.remove());
+  }
+
+  function setSceneDockVisible(isVisible){
+    sceneDock.classList.toggle("is-hidden", !isVisible);
   }
 
   // =========================
@@ -1039,11 +1051,13 @@
   // =========================
   // TYPEWRITER INTRO
   // =========================
-  async function typeAppend(el, text, speed=65){
+  async function typeAppend(el, text, speed=65, runId){
     for(let i=0;i<text.length;i++){
+      if(runId !== activeRunId) return false;
       el.textContent += text[i];
       await wait(speed);
     }
+    return runId === activeRunId;
   }
 
   // Keep No hidden and non-evasive until the full question rollout is done.
@@ -1075,18 +1089,18 @@
     btnRow.classList.remove("ready");
     questionEl.textContent = "";
     subEl.textContent = "";
+    setSceneDockVisible(false);
 
-    await typeAppend(questionEl, "Angelo…", 95);
-    if(runId !== activeRunId) return;
+    if(!(await typeAppend(questionEl, "Angelo…", 95, runId))) return;
     await wait(1100);
     if(runId !== activeRunId) return;
-    await typeAppend(questionEl, " will you be my Valentine? 💘", 65);
-    if(runId !== activeRunId) return;
+    if(!(await typeAppend(questionEl, " will you be my Valentine? 💘", 65, runId))) return;
 
     subEl.textContent = "Please respond with honesty and romantic compliance.";
     questionPromptComplete = true;
     noBtn.style.visibility = "visible";
     btnRow.classList.add("ready");
+    setSceneDockVisible(true);
   }
 
   // =========================
@@ -1388,23 +1402,27 @@
   // =========================
   // FINAL SCENE
   // =========================
-  async function typeFinalMessage(){
+  async function typeFinalMessage(runId){
     finalText.textContent = "";
     finalSignature.textContent = "";
     const msg = "Happy Valentine's Day!!";
     for(let i=0;i<msg.length;i++){
+      if(runId !== activeRunId) return;
       finalText.textContent += msg[i];
       await wait(70);
     }
 
     await wait(300);
+    if(runId !== activeRunId) return;
     const signatureMsg = "I love you, Niloo";
     for(let i=0;i<signatureMsg.length;i++){
+      if(runId !== activeRunId) return;
       finalSignature.textContent += signatureMsg[i];
       await wait(62);
     }
 
     await wait(220);
+    if(runId !== activeRunId) return;
     techGirlImg.style.display = "block";
     techGirlImg.classList.remove("techGirlIn");
     void techGirlImg.offsetWidth;
@@ -1431,7 +1449,7 @@
 
     await wait(900);
     if(runId !== activeRunId) return;
-    typeFinalMessage();
+    await typeFinalMessage(runId);
   }
 
   // =========================
