@@ -752,6 +752,28 @@
     #planeIcon{ offset-path:path("M 90 170 C 220 90, 410 105, 610 160"); offset-rotate:auto; animation:flyRoute 5.8s ease-in-out infinite alternate; }
     @keyframes flyRoute{ from{ offset-distance:0%; } to{ offset-distance:100%; } }
     #arrivalCountdown{ margin:2px 0; font-weight:900; font-size:clamp(18px, 2.8vw, 32px); color:#911036; text-align:center; }
+    #arrivalCountdown .countdownBoard{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.75);
+      box-shadow: inset 0 0 0 1px rgba(255,45,85,.22), 0 8px 20px rgba(255,45,85,.16);
+    }
+    #arrivalCountdown .countdownPrefix{ margin-right: 4px; }
+    #arrivalCountdown .timeCell{
+      min-width: 58px;
+      padding: 8px 6px;
+      border-radius: 10px;
+      border: 1.8px solid rgba(145,16,54,.45);
+      background: linear-gradient(180deg, #fff, #ffe8f1);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,.8), 0 4px 8px rgba(0,0,0,.08);
+    }
+    #arrivalCountdown .timeValue{ display:block; line-height:1; font-size: clamp(18px, 2.8vw, 30px); }
+    #arrivalCountdown .timeLabel{ display:block; margin-top:4px; font-size:10px; text-transform:uppercase; letter-spacing:.7px; opacity:.75; }
     #arrivalCountdown.is-live{ color:#1b7d3a; }
     #arrivalMeta{ margin:0; font-size:14px; opacity:.78; font-weight:700; }
   </style>
@@ -969,7 +991,7 @@
         <div id="surveyResults">
           <p style="margin:0; font-weight:800; text-align:center;">Survey complete. Results have been sent to the Department of Romance Compliance 💌</p>
           <ul id="surveyAnswerList"></ul>
-          <div id="couponText">Coupon unlocked: Redeem this PDF for free cinnamon rolls 🌀</div>
+          <div id="couponText">Coupon unlocked: share a screenshot of this PDF with Niloo to redeem your free cinnamon rolls 🌀</div>
           <button id="surveyPdfBtn">Download survey + cinnamon roll coupon PDF</button>
         </div>
       </div>
@@ -1053,7 +1075,7 @@
     currentSceneIndex = index;
     sceneOrder.forEach(hide);
     show(sceneOrder[index]);
-    replaySceneBtn.style.display = index === SCENE.FINAL ? "none" : "inline-flex";
+    replaySceneBtn.style.display = "inline-flex";
     updateSceneLabel();
     return activeRunId;
   }
@@ -1135,10 +1157,12 @@
     {
       id: "cinnamonRolls",
       text: "How much sooner do you wish Niloo would come home?",
-      type: "number",
-      min: 1,
-      max: 50,
-      placeholder: "Enter a dramatic number of days (1-50)"
+      type: "choice",
+      options: [
+        "Yesterday. Preferably with cinnamon rolls in hand.",
+        "Right now — I have already opened Flightradar and screamed.",
+        "Soon enough that the countdown feels personally attacked."
+      ]
     },
     {
       id: "bonusFeature",
@@ -1808,11 +1832,23 @@
 
   function formatCountdown(msLeft){
     const totalSeconds = Math.floor(msLeft / 1000);
-    const days = Math.floor(totalSeconds / 86400);
-    const hours = Math.floor((totalSeconds % 86400) / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    return `${days}d ${String(hours).padStart(2,"0")}h ${String(minutes).padStart(2,"0")}m ${String(seconds).padStart(2,"0")}s`;
+    return {
+      days: Math.floor(totalSeconds / 86400),
+      hours: Math.floor((totalSeconds % 86400) / 3600),
+      minutes: Math.floor((totalSeconds % 3600) / 60),
+      seconds: totalSeconds % 60
+    };
+  }
+
+  function renderCountdownBoard(timeParts){
+    return `
+      <span class="countdownBoard">
+        <span class="countdownPrefix">Touchdown in</span>
+        <span class="timeCell"><span class="timeValue">${timeParts.days}</span><span class="timeLabel">Days</span></span>
+        <span class="timeCell"><span class="timeValue">${String(timeParts.hours).padStart(2, "0")}</span><span class="timeLabel">Hours</span></span>
+        <span class="timeCell"><span class="timeValue">${String(timeParts.minutes).padStart(2, "0")}</span><span class="timeLabel">Minutes</span></span>
+        <span class="timeCell"><span class="timeValue">${String(timeParts.seconds).padStart(2, "0")}</span><span class="timeLabel">Seconds</span></span>
+      </span>`;
   }
 
   function startArrivalCountdown(runId){
@@ -1828,7 +1864,7 @@
       }
 
       arrivalCountdown.classList.remove("is-live");
-      arrivalCountdown.textContent = `Touchdown in ${formatCountdown(remaining)}`;
+      arrivalCountdown.innerHTML = renderCountdownBoard(formatCountdown(remaining));
     };
 
     update();
@@ -2050,7 +2086,7 @@
     }, 500);
   }
 
-  function downloadSurveyPdf(){
+  async function downloadSurveyPdf(){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const margin = 44;
@@ -2063,6 +2099,27 @@
       if(y + needed > pageH - margin){
         doc.addPage();
         y = 72;
+      }
+    };
+
+    const addImageToPdf = async (src)=>{
+      try{
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = src;
+        await new Promise((resolve, reject)=>{
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+
+        const boxW = Math.min(160, maxWidth * 0.36);
+        const ratio = img.naturalHeight / img.naturalWidth || 1;
+        const drawW = boxW;
+        const drawH = drawW * ratio;
+        ensureSpace(drawH + 32);
+        doc.addImage(img, "PNG", pageW - margin - drawW, y - 4, drawW, drawH);
+      }catch(_err){
+        // Image optional if the asset is missing.
       }
     };
 
@@ -2090,19 +2147,25 @@
       y += aLines.length * 15 + 8;
     });
 
-    ensureSpace(70);
+    ensureSpace(146);
     doc.setDrawColor(255, 45, 85);
     doc.setLineWidth(1.4);
-    doc.roundedRect(margin, y, maxWidth, 58, 8, 8);
+    doc.roundedRect(margin, y, maxWidth, 130, 8, 8);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
     doc.text("COUPON: Redeem for free cinnamon rolls (limit: one joyful redemption).", margin + 12, y + 23);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
-    doc.text("Signed by: Niloo's Department of Romantic Logistics", margin + 12, y + 42);
+    const redeemNote = doc.splitTextToSize("To redeem: share a screenshot of this coupon with Niloo and present one happy dance.", maxWidth - 24);
+    doc.text(redeemNote, margin + 12, y + 42);
+    doc.text("Funny expiration date: Expires when penguins become licensed baristas (so... basically never).", margin + 12, y + 74);
+    doc.text("Signed by: Niloo's Department of Romantic Logistics", margin + 12, y + 96);
+
+    await addImageToPdf("cinnamon.png");
 
     doc.save("Valentine_Survey_Cinnamon_Roll_Coupon.pdf");
   }
+
 
   // =========================
   // PDF EXPORT (graphic capture of receipt + cup)
