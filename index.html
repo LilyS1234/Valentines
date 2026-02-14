@@ -60,9 +60,9 @@
     .sceneHeader{
       margin: 0 0 8px;
       font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      font-size: clamp(30px, 4.2vw, 48px);
+      font-size: clamp(27px, 3.8vw, 43px);
       font-weight: 900;
-      color: #cf1f64;
+      color: var(--hot);
       text-shadow: 0 0 18px rgba(255,255,255,.58);
       letter-spacing: .4px;
       line-height: 1.08;
@@ -184,7 +184,7 @@
 
     .sceneDock{
       position: fixed;
-      top: 12px;
+      bottom: 12px;
       left: 12px;
       z-index: 10001;
       display:flex;
@@ -202,7 +202,7 @@
     .sceneDock.is-hidden{
       opacity: 0;
       pointer-events: none;
-      transform: translateY(-12px);
+      transform: translateY(12px);
     }
 
     .sceneBtn{
@@ -1790,6 +1790,14 @@
     return runId;
   }
 
+  function getDurationMs(rawValue){
+    const value = rawValue.trim();
+    if(!value) return 0;
+    if(value.endsWith("ms")) return Number.parseFloat(value);
+    if(value.endsWith("s")) return Number.parseFloat(value) * 1000;
+    return Number.parseFloat(value) || 0;
+  }
+
   async function printReceiptFlow(){
     const runId = activeRunId;
     if(currentSceneIndex !== SCENE.COFFEE) return;
@@ -1806,7 +1814,8 @@
     sceneSetTimeout(()=>kiss(), 760);
     sceneSetTimeout(()=>kiss(), 1440);
 
-    await wait(3800);
+    const printDuration = getDurationMs(getComputedStyle(receipt).getPropertyValue("--print-duration"));
+    await sleep(Math.max(0, printDuration + 120));
     if(runId !== activeRunId || currentSceneIndex !== SCENE.COFFEE) return;
     toArrivalBtn.style.display = "inline-block";
   }
@@ -2145,13 +2154,7 @@
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
-    const intro = doc.splitTextToSize(
-      "Official summary of Angelo's responses. This certificate is redeemable for free cinnamon rolls and maximum romantic bragging rights.",
-      maxWidth
-    );
     let y = 88;
-    doc.text(intro, margin, y);
-    y += intro.length * 13 + 8;
 
     const couponTop = 438;
     const lineHeight = 12;
@@ -2180,27 +2183,28 @@
     doc.roundedRect(margin, couponTop, maxWidth, couponHeight, 8, 8);
 
     const couponTextInset = margin + 12;
-    const visualZoneTop = couponTop + couponHeight * 0.52;
+    const visualZoneTop = couponTop + couponHeight * 0.40;
     const visualZoneHeight = couponHeight - (visualZoneTop - couponTop) - 10;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
     doc.text("COUPON: Redeem for free cinnamon rolls (limit: one joyful redemption).", couponTextInset, couponTop + 24);
-    doc.setFont("helvetica", "normal");
+
     doc.setFontSize(10.5);
-    const redeemNote = doc.splitTextToSize(
-      "To redeem: share a screenshot of this coupon with Niloo and present one happy dance.",
-      maxWidth - 24
-    );
-    doc.text(redeemNote, couponTextInset, couponTop + 41);
-    doc.text("Expiration Date: Never mind, Angelo does not let anything expire.", couponTextInset, couponTop + 69);
-    doc.text("Signed by: Niloo's Department of Romantic Logistics", couponTextInset, couponTop + 85);
+    doc.setFont("helvetica", "bold");
+    doc.text("To Redeem:", couponTextInset, couponTop + 41);
+    doc.setFont("helvetica", "normal");
+    doc.text("share a screenshot of this coupon with Niloo and present one happy dance.", couponTextInset + 56, couponTop + 41);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Expiration Date: Never mind, Angelo does not let anything expire.", couponTextInset, couponTop + 61);
+    doc.text("Signed by: Niloo's Department of Romantic Logistics", couponTextInset, couponTop + 77);
 
     try{
       const img = await loadImage("cinnamon.png");
       const ratio = img.naturalHeight / img.naturalWidth || 1;
-      const maxImageW = maxWidth - 24;
-      const maxImageH = Math.max(visualZoneHeight - 8, 110);
+      const maxImageW = maxWidth - 12;
+      const maxImageH = Math.max(visualZoneHeight - 4, 150);
       let drawW = maxImageW;
       let drawH = drawW * ratio;
 
