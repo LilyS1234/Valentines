@@ -647,13 +647,16 @@
       <div id="loadingLine" class="dots">Booting romantic compliance module</div>
 
       <div id="photoWrap">
-        <div id="stamp">APPROVED</div>
+        <div id="stamp">OFFICIALLY MINE!</div>
         <img id="contractPhoto" src="contract.jpg" alt="Contract signing photo" crossorigin="anonymous">
+        <div id="contractPunchline" style="margin-top:10px; font-weight:800; color:#c2185b; font-size:clamp(16px,2.1vw,24px);">
+          You just made my whole month! :D
+        </div>
       </div>
 
       <div class="row primaryActionRow" style="margin-top:10px;">
         <button id="toEndBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
-          Finalize my boyfriend status ✅
+          Redeem your celebratory Valentine’s coffee ☕
         </button>
       </div>
     </div>
@@ -1354,18 +1357,22 @@
     stampEl.style.display = "none";
     toEndBtn.style.display = "none";
 
+    setLoading("Emergency: girlfriend happiness at 1000%");
+    await wait(850);
+    if(runId !== activeRunId) return;
+
     const steps = [
-      "Booting romantic compliance module",
-      "Reviewing terms & conditions",
-      "Verifying boyfriend status",
-      "Cross-checking Sicilian servers",
-      "Syncing Valentine credentials"
+      "YES detected! 💘",
+      "Sealing this adorable agreement…",
+      "Updating status: my favorite person",
+      "Attaching unlimited kisses clause",
+      "Ready for official stamp!"
     ];
 
     let i = 0;
     setLoading(steps[i]);
 
-    const total = 5400;
+    const total = 3600;
     const stepTime = total / steps.length;
     const interval = sceneSetInterval(()=>{
       i++;
