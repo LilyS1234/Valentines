@@ -57,6 +57,17 @@
     }
     #sub{ margin:0 0 18px; opacity:.75; font-size:15px; min-height:1.2em; }
 
+    .sceneHeader{
+      margin: 0 0 8px;
+      font-family: "Great Vibes", cursive;
+      font-size: clamp(34px, 5vw, 62px);
+      font-weight: 400;
+      color: #cf1f64;
+      text-shadow: 0 0 18px rgba(255,255,255,.58);
+      letter-spacing: .2px;
+      line-height: 1.08;
+    }
+
     /* Buttons */
     .row{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top: 12px; }
     button{
@@ -83,12 +94,6 @@
 
     /* Start equal-sized choices */
     #yesBtn{
-      font-size: clamp(24px, 3.0vw, 36px);
-      padding: 16px 30px;
-      color:#fff;
-      background: linear-gradient(180deg, #ff2d55, #ff0033);
-      text-shadow: 0 2px 0 rgba(0,0,0,.15);
-      filter: drop-shadow(0 0 16px rgba(255,255,255,.55));
       transform: scale(1);
     }
 
@@ -104,9 +109,11 @@
       z-index: 50;
     }
 
+    #yesBtn,
     #toCoffeeBtn,
     #printBtn,
     #toEndBtn,
+    #toArrivalBtn,
     #toFinalBtn,
     #restartBtn{
       color:#fff;
@@ -117,8 +124,8 @@
     }
 
     .primaryCta{
-      font-size: clamp(20px, 2.6vw, 30px);
-      padding: 18px 34px;
+      font-size: clamp(16px, 2.1vw, 22px);
+      padding: 12px 22px;
       margin: 8px 0;
     }
 
@@ -624,8 +631,8 @@
 
     #takeSurveyBtn{
       display:none;
-      font-size: clamp(20px, 2.9vw, 34px) !important;
-      padding: 16px 28px !important;
+      font-size: clamp(18px, 2.5vw, 26px) !important;
+      padding: 12px 22px !important;
       border: 3px solid rgba(255,255,255,.9);
       box-shadow:
         0 18px 34px rgba(255,45,85,.35),
@@ -751,7 +758,7 @@
 
     /* Arrival map scene */
     #sceneArrival .panel{ display:flex; flex-direction:column; align-items:center; gap:14px; }
-    #arrivalTitle{ margin:2px 0 0; font-size:clamp(24px, 3.5vw, 40px); color:#b8134a; font-weight:900; }
+    #arrivalTitle{ margin:2px 0 0; }
     #arrivalSub{ margin:0; font-size:clamp(16px, 2.2vw, 22px); color:#7b1239; font-weight:700; }
     #mapCard{ width:min(760px, 94vw); border-radius:24px; background:linear-gradient(180deg, #fff7fb, #ffeaf3); box-shadow:0 16px 34px rgba(0,0,0,.16); padding:16px; }
     #flightMap{ width:100%; height:auto; display:block; }
@@ -847,7 +854,7 @@
   <!-- Scene 2 -->
   <div class="wrap" id="sceneContract" style="display:none;">
     <div class="panel">
-      <h2 style="margin:0 0 6px; font-weight:900;">Valentine Agreement Review</h2>
+      <h2 class="sceneHeader">Valentine Agreement Review</h2>
       <div id="loadingLine" class="dots">Booting romantic compliance module</div>
 
       <div id="photoWrap">
@@ -869,7 +876,7 @@
   <!-- Scene 3 -->
   <div class="wrap" id="sceneCoffee" style="display:none;">
     <div class="panel" id="coffeePanel">
-      <div style="font-weight:900; margin:0 0 10px;">Barista Niloo is pleased with your decision</div>
+      <h2 class="sceneHeader">Barista Niloo is pleased with your decision</h2>
       <img id="nilooImg" src="niloo.png" alt="Niloo barista" crossorigin="anonymous">
 
       <div class="row primaryActionRow" style="margin-top:14px;">
@@ -921,7 +928,7 @@
   <!-- Scene 4 -->
   <div class="wrap" id="sceneEnd" style="display:none;">
     <div class="panel" id="endPanel">
-      <h2 style="margin:0 0 6px; font-weight:900;">Valentine Agreement Successfully Executed ✅</h2>
+      <h2 class="sceneHeader">Valentine Agreement Successfully Executed ✅</h2>
 
       <div id="clauses">
         <div>• This agreement auto-renews annually.</div>
@@ -940,7 +947,7 @@
   <!-- Scene 5 -->
   <div class="wrap" id="sceneArrival" style="display:none;">
     <div class="panel">
-      <h2 id="arrivalTitle">Final reward unlocked: Niloo is coming home 🏡</h2>
+      <h2 id="arrivalTitle" class="sceneHeader">Final reward unlocked: Niloo is coming home 🏡</h2>
       <p id="arrivalSub">Kansas City ➜ Sicily · Landing March 1 at 5:20 PM (Sicily time)</p>
 
       <div id="mapCard" aria-label="Flight map from Kansas City to Sicily">
