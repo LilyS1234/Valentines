@@ -708,6 +708,20 @@
       font-size:14px;
       display:none;
     }
+
+    /* Arrival map scene */
+    #sceneArrival .panel{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+    #arrivalTitle{ margin:2px 0 0; font-size:clamp(24px, 3.5vw, 40px); color:#b8134a; font-weight:900; }
+    #arrivalSub{ margin:0; font-size:clamp(16px, 2.2vw, 22px); color:#7b1239; font-weight:700; }
+    #mapCard{ width:min(760px, 94vw); border-radius:24px; background:linear-gradient(180deg, #fff7fb, #ffeaf3); box-shadow:0 16px 34px rgba(0,0,0,.16); padding:16px; }
+    #flightMap{ width:100%; height:auto; display:block; }
+    #mapPath{ stroke-dasharray:8 10; animation:pathFlow 2.3s linear infinite; }
+    @keyframes pathFlow{ to{ stroke-dashoffset:-36; } }
+    #planeIcon{ offset-path:path("M 90 170 C 220 90, 410 105, 610 160"); offset-rotate:auto; animation:flyRoute 5.8s ease-in-out infinite alternate; }
+    @keyframes flyRoute{ from{ offset-distance:0%; } to{ offset-distance:100%; } }
+    #arrivalCountdown{ margin:2px 0; font-weight:900; font-size:clamp(18px, 2.8vw, 32px); color:#911036; text-align:center; }
+    #arrivalCountdown.is-live{ color:#1b7d3a; }
+    #arrivalMeta{ margin:0; font-size:14px; opacity:.78; font-weight:700; }
   </style>
 </head>
 
@@ -822,7 +836,7 @@
       </div>
 
       <div class="row primaryActionRow" style="margin-top:14px;">
-        <button id="toFinalBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
+        <button id="toArrivalBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
           Redeem my final reward 💝
         </button>
       </div>
@@ -849,6 +863,51 @@
   </div>
 
   <!-- Scene 5 -->
+  <div class="wrap" id="sceneArrival" style="display:none;">
+    <div class="panel">
+      <h2 id="arrivalTitle">Final reward unlocked: Niloo is coming home ✈️</h2>
+      <p id="arrivalSub">Kansas City ➜ Sicily · Landing March 1 at 5:20 PM (Sicily time)</p>
+
+      <div id="mapCard" aria-label="Flight map from Kansas City to Sicily">
+        <svg id="flightMap" viewBox="0 0 700 260" role="img" aria-label="Animated travel route from Kansas City to Sicily">
+          <defs>
+            <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+              <feMerge>
+                <feMergeNode in="blur"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+              </feMerge>
+            </filter>
+          </defs>
+
+          <rect x="0" y="0" width="700" height="260" rx="22" fill="#ffe6f1"></rect>
+          <path d="M 90 170 C 220 90, 410 105, 610 160" fill="none" stroke="#ff9dbf" stroke-width="10" opacity=".45"></path>
+          <path id="mapPath" d="M 90 170 C 220 90, 410 105, 610 160" fill="none" stroke="#ff2d55" stroke-width="4" stroke-linecap="round" filter="url(#glow)"></path>
+
+          <circle cx="90" cy="170" r="10" fill="#ff2d55"></circle>
+          <text x="62" y="196" font-size="16" fill="#6d1133" font-weight="800">Kansas City</text>
+
+          <circle cx="610" cy="160" r="10" fill="#ff2d55"></circle>
+          <text x="575" y="188" font-size="16" fill="#6d1133" font-weight="800">Sicily</text>
+
+          <g id="planeIcon">
+            <text x="0" y="0" text-anchor="middle" font-size="28">✈️</text>
+          </g>
+        </svg>
+      </div>
+
+      <p id="arrivalCountdown" aria-live="polite">Calculating countdown…</p>
+      <p id="arrivalMeta">Official ETA: Sunday, March 1 at 5:20 PM · Europe/Rome</p>
+
+      <div class="row primaryActionRow" style="margin-top:6px;">
+        <button id="toFinalBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
+          Open our love note 💌
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 6 -->
   <div class="wrap" id="sceneFinal" style="display:none;">
     <div class="panel">
       <img id="finalPhoto" src="final.jpg" alt="Us" crossorigin="anonymous">
@@ -906,6 +965,7 @@
   const sceneContract = document.getElementById("sceneContract");
   const sceneCoffee   = document.getElementById("sceneCoffee");
   const sceneEnd      = document.getElementById("sceneEnd");
+  const sceneArrival  = document.getElementById("sceneArrival");
   const sceneFinal    = document.getElementById("sceneFinal");
   const sceneLabel = document.getElementById("sceneLabel");
   const loveMeterText = document.getElementById("loveMeterText");
@@ -913,8 +973,8 @@
   const sceneDock = document.getElementById("sceneDock");
   const replaySceneBtn = document.getElementById("replaySceneBtn");
 
-  const sceneOrder = [sceneQuestion, sceneContract, sceneEnd, sceneCoffee, sceneFinal];
-  const SCENE = { QUESTION:0, CONTRACT:1, END:2, COFFEE:3, FINAL:4 };
+  const sceneOrder = [sceneQuestion, sceneContract, sceneEnd, sceneCoffee, sceneArrival, sceneFinal];
+  const SCENE = { QUESTION:0, CONTRACT:1, END:2, COFFEE:3, ARRIVAL:4, FINAL:5 };
   const show = (el) => el.style.display = "grid";
   const hide = (el) => el.style.display = "none";
 
@@ -995,7 +1055,9 @@
   const toEndBtn = document.getElementById("toEndBtn");
 
   const endPanel = document.getElementById("endPanel");
+  const toArrivalBtn = document.getElementById("toArrivalBtn");
   const toFinalBtn = document.getElementById("toFinalBtn");
+  const arrivalCountdown = document.getElementById("arrivalCountdown");
 
   const finalPhoto = document.getElementById("finalPhoto");
   const finalText  = document.getElementById("finalText");
@@ -1625,7 +1687,7 @@
 
     // reset coffee scene state
     printArea.style.display = "none";
-    toFinalBtn.style.display = "none";
+    toArrivalBtn.style.display = "none";
     receipt.classList.remove("printing");
 
     return runId;
@@ -1649,7 +1711,7 @@
 
     await wait(3800);
     if(runId !== activeRunId || currentSceneIndex !== SCENE.COFFEE) return;
-    toFinalBtn.style.display = "inline-block";
+    toArrivalBtn.style.display = "inline-block";
   }
 
   // =========================
@@ -1699,6 +1761,53 @@
     await sleep(4270);
     if(runId !== activeRunId) return;
     toCoffeeBtn.style.display = "inline-block";
+  }
+
+  function formatCountdown(msLeft){
+    const totalSeconds = Math.floor(msLeft / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${days}d ${String(hours).padStart(2,"0")}h ${String(minutes).padStart(2,"0")}m ${String(seconds).padStart(2,"0")}s`;
+  }
+
+  function startArrivalCountdown(runId){
+    const arrivalTarget = new Date("2026-03-01T17:20:00+01:00").getTime();
+    const update = ()=>{
+      if(runId !== activeRunId || currentSceneIndex !== SCENE.ARRIVAL) return;
+      const remaining = arrivalTarget - Date.now();
+      if(remaining <= 0){
+        arrivalCountdown.classList.add("is-live");
+        arrivalCountdown.textContent = "Niloo has landed in Sicily! 🇮🇹💞";
+        toFinalBtn.style.display = "inline-block";
+        return;
+      }
+
+      arrivalCountdown.classList.remove("is-live");
+      arrivalCountdown.textContent = `Touchdown in ${formatCountdown(remaining)}`;
+    };
+
+    update();
+    sceneSetInterval(update, 1000);
+  }
+
+  async function startArrivalScene(){
+    const runId = enterScene(SCENE.ARRIVAL);
+    clearPopups();
+    toFinalBtn.style.display = "none";
+    arrivalCountdown.textContent = "Calculating countdown…";
+    arrivalCountdown.classList.remove("is-live");
+
+    confettiBurst(26);
+    kiss();
+    await wait(460);
+    if(runId !== activeRunId) return;
+
+    startArrivalCountdown(runId);
+    await wait(1300);
+    if(runId !== activeRunId) return;
+    if(!arrivalCountdown.classList.contains("is-live")) toFinalBtn.style.display = "inline-block";
   }
 
   // =========================
@@ -2003,6 +2112,7 @@
     startContractScene,
     startEndScene,
     startCoffeeScene,
+    startArrivalScene,
     startFinalScene
   ];
 
@@ -2034,6 +2144,7 @@
   toEndBtn.addEventListener("click", startEndScene);
   toCoffeeBtn.addEventListener("click", startCoffeeScene);
   printBtn.addEventListener("click", printReceiptFlow);
+  toArrivalBtn.addEventListener("click", startArrivalScene);
   toFinalBtn.addEventListener("click", startFinalScene);
 
   startQuestionScene();
