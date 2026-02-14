@@ -2102,25 +2102,15 @@
       }
     };
 
-    const addImageToPdf = async (src)=>{
-      try{
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = src;
-        await new Promise((resolve, reject)=>{
-          img.onload = resolve;
-          img.onerror = reject;
-        });
-
-        const boxW = Math.min(160, maxWidth * 0.36);
-        const ratio = img.naturalHeight / img.naturalWidth || 1;
-        const drawW = boxW;
-        const drawH = drawW * ratio;
-        ensureSpace(drawH + 32);
-        doc.addImage(img, "PNG", pageW - margin - drawW, y - 4, drawW, drawH);
-      }catch(_err){
-        // Image optional if the asset is missing.
-      }
+    const loadImage = async (src)=>{
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = src;
+      await new Promise((resolve, reject)=>{
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+      return img;
     };
 
     doc.setFont("helvetica", "bold");
@@ -2147,21 +2137,46 @@
       y += aLines.length * 15 + 8;
     });
 
-    ensureSpace(146);
+    const couponHeight = 198;
+    ensureSpace(couponHeight + 20);
     doc.setDrawColor(255, 45, 85);
     doc.setLineWidth(1.4);
-    doc.roundedRect(margin, y, maxWidth, 130, 8, 8);
+    doc.roundedRect(margin, y, maxWidth, couponHeight, 8, 8);
+
+    const couponTop = y;
+    const couponTextInset = margin + 12;
+    const visualZoneTop = couponTop + 104;
+    const visualZoneHeight = couponHeight - (visualZoneTop - couponTop) - 16;
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("COUPON: Redeem for free cinnamon rolls (limit: one joyful redemption).", margin + 12, y + 23);
+    doc.text("COUPON: Redeem for free cinnamon rolls (limit: one joyful redemption).", couponTextInset, couponTop + 24);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     const redeemNote = doc.splitTextToSize("To redeem: share a screenshot of this coupon with Niloo and present one happy dance.", maxWidth - 24);
-    doc.text(redeemNote, margin + 12, y + 42);
-    doc.text("Funny expiration date: Expires when penguins become licensed baristas (so... basically never).", margin + 12, y + 74);
-    doc.text("Signed by: Niloo's Department of Romantic Logistics", margin + 12, y + 96);
+    doc.text(redeemNote, couponTextInset, couponTop + 43);
+    doc.text("Funny expiration date: Expires when penguins become licensed baristas (so... basically never).", couponTextInset, couponTop + 75);
+    doc.text("Signed by: Niloo's Department of Romantic Logistics", couponTextInset, couponTop + 92);
 
-    await addImageToPdf("cinnamon.png");
+    try{
+      const img = await loadImage("cinnamon.png");
+      const ratio = img.naturalHeight / img.naturalWidth || 1;
+      const maxImageW = Math.min(152, maxWidth * 0.38);
+      const maxImageH = Math.max(visualZoneHeight - 10, 48);
+      let drawW = maxImageW;
+      let drawH = drawW * ratio;
+
+      if(drawH > maxImageH){
+        drawH = maxImageH;
+        drawW = drawH / ratio;
+      }
+
+      const imageX = margin + (maxWidth - drawW) / 2;
+      const imageY = visualZoneTop + Math.max((visualZoneHeight - drawH) / 2, 10);
+      doc.addImage(img, "PNG", imageX, imageY, drawW, drawH);
+    }catch(_err){
+      // Image optional if the asset is missing.
+    }
 
     doc.save("Valentine_Survey_Cinnamon_Roll_Coupon.pdf");
   }
