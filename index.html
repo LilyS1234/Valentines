@@ -454,6 +454,7 @@
       text-shadow: 0 0 24px rgba(255,255,255,.6);
       line-height: 1.04;
       text-align:center;
+      min-height: 1.2em;
     }
 
     #techGirlImg{
@@ -461,15 +462,15 @@
       margin: 0;
       display:none;
       opacity:0;
-      transform: translateY(12px) rotate(45deg) scale(.94);
+      transform: translateY(12px) rotate(7deg) scale(.94);
       filter: drop-shadow(0 10px 18px rgba(0,0,0,.18));
       border-radius: 16px;
       flex: 0 0 auto;
     }
     .techGirlIn{ animation: techGirlIn .75s cubic-bezier(.2,1.1,.2,1) forwards; }
     @keyframes techGirlIn{
-      0%{ opacity:0; transform: translateY(12px) rotate(45deg) scale(.94); }
-      100%{ opacity:1; transform: translateY(0) rotate(45deg) scale(1); }
+      0%{ opacity:0; transform: translateY(12px) rotate(7deg) scale(.94); }
+      100%{ opacity:1; transform: translateY(0) rotate(7deg) scale(1); }
     }
 
     @media (max-width: 640px){
@@ -683,6 +684,7 @@
 
   const finalPhoto = document.getElementById("finalPhoto");
   const finalText  = document.getElementById("finalText");
+  const finalSignature = document.getElementById("finalSignature");
   const techGirlImg = document.getElementById("techGirlImg");
   const finalPanel = sceneFinal.querySelector(".panel");
 
@@ -1267,10 +1269,18 @@
   // =========================
   async function typeFinalMessage(){
     finalText.textContent = "";
+    finalSignature.textContent = "";
     const msg = "Happy Valentine's Day!!";
     for(let i=0;i<msg.length;i++){
       finalText.textContent += msg[i];
       await wait(70);
+    }
+
+    await wait(300);
+    const signatureMsg = "I love you, Niloo";
+    for(let i=0;i<signatureMsg.length;i++){
+      finalSignature.textContent += signatureMsg[i];
+      await wait(62);
     }
 
     await wait(220);
@@ -1296,6 +1306,7 @@
 
     techGirlImg.style.display = "none";
     techGirlImg.classList.remove("techGirlIn");
+    finalSignature.textContent = "";
 
     await wait(900);
     typeFinalMessage();
