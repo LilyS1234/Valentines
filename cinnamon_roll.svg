@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Gooey cinnamon roll illustration">
+  <defs>
+    <radialGradient id="bunBase" cx="45%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#ffd7a3"/>
+      <stop offset="55%" stop-color="#f3a65b"/>
+      <stop offset="100%" stop-color="#cc7a33"/>
+    </radialGradient>
+
+    <radialGradient id="bunShadow" cx="50%" cy="50%" r="52%">
+      <stop offset="65%" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="100%" stop-color="#9f5b22"/>
+    </radialGradient>
+
+    <linearGradient id="icing" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fffef9"/>
+      <stop offset="60%" stop-color="#fff5e8"/>
+      <stop offset="100%" stop-color="#f7dcc5"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#8b4a19" flood-opacity="0.35"/>
+    </filter>
+
+    <filter id="icingGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <ellipse cx="512" cy="860" rx="300" ry="70" fill="#a35b24" opacity="0.20"/>
+
+  <g filter="url(#softShadow)">
+    <circle cx="512" cy="520" r="320" fill="url(#bunBase)"/>
+    <circle cx="512" cy="520" r="320" fill="url(#bunShadow)" opacity="0.6"/>
+
+    <path d="M242 530
+             C242 392, 362 278, 512 278
+             C662 278, 782 392, 782 530
+             C782 666, 666 772, 530 772
+             C420 772, 332 708, 332 620
+             C332 545, 394 486, 474 486
+             C550 486, 606 536, 606 598
+             C606 655, 560 698, 504 698
+             C456 698, 420 668, 420 628
+             C420 594, 446 570, 478 570
+             C507 570, 526 588, 526 612
+             C526 632, 512 646, 494 646"
+          fill="none"
+          stroke="#8f461b"
+          stroke-width="70"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+    <path d="M288 460 C368 360, 540 334, 700 408"
+          fill="none" stroke="#ffcf98" stroke-width="22" stroke-linecap="round" opacity="0.55"/>
+  </g>
+
+  <g filter="url(#icingGlow)">
+    <path d="M290 360
+             C350 300, 480 278, 610 300
+             C705 316, 780 370, 790 444
+             C796 488, 780 518, 748 546
+             C724 567, 716 586, 719 617
+             C722 650, 706 672, 677 684
+             C640 699, 599 689, 560 666
+             C536 652, 516 648, 492 654
+             C434 668, 372 646, 342 602
+             C318 568, 311 536, 293 516
+             C258 476, 256 394, 290 360Z"
+          fill="url(#icing)" opacity="0.97"/>
+
+    <path d="M678 648 C676 700, 638 750, 596 792 C585 804, 582 822, 593 838 C607 857, 633 860, 650 846 C705 798, 742 731, 744 652Z"
+          fill="url(#icing)"/>
+
+    <path d="M342 605 C330 666, 352 735, 404 785 C420 800, 421 826, 406 842 C389 860, 359 860, 343 842 C277 770, 252 676, 266 588Z"
+          fill="url(#icing)"/>
+
+    <ellipse cx="454" cy="396" rx="92" ry="28" fill="#ffffff" opacity="0.58"/>
+    <ellipse cx="610" cy="434" rx="75" ry="22" fill="#ffffff" opacity="0.50"/>
+    <ellipse cx="528" cy="560" rx="68" ry="18" fill="#ffffff" opacity="0.48"/>
+  </g>
+
+  <g opacity="0.22">
+    <circle cx="350" cy="250" r="7" fill="#fff"/>
+    <circle cx="380" cy="214" r="5" fill="#fff"/>
+    <circle cx="412" cy="238" r="4" fill="#fff"/>
+    <circle cx="708" cy="272" r="6" fill="#fff"/>
+    <circle cx="738" cy="312" r="5" fill="#fff"/>
+  </g>
+</svg>
