@@ -251,12 +251,13 @@
       border: 9px solid #1bb24a;
       color:#1bb24a;
       font-weight:900;
-      font-size: clamp(24px, 3.2vw, 44px);
+      font-size: clamp(18px, 2.3vw, 30px);
       border-radius: 18px;
       background: rgba(255,255,255,.92);
       box-shadow: 0 14px 45px rgba(0,0,0,.16);
       text-transform: uppercase;
       letter-spacing: 2px;
+      white-space: nowrap;
       opacity:0;
       transform: translateX(-50%) rotate(-10deg) scale(1.25);
       z-index: 30;
@@ -277,6 +278,24 @@
       z-index: 10;
     }
 
+
+    #contractPunchline{
+      margin-top:10px;
+      font-family: "Montserrat", system-ui, sans-serif;
+      font-weight:800;
+      color:#c2185b;
+      font-size:clamp(20px,2.5vw,30px);
+      opacity:0;
+      transform: translateY(10px);
+      transition: opacity .65s ease, transform .65s ease;
+      text-shadow: 0 0 16px rgba(255,255,255,.5);
+    }
+
+    #contractPunchline.show{
+      opacity:1;
+      transform: translateY(0);
+    }
+
     #contractPhoto{
       width: 100%;
       height: min(58vh, 520px);        /* big, cinematic */
@@ -285,11 +304,12 @@
       border-radius: 0;
       box-shadow: none;
       opacity: 0;
-      transform: translateY(18px) scale(.99);
+      transform: translateY(18px);
       filter: none;
       image-rendering: auto;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
+      will-change: transform, opacity;
     }
 
     .photoReveal{
@@ -297,9 +317,9 @@
     }
 
     @keyframes photoReveal{
-      0%   { opacity:0; transform: translateY(18px) scale(.99); }
-      60%  { opacity:1; transform: translateY(-4px) scale(1.005); }
-      100% { opacity:1; transform: translateY(0) scale(1); }
+      0%   { opacity:0; transform: translateY(18px); }
+      60%  { opacity:1; transform: translateY(-4px); }
+      100% { opacity:1; transform: translateY(0); }
     }
 
     /* Flash */
@@ -596,6 +616,18 @@
 
     #takeSurveyBtn{
       display:none;
+      font-size: clamp(20px, 2.9vw, 34px) !important;
+      padding: 16px 28px !important;
+      border: 3px solid rgba(255,255,255,.9);
+      box-shadow:
+        0 18px 34px rgba(255,45,85,.35),
+        0 0 22px rgba(255,130,176,.55);
+      animation: surveyPulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes surveyPulse{
+      0%, 100%{ transform: scale(1); filter: brightness(1); }
+      50%{ transform: scale(1.05); filter: brightness(1.08); }
     }
 
     #surveyWrap{
@@ -778,14 +810,14 @@
       <div id="photoWrap">
         <div id="stamp">OFFICIALLY MINE!</div>
         <img id="contractPhoto" src="contract.jpg" alt="Contract signing photo" crossorigin="anonymous">
-        <div id="contractPunchline" style="margin-top:10px; font-weight:800; color:#c2185b; font-size:clamp(16px,2.1vw,24px);">
-          You just made my whole month! :D
+        <div id="contractPunchline">
+          Thanks for always making me happy! 🥹💖
         </div>
       </div>
 
       <div class="row primaryActionRow" style="margin-top:10px;">
         <button id="toEndBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
-          Redeem your celebratory Valentine’s coffee ☕
+          Read the Fine Print 🔎
         </button>
       </div>
     </div>
@@ -1047,6 +1079,7 @@
   const stampEl     = document.getElementById("stamp");
   const photoWrap   = document.getElementById("photoWrap");
   const contractPhoto = document.getElementById("contractPhoto");
+  const contractPunchline = document.getElementById("contractPunchline");
   const toCoffeeBtn = document.getElementById("toCoffeeBtn");
 
   const printBtn = document.getElementById("printBtn");
@@ -1101,11 +1134,11 @@
     },
     {
       id: "cinnamonRolls",
-      text: "How many cinnamon rolls should be redeemed immediately?",
+      text: "How much sooner do you wish Niloo would come home?",
       type: "number",
       min: 1,
       max: 50,
-      placeholder: "Enter a heroic number between 1 and 50"
+      placeholder: "Enter a dramatic number of days (1-50)"
     },
     {
       id: "bonusFeature",
@@ -1607,7 +1640,11 @@
     loadingLine.textContent = text;
     loadingLine.classList.add("dots");
   }
-  function stopDots(){ loadingLine.classList.remove("dots"); }
+  function stopDots(){
+    loadingLine.classList.remove("dots");
+    loadingLine.textContent = "";
+    loadingLine.style.display = "none";
+  }
 
   async function startContractScene(){
     const runId = enterScene(SCENE.CONTRACT);
@@ -1617,7 +1654,9 @@
     photoWrap.style.display = "none";
     contractPhoto.classList.remove("photoReveal");
     stampEl.style.display = "none";
+    contractPunchline.classList.remove("show");
     toEndBtn.style.display = "none";
+    loadingLine.style.display = "block";
 
     setLoading("Emergency: girlfriend happiness at 1000%");
     await wait(850);
@@ -1660,6 +1699,10 @@
     thunk();
     coin();
 
+    await wait(520);
+    if(runId !== activeRunId) return;
+    contractPunchline.classList.add("show");
+
     // Big moment: flash + snap + yay + confetti
     sceneSetTimeout(()=>{
       cameraFlash();
@@ -1671,12 +1714,12 @@
     await wait(1150);
     if(runId !== activeRunId) return;
     popupWin("System Notification", "📸 Contract screenshot captured and sent to <b>Niloo</b>.");
-    await wait(1300);
+    await wait(900);
     if(runId !== activeRunId) return;
     popupWin("Legal Notice", "⚖️ Binding under <b>American</b>, <b>Italian</b>, and <b>Internet</b> Law.");
 
-    // Let the final popup fully fade out, then reveal CTA shortly after.
-    await sleep(3800 * SPEED + 380);
+    // Let the final popup mostly finish, then reveal CTA sooner.
+    await sleep(3000 * SPEED + 180);
     if(runId !== activeRunId) return;
     toEndBtn.style.display = "inline-block";
   }
@@ -1758,7 +1801,7 @@
     celebrate();
 
     // Last clause ends at ~4.15s (2.8s delay + 1.35s animation). Reveal immediately after.
-    await sleep(4270);
+    await sleep(3800);
     if(runId !== activeRunId) return;
     toCoffeeBtn.style.display = "inline-block";
   }
@@ -1805,7 +1848,7 @@
     if(runId !== activeRunId) return;
 
     startArrivalCountdown(runId);
-    await wait(1300);
+    await wait(2500);
     if(runId !== activeRunId) return;
     if(!arrivalCountdown.classList.contains("is-live")) toFinalBtn.style.display = "inline-block";
   }
