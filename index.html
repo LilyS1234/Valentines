@@ -127,6 +127,14 @@
       margin-bottom: 14px;
     }
 
+    #toEndBtn,
+    #toArrivalBtn,
+    #toCoffeeBtn,
+    #toFinalBtn,
+    #restartBtn{
+      display:none;
+    }
+
     .miniBtn{
       padding: 12px 16px;
       font-size: 14px;
@@ -776,6 +784,19 @@
     #arrivalCountdown .timeLabel{ display:block; margin-top:4px; font-size:10px; text-transform:uppercase; letter-spacing:.7px; opacity:.75; }
     #arrivalCountdown.is-live{ color:#1b7d3a; }
     #arrivalMeta{ margin:0; font-size:14px; opacity:.78; font-weight:700; }
+    #arrivalApology{
+      margin: 6px 0 0;
+      font-size: clamp(16px, 2.1vw, 24px);
+      font-weight: 800;
+      color:#8f1f45;
+      opacity:0;
+      transform: translateY(12px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    #arrivalApology.show{
+      opacity:1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 
@@ -838,7 +859,7 @@
       </div>
 
       <div class="row primaryActionRow" style="margin-top:10px;">
-        <button id="toEndBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
+        <button id="toEndBtn" class="primaryCta">
           Read the Fine Print 🔎
         </button>
       </div>
@@ -852,7 +873,7 @@
       <img id="nilooImg" src="niloo.png" alt="Niloo barista" crossorigin="anonymous">
 
       <div class="row primaryActionRow" style="margin-top:14px;">
-        <button id="printBtn" class="primaryCta" style="font-size:18px; padding:14px 18px;">
+        <button id="printBtn" class="primaryCta">
           Print my receipt 🧾
         </button>
       </div>
@@ -890,7 +911,7 @@
       </div>
 
       <div class="row primaryActionRow" style="margin-top:14px;">
-        <button id="toArrivalBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
+        <button id="toArrivalBtn" class="primaryCta">
           Redeem my final reward 💝
         </button>
       </div>
@@ -909,7 +930,7 @@
       </div>
 
       <div class="row primaryActionRow">
-        <button id="toCoffeeBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
+        <button id="toCoffeeBtn" class="primaryCta">
           Redeem my Valentine’s Day coffee ☕
         </button>
       </div>
@@ -952,9 +973,10 @@
 
       <p id="arrivalCountdown" aria-live="polite">Calculating countdown…</p>
       <p id="arrivalMeta">Official ETA: Sunday, March 1 at 5:20 PM · Europe/Rome</p>
+      <p id="arrivalApology">I'm sorry I couldn't be there with you in person today! 😢</p>
 
       <div class="row primaryActionRow" style="margin-top:6px;">
-        <button id="toFinalBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
+        <button id="toFinalBtn" class="primaryCta">
           In the meantime...
         </button>
       </div>
@@ -974,7 +996,7 @@
       </div>
 
       <div class="row primaryActionRow" style="margin-top:4px;">
-        <button class="primaryCta" id="takeSurveyBtn" style="font-size:18px; padding:14px 18px;">
+        <button class="primaryCta" id="takeSurveyBtn">
           Take the survey 📝
         </button>
       </div>
@@ -997,7 +1019,7 @@
       </div>
 
       <div class="row primaryActionRow" style="margin-top:10px;">
-        <button class="primaryCta" id="restartBtn" style="font-size:18px; padding:14px 18px;">
+        <button class="primaryCta" id="restartBtn">
           Reboot romance.exe 💻💖
         </button>
       </div>
@@ -1113,6 +1135,7 @@
   const toArrivalBtn = document.getElementById("toArrivalBtn");
   const toFinalBtn = document.getElementById("toFinalBtn");
   const arrivalCountdown = document.getElementById("arrivalCountdown");
+  const arrivalApology = document.getElementById("arrivalApology");
 
   const finalPhoto = document.getElementById("finalPhoto");
   const finalText  = document.getElementById("finalText");
@@ -1877,6 +1900,7 @@
     toFinalBtn.style.display = "none";
     arrivalCountdown.textContent = "Calculating countdown…";
     arrivalCountdown.classList.remove("is-live");
+    arrivalApology.classList.remove("show");
 
     confettiBurst(26);
     kiss();
@@ -1886,6 +1910,7 @@
     startArrivalCountdown(runId);
     await wait(2500);
     if(runId !== activeRunId) return;
+    arrivalApology.classList.add("show");
     if(!arrivalCountdown.classList.contains("is-live")) toFinalBtn.style.display = "inline-block";
   }
 
@@ -2089,18 +2114,12 @@
   async function downloadSurveyPdf(){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
-    const margin = 44;
+    const margin = 42;
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
     const maxWidth = pageW - margin * 2;
 
-    let y = 72;
-    const ensureSpace = (needed=26)=>{
-      if(y + needed > pageH - margin){
-        doc.addPage();
-        y = 72;
-      }
-    };
+    const cleanPdfText = (value)=>String(value || "").replace(/[^\x20-\x7E]/g, "");
 
     const loadImage = async (src)=>{
       const img = new Image();
@@ -2114,56 +2133,67 @@
     };
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.text("Valentine Survey + Cinnamon Roll Coupon", margin, y);
-    y += 30;
+    doc.setFontSize(20);
+    doc.text("Valentine Survey + Cinnamon Roll Coupon", margin, 66);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    const intro = doc.splitTextToSize("Official summary of Angelo's responses. This certificate is redeemable for free cinnamon rolls and maximum romantic bragging rights.", maxWidth);
-    doc.text(intro, margin, y);
-    y += intro.length * 16 + 6;
-
-    surveyAnswers.forEach((entry, idx)=>{
-      ensureSpace(48);
-      doc.setFont("helvetica", "bold");
-      const qLines = doc.splitTextToSize(`${idx + 1}. ${entry.question}`, maxWidth);
-      doc.text(qLines, margin, y);
-      y += qLines.length * 15;
-
-      doc.setFont("helvetica", "normal");
-      const aLines = doc.splitTextToSize(`Answer: ${entry.answer}`, maxWidth - 8);
-      doc.text(aLines, margin + 8, y);
-      y += aLines.length * 15 + 8;
-    });
-
-    doc.addPage();
-    y = 72;
-    const couponHeight = pageH - y - margin;
-    doc.setDrawColor(255, 45, 85);
-    doc.setLineWidth(1.4);
-    doc.roundedRect(margin, y, maxWidth, couponHeight, 8, 8);
-
-    const couponTop = y;
-    const couponTextInset = margin + 12;
-    const visualZoneTop = couponTop + couponHeight * 0.5;
-    const visualZoneHeight = couponHeight - (visualZoneTop - couponTop) - 12;
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text("COUPON: Redeem for free cinnamon rolls (limit: one joyful redemption).", couponTextInset, couponTop + 24);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
-    const redeemNote = doc.splitTextToSize("To redeem: share a screenshot of this coupon with Niloo and present one happy dance.", maxWidth - 24);
-    doc.text(redeemNote, couponTextInset, couponTop + 43);
-    doc.text("Expiration Date: Never mind, Angelo doesn't let anything expire 🤪", couponTextInset, couponTop + 75);
-    doc.text("Signed by: Niloo's Department of Romantic Logistics", couponTextInset, couponTop + 92);
+    const intro = doc.splitTextToSize(
+      "Official summary of Angelo's responses. This certificate is redeemable for free cinnamon rolls and maximum romantic bragging rights.",
+      maxWidth
+    );
+    let y = 88;
+    doc.text(intro, margin, y);
+    y += intro.length * 13 + 8;
+
+    const couponTop = 438;
+    const lineHeight = 12;
+    const answerAreaBottom = couponTop - 14;
+
+    surveyAnswers.forEach((entry, idx)=>{
+      const safeQuestion = cleanPdfText(entry.question);
+      const safeAnswer = cleanPdfText(entry.answer);
+      const qLines = doc.splitTextToSize(`${idx + 1}. ${safeQuestion}`, maxWidth);
+      const aLines = doc.splitTextToSize(`Answer: ${safeAnswer}`, maxWidth - 8);
+      const needed = (qLines.length + aLines.length) * lineHeight + 8;
+      if(y + needed > answerAreaBottom) return;
+
+      doc.setFont("helvetica", "bold");
+      doc.text(qLines, margin, y);
+      y += qLines.length * lineHeight;
+
+      doc.setFont("helvetica", "normal");
+      doc.text(aLines, margin + 8, y);
+      y += aLines.length * lineHeight + 8;
+    });
+
+    doc.setDrawColor(255, 45, 85);
+    doc.setLineWidth(1.4);
+    const couponHeight = pageH - couponTop - margin;
+    doc.roundedRect(margin, couponTop, maxWidth, couponHeight, 8, 8);
+
+    const couponTextInset = margin + 12;
+    const visualZoneTop = couponTop + couponHeight * 0.52;
+    const visualZoneHeight = couponHeight - (visualZoneTop - couponTop) - 10;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.text("COUPON: Redeem for free cinnamon rolls (limit: one joyful redemption).", couponTextInset, couponTop + 24);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10.5);
+    const redeemNote = doc.splitTextToSize(
+      "To redeem: share a screenshot of this coupon with Niloo and present one happy dance.",
+      maxWidth - 24
+    );
+    doc.text(redeemNote, couponTextInset, couponTop + 41);
+    doc.text("Expiration Date: Never mind, Angelo does not let anything expire.", couponTextInset, couponTop + 69);
+    doc.text("Signed by: Niloo's Department of Romantic Logistics", couponTextInset, couponTop + 85);
 
     try{
       const img = await loadImage("cinnamon.png");
       const ratio = img.naturalHeight / img.naturalWidth || 1;
       const maxImageW = maxWidth - 24;
-      const maxImageH = Math.max(visualZoneHeight - 10, 120);
+      const maxImageH = Math.max(visualZoneHeight - 8, 110);
       let drawW = maxImageW;
       let drawH = drawW * ratio;
 
@@ -2173,7 +2203,7 @@
       }
 
       const imageX = margin + (maxWidth - drawW) / 2;
-      const imageY = visualZoneTop + Math.max((visualZoneHeight - drawH) / 2, 10);
+      const imageY = visualZoneTop + Math.max((visualZoneHeight - drawH) / 2, 6);
       doc.addImage(img, "PNG", imageX, imageY, drawW, drawH);
     }catch(_err){
       // Image optional if the asset is missing.
