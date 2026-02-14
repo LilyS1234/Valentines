@@ -2182,7 +2182,7 @@
     doc.roundedRect(margin, couponTop, maxWidth, couponHeight, 8, 8);
 
     const couponTextInset = margin + 12;
-    const visualZoneTop = couponTop + couponHeight * 0.40;
+    const visualZoneTop = couponTop + couponHeight * 0.33;
     const visualZoneHeight = couponHeight - (visualZoneTop - couponTop) - 10;
 
     doc.setFont("helvetica", "bold");
@@ -2191,19 +2191,28 @@
 
     doc.setFontSize(10.5);
     doc.setFont("helvetica", "bold");
-    doc.text("To Redeem:", couponTextInset, couponTop + 41);
+    doc.text("To redeem:", couponTextInset, couponTop + 41);
+    const redeemLabelWidth = doc.getTextWidth("To redeem: ");
     doc.setFont("helvetica", "normal");
-    doc.text("share a screenshot of this coupon with Niloo and present one happy dance.", couponTextInset + 56, couponTop + 41);
+    doc.text("share a screenshot of this coupon with Niloo and present one happy dance.", couponTextInset + redeemLabelWidth, couponTop + 41);
 
     doc.setFont("helvetica", "bold");
-    doc.text("Expiration Date: Never mind, Angelo does not let anything expire.", couponTextInset, couponTop + 61);
-    doc.text("Signed by: Niloo's Department of Romantic Logistics", couponTextInset, couponTop + 77);
+    doc.text("Expiration Date:", couponTextInset, couponTop + 61);
+    const expirationLabelWidth = doc.getTextWidth("Expiration Date: ");
+    doc.setFont("helvetica", "normal");
+    doc.text("Never mind, Angelo does not let anything expire.", couponTextInset + expirationLabelWidth, couponTop + 61);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Signed by:", couponTextInset, couponTop + 77);
+    const signatureLabelWidth = doc.getTextWidth("Signed by: ");
+    doc.setFont("helvetica", "normal");
+    doc.text("Niloo's Department of Romantic Logistics", couponTextInset + signatureLabelWidth, couponTop + 77);
 
     try{
       const img = await loadImage("cinnamon.png");
       const ratio = img.naturalHeight / img.naturalWidth || 1;
-      const maxImageW = maxWidth - 12;
-      const maxImageH = Math.max(visualZoneHeight - 4, 150);
+      const maxImageW = maxWidth - 4;
+      const maxImageH = Math.max(visualZoneHeight - 2, 165);
       let drawW = maxImageW;
       let drawH = drawW * ratio;
 
