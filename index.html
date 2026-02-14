@@ -1391,7 +1391,8 @@
     if(runId !== activeRunId) return;
     popupWin("Legal Notice", "⚖️ Binding under <b>American</b>, <b>Italian</b>, and <b>Internet</b> Law.");
 
-    await wait(950);
+    // Let the final popup fully fade out, then reveal CTA shortly after.
+    await sleep(3800 * SPEED + 380);
     if(runId !== activeRunId) return;
     toEndBtn.style.display = "inline-block";
   }
@@ -1465,8 +1466,8 @@
     endPanel.classList.add("showClauses");
     celebrate();
 
-    // Show the CTA shortly after the last clause finishes animating.
-    await wait(4600);
+    // Last clause ends at ~4.15s (2.8s delay + 1.35s animation). Reveal immediately after.
+    await sleep(4270);
     if(runId !== activeRunId) return;
     toCoffeeBtn.style.display = "inline-block";
   }
