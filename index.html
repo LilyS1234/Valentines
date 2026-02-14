@@ -593,6 +593,121 @@
       }
       #techGirlImg{ width:min(190px, 44vw); }
     }
+
+    #takeSurveyBtn{
+      display:none;
+    }
+
+    #surveyWrap{
+      width:min(760px, 92vw);
+      margin: 6px auto 0;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 14px 28px rgba(0,0,0,.14);
+      text-align:left;
+      display:none;
+    }
+
+    #surveyTitle{
+      margin:0;
+      font-size: clamp(20px, 2.7vw, 30px);
+      color:#c2185b;
+      font-weight:900;
+      text-align:center;
+    }
+
+    #surveyProgress{
+      margin: 8px 0 14px;
+      text-align:center;
+      font-weight:800;
+      color:#a63d66;
+      font-size: 13px;
+    }
+
+    #surveyQuestionText{
+      margin: 0 0 12px;
+      font-weight:800;
+      font-size: clamp(16px, 2.1vw, 22px);
+      text-align:center;
+    }
+
+    .surveyChoices{
+      display:grid;
+      gap: 10px;
+    }
+
+    .surveyChoiceBtn{
+      width:100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,45,85,.1);
+      color:#7b1239;
+      box-shadow:none;
+      font-weight:800;
+      text-align:left;
+    }
+
+    .surveyChoiceBtn:hover{
+      filter: brightness(1.04);
+      transform: translateY(-1px);
+    }
+
+    .surveyInput{
+      width:100%;
+      box-sizing:border-box;
+      border: 1px solid rgba(0,0,0,.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      margin-bottom: 10px;
+      font-family: inherit;
+    }
+
+    #surveyFeedback{
+      min-height:1.2em;
+      text-align:center;
+      color:#b30f4e;
+      font-weight:800;
+      margin: 6px 0 0;
+    }
+
+    #surveyResults{
+      display:none;
+      margin-top: 8px;
+    }
+
+    #surveyResults ul{
+      margin: 10px 0 0 18px;
+      padding:0;
+    }
+
+    #surveyResults li{
+      margin: 8px 0;
+      font-size: 14px;
+      line-height:1.35;
+    }
+
+    #couponText{
+      margin: 10px 0;
+      font-weight:900;
+      color:#8e1446;
+      text-align:center;
+    }
+
+    #surveyPdfBtn,
+    #surveyContinueBtn{
+      width:100%;
+      margin-top: 8px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background:#111;
+      color:#fff;
+      font-weight:900;
+      box-shadow:none;
+      font-size:14px;
+      display:none;
+    }
   </style>
 </head>
 
@@ -745,6 +860,29 @@
         <img id="techGirlImg" src="niloo_sprite.png" alt="Niloo tech girl" crossorigin="anonymous">
       </div>
 
+      <div class="row primaryActionRow" style="margin-top:4px;">
+        <button class="primaryCta" id="takeSurveyBtn" style="font-size:18px; padding:14px 18px;">
+          Take the survey 📝
+        </button>
+      </div>
+
+      <div id="surveyWrap" aria-live="polite">
+        <h3 id="surveyTitle">Post-Valentine Debrief</h3>
+        <div id="surveyProgress"></div>
+        <p id="surveyQuestionText"></p>
+        <div id="surveyChoices" class="surveyChoices"></div>
+        <input id="surveyInput" class="surveyInput" style="display:none;" />
+        <button id="surveyContinueBtn">Save answer & continue ➜</button>
+        <div id="surveyFeedback"></div>
+
+        <div id="surveyResults">
+          <p style="margin:0; font-weight:800; text-align:center;">Survey complete. Results have been sent to the Department of Romance Compliance 💌</p>
+          <ul id="surveyAnswerList"></ul>
+          <div id="couponText">Coupon unlocked: Redeem this PDF for free cinnamon rolls 🌀</div>
+          <button id="surveyPdfBtn">Download survey + cinnamon roll coupon PDF</button>
+        </div>
+      </div>
+
       <div class="row primaryActionRow" style="margin-top:10px;">
         <button class="primaryCta" id="restartBtn" style="font-size:18px; padding:14px 18px;">
           Reboot romance.exe 💻💖
@@ -865,6 +1003,68 @@
   const techGirlImg = document.getElementById("techGirlImg");
   const finalPanel = sceneFinal.querySelector(".panel");
   const restartBtn = document.getElementById("restartBtn");
+  const takeSurveyBtn = document.getElementById("takeSurveyBtn");
+  const surveyWrap = document.getElementById("surveyWrap");
+  const surveyTitle = document.getElementById("surveyTitle");
+  const surveyProgress = document.getElementById("surveyProgress");
+  const surveyQuestionText = document.getElementById("surveyQuestionText");
+  const surveyChoices = document.getElementById("surveyChoices");
+  const surveyInput = document.getElementById("surveyInput");
+  const surveyContinueBtn = document.getElementById("surveyContinueBtn");
+  const surveyFeedback = document.getElementById("surveyFeedback");
+  const surveyResults = document.getElementById("surveyResults");
+  const surveyAnswerList = document.getElementById("surveyAnswerList");
+  const surveyPdfBtn = document.getElementById("surveyPdfBtn");
+
+  const surveyQuestions = [
+    {
+      id: "impressed",
+      text: "How impressed were you with Niloo's Valentine's surprise?",
+      type: "choice",
+      options: [
+        "Mildly impressed (I only gasped once)",
+        "Very impressed (standing ovation)",
+        "Emotionally destroyed (in a good way)"
+      ]
+    },
+    {
+      id: "shaken",
+      text: "Were you shaken to your core that Niloo used Codex?",
+      type: "choice",
+      options: [
+        "No, this level of genius felt inevitable",
+        "Yes, my jaw is still on the floor",
+        "I need a moment and a celebratory coffee"
+      ]
+    },
+    {
+      id: "cinnamonRolls",
+      text: "How many cinnamon rolls should be redeemed immediately?",
+      type: "number",
+      min: 1,
+      max: 50,
+      placeholder: "Enter a heroic number between 1 and 50"
+    },
+    {
+      id: "bonusFeature",
+      text: "Choose the next romance feature to auto-deploy:",
+      type: "choice",
+      options: [
+        "A weekly dessert notification system",
+        "An emergency cuddle summon button",
+        "A mutual hype generator for bad days"
+      ]
+    },
+    {
+      id: "finalComment",
+      text: "Final review comment for Niloo (optional, but cute):",
+      type: "text",
+      placeholder: "Type your legendary feedback here..."
+    }
+  ];
+
+  let surveyIndex = 0;
+  let surveyAnswers = [];
 
   // =========================
   // MUSIC
@@ -1562,13 +1762,194 @@
     techGirlImg.style.display = "none";
     techGirlImg.classList.remove("techGirlIn");
     finalSignature.innerHTML = "";
+    surveyWrap.style.display = "none";
+    surveyResults.style.display = "none";
+    surveyChoices.innerHTML = "";
+    surveyFeedback.textContent = "";
+    surveyInput.style.display = "none";
+    surveyInput.value = "";
+    surveyContinueBtn.style.display = "none";
+    surveyPdfBtn.style.display = "none";
+    surveyAnswerList.innerHTML = "";
+    takeSurveyBtn.style.display = "none";
+    surveyIndex = 0;
+    surveyAnswers = [];
 
     await wait(900);
     if(runId !== activeRunId) return;
     await typeFinalMessage(runId);
     if(runId !== activeRunId) return;
+    takeSurveyBtn.style.display = "inline-block";
     restartBtn.style.display = "inline-block";
     restartBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function surveyReaction(){
+    const lines = [
+      "Noted. Romance analytics updated ✅",
+      "Excellent answer. +10 cuddle points ✨",
+      "Response accepted under Internet Law ⚖️",
+      "This will absolutely help cinnamon roll logistics 🌀"
+    ];
+    return lines[Math.floor(Math.random() * lines.length)];
+  }
+
+  function renderSurveyQuestion(){
+    const q = surveyQuestions[surveyIndex];
+    if(!q){
+      showSurveyResults();
+      return;
+    }
+
+    surveyProgress.textContent = `Question ${surveyIndex + 1} / ${surveyQuestions.length}`;
+    surveyQuestionText.textContent = q.text;
+    surveyChoices.innerHTML = "";
+    surveyFeedback.textContent = "";
+    surveyInput.style.display = "none";
+    surveyInput.value = "";
+    surveyContinueBtn.style.display = "none";
+
+    if(q.type === "choice"){
+      q.options.forEach((opt)=>{
+        const btn = document.createElement("button");
+        btn.className = "surveyChoiceBtn";
+        btn.textContent = opt;
+        btn.addEventListener("click", ()=>{
+          surveyAnswers.push({ question: q.text, answer: opt });
+          surveyFeedback.textContent = surveyReaction();
+          coin();
+          sceneSetTimeout(()=>{
+            surveyIndex++;
+            renderSurveyQuestion();
+          }, 500);
+        });
+        surveyChoices.appendChild(btn);
+      });
+      return;
+    }
+
+    surveyInput.style.display = "block";
+    surveyInput.placeholder = q.placeholder || "Your answer";
+    surveyInput.type = q.type === "number" ? "number" : "text";
+    if(q.type === "number"){
+      surveyInput.min = q.min;
+      surveyInput.max = q.max;
+    } else {
+      surveyInput.removeAttribute("min");
+      surveyInput.removeAttribute("max");
+    }
+    surveyContinueBtn.style.display = "block";
+    surveyInput.focus();
+  }
+
+  function showSurveyResults(){
+    surveyProgress.textContent = "Survey complete ✅";
+    surveyQuestionText.textContent = "You passed the relationship quality audit with elite status.";
+    surveyChoices.innerHTML = "";
+    surveyInput.style.display = "none";
+    surveyContinueBtn.style.display = "none";
+    surveyFeedback.textContent = "";
+    surveyResults.style.display = "block";
+    surveyPdfBtn.style.display = "block";
+    surveyAnswerList.innerHTML = "";
+
+    surveyAnswers.forEach((entry)=>{
+      const li = document.createElement("li");
+      li.innerHTML = `<b>${entry.question}</b><br>${entry.answer}`;
+      surveyAnswerList.appendChild(li);
+    });
+
+    confettiBurst(45);
+    yay();
+    restartBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function beginSurvey(){
+    surveyIndex = 0;
+    surveyAnswers = [];
+    takeSurveyBtn.style.display = "none";
+    surveyWrap.style.display = "block";
+    surveyResults.style.display = "none";
+    renderSurveyQuestion();
+    surveyWrap.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function saveInputSurveyAnswer(){
+    const q = surveyQuestions[surveyIndex];
+    if(!q || (q.type !== "number" && q.type !== "text")) return;
+
+    const value = surveyInput.value.trim();
+    if(q.type === "number"){
+      const n = Number(value);
+      if(!Number.isFinite(n) || n < q.min || n > q.max){
+        surveyFeedback.textContent = `Please enter a number between ${q.min} and ${q.max}.`;
+        return;
+      }
+      surveyAnswers.push({ question: q.text, answer: String(n) });
+    } else {
+      surveyAnswers.push({ question: q.text, answer: value || "(No comment; too emotionally overwhelmed.)" });
+    }
+
+    surveyFeedback.textContent = surveyReaction();
+    coin();
+    sceneSetTimeout(()=>{
+      surveyIndex++;
+      renderSurveyQuestion();
+    }, 500);
+  }
+
+  function downloadSurveyPdf(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const margin = 44;
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const maxWidth = pageW - margin * 2;
+
+    let y = 72;
+    const ensureSpace = (needed=26)=>{
+      if(y + needed > pageH - margin){
+        doc.addPage();
+        y = 72;
+      }
+    };
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("Valentine Survey + Cinnamon Roll Coupon", margin, y);
+    y += 30;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    const intro = doc.splitTextToSize("Official summary of Angelo's responses. This certificate is redeemable for free cinnamon rolls and maximum romantic bragging rights.", maxWidth);
+    doc.text(intro, margin, y);
+    y += intro.length * 16 + 6;
+
+    surveyAnswers.forEach((entry, idx)=>{
+      ensureSpace(48);
+      doc.setFont("helvetica", "bold");
+      const qLines = doc.splitTextToSize(`${idx + 1}. ${entry.question}`, maxWidth);
+      doc.text(qLines, margin, y);
+      y += qLines.length * 15;
+
+      doc.setFont("helvetica", "normal");
+      const aLines = doc.splitTextToSize(`Answer: ${entry.answer}`, maxWidth - 8);
+      doc.text(aLines, margin + 8, y);
+      y += aLines.length * 15 + 8;
+    });
+
+    ensureSpace(70);
+    doc.setDrawColor(255, 45, 85);
+    doc.setLineWidth(1.4);
+    doc.roundedRect(margin, y, maxWidth, 58, 8, 8);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("COUPON: Redeem for free cinnamon rolls (limit: one joyful redemption).", margin + 12, y + 23);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text("Signed by: Niloo's Department of Romantic Logistics", margin + 12, y + 42);
+
+    doc.save("Valentine_Survey_Cinnamon_Roll_Coupon.pdf");
   }
 
   // =========================
@@ -1634,6 +2015,12 @@
   document.getElementById("nextSceneBtn").addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex + 1));
   replaySceneBtn.addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex));
   document.getElementById("restartBtn").addEventListener("click", ()=>goToSceneByIndex(SCENE.QUESTION));
+  takeSurveyBtn.addEventListener("click", beginSurvey);
+  surveyContinueBtn.addEventListener("click", saveInputSurveyAnswer);
+  surveyInput.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter") saveInputSurveyAnswer();
+  });
+  surveyPdfBtn.addEventListener("click", downloadSurveyPdf);
 
   // =========================
   // BUTTON WIRING
