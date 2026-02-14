@@ -411,11 +411,14 @@
       display:flex;
       flex-direction:column;
       align-items:center;
+      justify-content:center;
+      overflow: visible;
+      gap: 12px;
     }
 
     #finalPhoto{
       width:min(560px, 92vw);
-      max-height:min(56vh, 560px);
+      max-height:min(55vh, 520px);
       object-fit:contain;
       border-radius: 26px;
       box-shadow: 0 18px 45px rgba(0,0,0,.22);
@@ -424,15 +427,15 @@
       transition: opacity 1.0s ease, transform 1.0s ease;
     }
     #finalMessageWrap{
-      margin-top: 14px;
+      margin-top: 0;
       width:min(760px, 92vw);
       display:flex;
-      align-items:flex-end;
+      align-items:center;
       justify-content:center;
-      gap: 14px;
+      gap: 18px;
     }
     #finalText{
-      margin-top: 0;
+      margin: 0;
       font-family: "Great Vibes", cursive;
       font-size: clamp(34px, 5vw, 72px);
       color: var(--hot);
@@ -440,11 +443,21 @@
       min-height: 1.4em;
       white-space: pre-wrap;
       line-height: 1.06;
-      text-align:left;
+      text-align:center;
+    }
+
+    #finalSignature{
+      margin: 6px 0 0;
+      font-family: "Great Vibes", cursive;
+      font-size: clamp(32px, 4.4vw, 58px);
+      color: var(--hot);
+      text-shadow: 0 0 24px rgba(255,255,255,.6);
+      line-height: 1.04;
+      text-align:center;
     }
 
     #techGirlImg{
-      width:min(170px, 26vw);
+      width:min(260px, 30vw);
       margin: 0;
       display:none;
       opacity:0;
@@ -460,8 +473,14 @@
     }
 
     @media (max-width: 640px){
-      #finalMessageWrap{ gap: 8px; }
-      #techGirlImg{ width:min(130px, 24vw); }
+      #finalPhoto{
+        max-height:min(44vh, 420px);
+      }
+      #finalMessageWrap{
+        flex-direction: column;
+        gap: 8px;
+      }
+      #techGirlImg{ width:min(190px, 44vw); }
     }
   </style>
 </head>
@@ -596,7 +615,10 @@
     <div class="panel">
       <img id="finalPhoto" src="final.jpg" alt="Us" crossorigin="anonymous">
       <div id="finalMessageWrap">
-        <div id="finalText"></div>
+        <div>
+          <div id="finalText"></div>
+          <div id="finalSignature">I love you, Niloo</div>
+        </div>
         <img id="techGirlImg" src="niloo_sprite.png" alt="Niloo tech girl" crossorigin="anonymous">
       </div>
 
@@ -1245,7 +1267,7 @@
   // =========================
   async function typeFinalMessage(){
     finalText.textContent = "";
-    const msg = "Happy Valentine's Day!!\nI love you!!\nNiloo";
+    const msg = "Happy Valentine's Day!!";
     for(let i=0;i<msg.length;i++){
       finalText.textContent += msg[i];
       await wait(70);
