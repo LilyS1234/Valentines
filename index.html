@@ -868,25 +868,40 @@
   // =========================
   const bgm = document.getElementById("bgm");
   let musicOn = true;
+  let bgmFadeTimer = null;
 
   function startBgm(){
     if(!musicOn) return;
     try{
+      if(!bgm.paused) return;
+      if(bgmFadeTimer){
+        clearInterval(bgmFadeTimer);
+        bgmFadeTimer = null;
+      }
       bgm.volume = 0;
       bgm.play().catch(()=>{});
       let v = 0;
-      const fade = setInterval(()=>{
+      bgmFadeTimer = setInterval(()=>{
         v += 0.02;
         if(v >= 0.22){
           bgm.volume = 0.22;
-          clearInterval(fade);
+          clearInterval(bgmFadeTimer);
+          bgmFadeTimer = null;
         } else {
           bgm.volume = v;
         }
       }, 120);
     }catch(e){}
   }
-  function stopBgm(){ try{ bgm.pause(); }catch(e){} }
+  function stopBgm(){
+    try{
+      if(bgmFadeTimer){
+        clearInterval(bgmFadeTimer);
+        bgmFadeTimer = null;
+      }
+      bgm.pause();
+    }catch(e){}
+  }
 
   function setMusic(on){
     musicOn = on;
@@ -1398,19 +1413,25 @@
   }
 
   function startCoffeeScene(){
-    enterScene(SCENE.COFFEE);
+    const runId = enterScene(SCENE.COFFEE);
     clearPopups();
 
     // reset coffee scene state
     printArea.style.display = "none";
     toFinalBtn.style.display = "none";
     receipt.classList.remove("printing");
+
+    return runId;
   }
 
   async function printReceiptFlow(){
+    const runId = activeRunId;
+    if(currentSceneIndex !== SCENE.COFFEE) return;
+
     printArea.style.display = "block";
     receipt.scrollIntoView({ behavior: "smooth", block: "center" });
     await wait(260);
+    if(runId !== activeRunId || currentSceneIndex !== SCENE.COFFEE) return;
 
     receipt.classList.remove("printing");
     void receipt.offsetWidth;
@@ -1420,6 +1441,7 @@
     sceneSetTimeout(()=>kiss(), 1440);
 
     await wait(3800);
+    if(runId !== activeRunId || currentSceneIndex !== SCENE.COFFEE) return;
     toFinalBtn.style.display = "inline-block";
   }
 
@@ -1549,39 +1571,43 @@
     const { jsPDF } = window.jspdf;
 
     printArea.classList.add("capture");
-    await new Promise(r => setTimeout(r, 250));
+    try{
+      await new Promise(r => setTimeout(r, 250));
 
-    const canvas = await html2canvas(printArea, {
-      backgroundColor: "#fff3f9",
-      scale: 2,
-      useCORS: true,
-      allowTaint: false,
-      scrollY: -window.scrollY
-    });
+      const canvas = await html2canvas(printArea, {
+        backgroundColor: "#fff3f9",
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        scrollY: -window.scrollY
+      });
 
-    printArea.classList.remove("capture");
+      const imgData = canvas.toDataURL("image/png");
 
-    const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ unit: "pt", format: "a4" });
+      const W = pdf.internal.pageSize.getWidth();
+      const H = pdf.internal.pageSize.getHeight();
 
-    const pdf = new jsPDF({ unit: "pt", format: "a4" });
-    const W = pdf.internal.pageSize.getWidth();
-    const H = pdf.internal.pageSize.getHeight();
+      const margin = 34;
+      const maxW = W - margin * 2;
+      const maxH = H - margin * 2;
 
-    const margin = 34;
-    const maxW = W - margin * 2;
-    const maxH = H - margin * 2;
+      const imgW = canvas.width;
+      const imgH = canvas.height;
+      const ratio = Math.min(maxW / imgW, maxH / imgH);
 
-    const imgW = canvas.width;
-    const imgH = canvas.height;
-    const ratio = Math.min(maxW / imgW, maxH / imgH);
+      const drawW = imgW * ratio;
+      const drawH = imgH * ratio;
+      const x = (W - drawW) / 2;
+      const y = (H - drawH) / 2;
 
-    const drawW = imgW * ratio;
-    const drawH = imgH * ratio;
-    const x = (W - drawW) / 2;
-    const y = (H - drawH) / 2;
-
-    pdf.addImage(imgData, "PNG", x, y, drawW, drawH);
-    pdf.save("Angelo_Receipt_Printable.pdf");
+      pdf.addImage(imgData, "PNG", x, y, drawW, drawH);
+      pdf.save("Angelo_Receipt_Printable.pdf");
+    }catch(error){
+      console.error("Failed to export PDF:", error);
+    }finally{
+      printArea.classList.remove("capture");
+    }
   });
 
   const sceneStarters = [
