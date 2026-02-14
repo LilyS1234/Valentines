@@ -919,7 +919,7 @@
   <!-- Scene 5 -->
   <div class="wrap" id="sceneArrival" style="display:none;">
     <div class="panel">
-      <h2 id="arrivalTitle">Final reward unlocked: Niloo is coming home ✈️</h2>
+      <h2 id="arrivalTitle">Final reward unlocked: Niloo is coming home 🏡</h2>
       <p id="arrivalSub">Kansas City ➜ Sicily · Landing March 1 at 5:20 PM (Sicily time)</p>
 
       <div id="mapCard" aria-label="Flight map from Kansas City to Sicily">
@@ -955,7 +955,7 @@
 
       <div class="row primaryActionRow" style="margin-top:6px;">
         <button id="toFinalBtn" class="primaryCta" style="display:none; font-size:18px; padding:14px 18px;">
-          Open our love note 💌
+          In the meantime...
         </button>
       </div>
     </div>
@@ -991,7 +991,7 @@
         <div id="surveyResults">
           <p style="margin:0; font-weight:800; text-align:center;">Survey complete. Results have been sent to the Department of Romance Compliance 💌</p>
           <ul id="surveyAnswerList"></ul>
-          <div id="couponText">Coupon unlocked: share a screenshot of this PDF with Niloo to redeem your free cinnamon rolls 🌀</div>
+          <div id="couponText">Coupon unlocked: your cinnamon rolls are officially on standby 🌀</div>
           <button id="surveyPdfBtn">Download survey + cinnamon roll coupon PDF</button>
         </div>
       </div>
@@ -2137,16 +2137,17 @@
       y += aLines.length * 15 + 8;
     });
 
-    const couponHeight = 198;
-    ensureSpace(couponHeight + 20);
+    doc.addPage();
+    y = 72;
+    const couponHeight = pageH - y - margin;
     doc.setDrawColor(255, 45, 85);
     doc.setLineWidth(1.4);
     doc.roundedRect(margin, y, maxWidth, couponHeight, 8, 8);
 
     const couponTop = y;
     const couponTextInset = margin + 12;
-    const visualZoneTop = couponTop + 104;
-    const visualZoneHeight = couponHeight - (visualZoneTop - couponTop) - 16;
+    const visualZoneTop = couponTop + couponHeight * 0.5;
+    const visualZoneHeight = couponHeight - (visualZoneTop - couponTop) - 12;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
@@ -2155,14 +2156,14 @@
     doc.setFontSize(11);
     const redeemNote = doc.splitTextToSize("To redeem: share a screenshot of this coupon with Niloo and present one happy dance.", maxWidth - 24);
     doc.text(redeemNote, couponTextInset, couponTop + 43);
-    doc.text("Funny expiration date: Expires when penguins become licensed baristas (so... basically never).", couponTextInset, couponTop + 75);
+    doc.text("Expiration Date: Never mind, Angelo doesn't let anything expire 🤪", couponTextInset, couponTop + 75);
     doc.text("Signed by: Niloo's Department of Romantic Logistics", couponTextInset, couponTop + 92);
 
     try{
       const img = await loadImage("cinnamon.png");
       const ratio = img.naturalHeight / img.naturalWidth || 1;
-      const maxImageW = Math.min(152, maxWidth * 0.38);
-      const maxImageH = Math.max(visualZoneHeight - 10, 48);
+      const maxImageW = maxWidth - 24;
+      const maxImageH = Math.max(visualZoneHeight - 10, 120);
       let drawW = maxImageW;
       let drawH = drawW * ratio;
 
