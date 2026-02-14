@@ -166,6 +166,66 @@
       color: rgba(255,255,255,.9);
     }
 
+    .sceneDock{
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 10001;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,240,246,.95), rgba(255,224,238,.9));
+      border: 1px solid rgba(255,45,85,.25);
+      box-shadow: 0 14px 30px rgba(255,45,85,.22);
+      backdrop-filter: blur(6px);
+    }
+
+    .sceneBtn{
+      min-width: 52px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: linear-gradient(180deg, #ff5b89, #ff2d55);
+      color: #fff;
+      display: inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 4px;
+      box-shadow: 0 8px 18px rgba(255,45,85,.35);
+    }
+
+    #sceneLabel{
+      min-width: 130px;
+      text-align: left;
+      color:#911036;
+      font-weight: 800;
+      font-size: 12px;
+      line-height: 1.1;
+    }
+
+    #loveMeterText{
+      display:block;
+      margin-bottom: 4px;
+    }
+
+    #loveMeterTrack{
+      width: 130px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,45,85,.2);
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+    }
+
+    #loveMeterFill{
+      width: 20%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ff7fb2, #ff2d55);
+      transition: width .35s ease;
+    }
+
     /* Loading line */
     #loadingLine{ font-size:18px; opacity:.9; min-height:1.6em; margin: 10px 0 10px; }
     .dots::after{ content:""; animation:dots 1.2s steps(4,end) infinite; }
@@ -489,6 +549,15 @@
 <body>
   <div id="flash"></div>
   <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
+  <div class="sceneDock" role="group" aria-label="Scene navigation controls">
+    <button class="sceneBtn" id="prevSceneBtn" title="Previous scene">⏮️ Prev</button>
+    <button class="sceneBtn" id="replaySceneBtn" title="Replay current scene">🔁 Replay</button>
+    <button class="sceneBtn" id="nextSceneBtn" title="Next scene">Next ⏭️</button>
+    <div id="sceneLabel" aria-live="polite">
+      <span id="loveMeterText">Love meter: ❤️🤍🤍🤍🤍</span>
+      <div id="loveMeterTrack"><div id="loveMeterFill"></div></div>
+    </div>
+  </div>
   <div class="audioDock" role="group" aria-label="Audio controls">
     <button
       class="audioBtn"
@@ -625,7 +694,7 @@
 
       <div class="row" style="margin-top:10px;">
         <button class="miniBtn" id="songBtn">Play our song 🎶</button>
-        <button class="miniBtn" id="restartBtn">Replay 😌</button>
+        <button class="miniBtn" id="restartBtn">Replay this scene 😌</button>
       </div>
 
     </div>
@@ -647,12 +716,34 @@
   const sceneCoffee   = document.getElementById("sceneCoffee");
   const sceneEnd      = document.getElementById("sceneEnd");
   const sceneFinal    = document.getElementById("sceneFinal");
-  const scenes = [sceneQuestion, sceneContract, sceneCoffee, sceneEnd, sceneFinal];
+  const sceneLabel = document.getElementById("sceneLabel");
+  const loveMeterText = document.getElementById("loveMeterText");
+  const loveMeterFill = document.getElementById("loveMeterFill");
+
+  const sceneOrder = [sceneQuestion, sceneContract, sceneEnd, sceneCoffee, sceneFinal];
+  const SCENE = { QUESTION:0, CONTRACT:1, END:2, COFFEE:3, FINAL:4 };
   const show = (el) => el.style.display = "grid";
   const hide = (el) => el.style.display = "none";
-  function goToScene(nextScene){
-    scenes.forEach(hide);
-    show(nextScene);
+
+  let currentSceneIndex = SCENE.QUESTION;
+  let activeRunId = 0;
+
+  function updateSceneLabel(){
+    const filledHearts = currentSceneIndex + 1;
+    const emptyHearts = sceneOrder.length - filledHearts;
+    loveMeterText.textContent = `Love meter: ${"❤️".repeat(filledHearts)}${"🤍".repeat(emptyHearts)}`;
+    const progress = (filledHearts / sceneOrder.length) * 100;
+    loveMeterFill.style.width = `${progress}%`;
+    sceneLabel.setAttribute("aria-label", `Love meter ${filledHearts} of ${sceneOrder.length}`);
+  }
+
+  function enterScene(index){
+    activeRunId++;
+    currentSceneIndex = index;
+    sceneOrder.forEach(hide);
+    show(sceneOrder[index]);
+    updateSceneLabel();
+    return activeRunId;
   }
 
   function clearPopups(){
@@ -959,20 +1050,44 @@
   let questionPromptComplete = false;
 
   // Start with buttons hidden until typing finishes
-  btnRow.classList.remove("ready");
-  noBtn.style.visibility = "hidden";
+  async function startQuestionScene(){
+    const runId = enterScene(SCENE.QUESTION);
+    clearPopups();
 
-  (async ()=>{
+    questionPromptComplete = false;
+    dodges = 0;
+    noIsLoose = false;
+    noDetached = false;
+
+    if(noBtn.parentElement !== btnRow){
+      btnRow.appendChild(noBtn);
+    }
+
+    noBtn.style.display = "inline-block";
+    noBtn.style.pointerEvents = "auto";
+    noBtn.style.visibility = "hidden";
+    noBtn.style.position = "static";
+    noBtn.style.left = "";
+    noBtn.style.top = "";
+    noBtn.style.margin = "";
+    noBtn.style.zIndex = "50";
+
+    btnRow.classList.remove("ready");
     questionEl.textContent = "";
     subEl.textContent = "";
+
     await typeAppend(questionEl, "Angelo…", 95);
+    if(runId !== activeRunId) return;
     await wait(1100);
+    if(runId !== activeRunId) return;
     await typeAppend(questionEl, " will you be my Valentine? 💘", 65);
+    if(runId !== activeRunId) return;
+
     subEl.textContent = "Please respond with honesty and romantic compliance.";
     questionPromptComplete = true;
     noBtn.style.visibility = "visible";
-    btnRow.classList.add("ready");  // NOW buttons appear
-  })();
+    btnRow.classList.add("ready");
+  }
 
   // =========================
   // NO BUTTON DODGE (starts fair then goes rogue)
@@ -1129,9 +1244,9 @@
   function stopDots(){ loadingLine.classList.remove("dots"); }
 
   async function startContractScene(){
+    const runId = enterScene(SCENE.CONTRACT);
     hideNoButton();
     clearPopups();
-    goToScene(sceneContract);
 
     photoWrap.style.display = "none";
     contractPhoto.classList.remove("photoReveal");
@@ -1158,6 +1273,7 @@
     }, stepTime * SPEED);
 
     await wait(total);
+    if(runId !== activeRunId) return;
     stopDots();
 
     photoWrap.style.display = "block";
@@ -1166,6 +1282,7 @@
     contractPhoto.classList.add("photoReveal");
 
     await wait(980);
+    if(runId !== activeRunId) return;
     stampEl.style.display = "block";
     stampEl.classList.remove("stampIn");
     void stampEl.offsetWidth;
@@ -1182,17 +1299,20 @@
     }, 860 * SPEED);
 
     await wait(1150);
+    if(runId !== activeRunId) return;
     popupWin("System Notification", "📸 Contract screenshot captured and sent to <b>Niloo</b>.");
     await wait(1300);
+    if(runId !== activeRunId) return;
     popupWin("Legal Notice", "⚖️ Binding under <b>American</b>, <b>Italian</b>, and <b>Internet</b> Law.");
 
     await wait(950);
+    if(runId !== activeRunId) return;
     toEndBtn.style.display = "inline-block";
   }
 
   function startCoffeeScene(){
+    enterScene(SCENE.COFFEE);
     clearPopups();
-    goToScene(sceneCoffee);
 
     // reset coffee scene state
     printArea.style.display = "none";
@@ -1251,8 +1371,8 @@
   }
 
   async function startEndScene(){
+    const runId = enterScene(SCENE.END);
     clearPopups();
-    goToScene(sceneEnd);
     toCoffeeBtn.style.display = "none";
     endPanel.classList.remove("showClauses");
     void endPanel.offsetWidth;
@@ -1261,6 +1381,7 @@
 
     // Wait until all three clause lines have finished appearing.
     await wait(6400);
+    if(runId !== activeRunId) return;
     toCoffeeBtn.style.display = "inline-block";
   }
 
@@ -1291,8 +1412,8 @@
   }
 
   async function startFinalScene(){
+    const runId = enterScene(SCENE.FINAL);
     clearPopups();
-    goToScene(sceneFinal);
     finalPanel.scrollTo({ top: 0, behavior: "auto" });
 
     yay();
@@ -1309,6 +1430,7 @@
     finalSignature.textContent = "";
 
     await wait(900);
+    if(runId !== activeRunId) return;
     typeFinalMessage();
   }
 
@@ -1360,7 +1482,24 @@
   document.getElementById("songBtn").addEventListener("click", ()=>{
     window.open("https://www.youtube.com/watch?v=rLoGGMbF-YQ", "_blank", "noopener,noreferrer");
   });
-  document.getElementById("restartBtn").addEventListener("click", ()=>location.reload());
+
+  const sceneStarters = [
+    startQuestionScene,
+    startContractScene,
+    startEndScene,
+    startCoffeeScene,
+    startFinalScene
+  ];
+
+  function goToSceneByIndex(index){
+    const next = Math.min(sceneStarters.length - 1, Math.max(0, index));
+    sceneStarters[next]();
+  }
+
+  document.getElementById("prevSceneBtn").addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex - 1));
+  document.getElementById("nextSceneBtn").addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex + 1));
+  document.getElementById("replaySceneBtn").addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex));
+  document.getElementById("restartBtn").addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex));
 
   // =========================
   // BUTTON WIRING
@@ -1375,6 +1514,8 @@
   toCoffeeBtn.addEventListener("click", startCoffeeScene);
   printBtn.addEventListener("click", printReceiptFlow);
   toFinalBtn.addEventListener("click", startFinalScene);
+
+  startQuestionScene();
 </script>
 </body>
 </html>
