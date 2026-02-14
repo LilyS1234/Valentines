@@ -107,7 +107,8 @@
     #toCoffeeBtn,
     #printBtn,
     #toEndBtn,
-    #toFinalBtn{
+    #toFinalBtn,
+    #restartBtn{
       color:#fff;
       background: linear-gradient(180deg, #ff2d55, #ff0033);
       text-shadow: 0 2px 0 rgba(0,0,0,.15);
@@ -534,10 +535,11 @@
       border-radius: 16px;
       flex: 0 0 auto;
     }
-    .techGirlIn{ animation: techGirlIn .75s cubic-bezier(.2,1.1,.2,1) forwards; }
+    .techGirlIn{ animation: techGirlIn 2.6s cubic-bezier(.2,.9,.2,1) forwards; }
     @keyframes techGirlIn{
-      0%{ opacity:0; transform: translateY(12px) rotate(7deg) scale(.94); }
-      100%{ opacity:1; transform: translateY(0) rotate(7deg) scale(1); }
+      0%{ opacity:0; transform: translateY(24px) rotate(-36deg) scale(.55); filter: blur(8px) drop-shadow(0 10px 18px rgba(0,0,0,.18)); }
+      65%{ opacity:1; transform: translateY(-4px) rotate(11deg) scale(1.04); filter: blur(0) drop-shadow(0 12px 20px rgba(0,0,0,.2)); }
+      100%{ opacity:1; transform: translateY(0) rotate(7deg) scale(1); filter: blur(0) drop-shadow(0 10px 18px rgba(0,0,0,.18)); }
     }
 
     @media (max-width: 640px){
@@ -699,11 +701,11 @@
         <img id="techGirlImg" src="niloo_sprite.png" alt="Niloo tech girl" crossorigin="anonymous">
       </div>
 
-      <div class="row" style="margin-top:10px;">
-        <button class="miniBtn" id="songBtn">Play our song 🎶</button>
-        <button class="miniBtn" id="restartBtn">Replay this scene 😌</button>
+      <div class="row primaryActionRow" style="margin-top:10px;">
+        <button class="primaryCta" id="restartBtn" style="font-size:18px; padding:14px 18px;">
+          Reboot romance.exe 💻💖
+        </button>
       </div>
-
     </div>
   </div>
 
@@ -727,6 +729,7 @@
   const loveMeterText = document.getElementById("loveMeterText");
   const loveMeterFill = document.getElementById("loveMeterFill");
   const sceneDock = document.getElementById("sceneDock");
+  const replaySceneBtn = document.getElementById("replaySceneBtn");
 
   const sceneOrder = [sceneQuestion, sceneContract, sceneEnd, sceneCoffee, sceneFinal];
   const SCENE = { QUESTION:0, CONTRACT:1, END:2, COFFEE:3, FINAL:4 };
@@ -735,6 +738,31 @@
 
   let currentSceneIndex = SCENE.QUESTION;
   let activeRunId = 0;
+  const sceneTimeouts = new Set();
+  const sceneIntervals = new Set();
+
+  function sceneSetTimeout(fn, ms){
+    const id = setTimeout(()=>{
+      sceneTimeouts.delete(id);
+      fn();
+    }, ms);
+    sceneTimeouts.add(id);
+    return id;
+  }
+
+  function sceneSetInterval(fn, ms){
+    const id = setInterval(fn, ms);
+    sceneIntervals.add(id);
+    return id;
+  }
+
+  function clearSceneEffects(){
+    sceneTimeouts.forEach((id)=>clearTimeout(id));
+    sceneIntervals.forEach((id)=>clearInterval(id));
+    sceneTimeouts.clear();
+    sceneIntervals.clear();
+    document.querySelectorAll('.confetti, .firework, .popupWin').forEach((el)=>el.remove());
+  }
 
   function updateSceneLabel(){
     const filledHearts = currentSceneIndex + 1;
@@ -746,10 +774,12 @@
   }
 
   function enterScene(index){
+    clearSceneEffects();
     activeRunId++;
     currentSceneIndex = index;
     sceneOrder.forEach(hide);
     show(sceneOrder[index]);
+    replaySceneBtn.style.display = index === SCENE.FINAL ? "none" : "inline-flex";
     updateSceneLabel();
     return activeRunId;
   }
@@ -1045,7 +1075,7 @@
       <div class="content">${message}</div>
     `;
     document.body.appendChild(w);
-    setTimeout(()=> w.remove(), 3800 * SPEED);
+    sceneSetTimeout(()=> w.remove(), 3800 * SPEED);
   }
 
   // =========================
@@ -1245,7 +1275,7 @@
     setTimeout(()=> c.remove(), 2600);
   }
   function confettiBurst(amount = 80){
-    for(let i=0;i<amount;i++) setTimeout(spawnConfetti, i * 9);
+    for(let i=0;i<amount;i++) sceneSetTimeout(spawnConfetti, i * 9);
   }
 
   // =========================
@@ -1280,7 +1310,7 @@
 
     const total = 5400;
     const stepTime = total / steps.length;
-    const interval = setInterval(()=>{
+    const interval = sceneSetInterval(()=>{
       i++;
       if(i >= steps.length){ clearInterval(interval); return; }
       setLoading(steps[i]);
@@ -1305,7 +1335,7 @@
     coin();
 
     // Big moment: flash + snap + yay + confetti
-    setTimeout(()=>{
+    sceneSetTimeout(()=>{
       cameraFlash();
       cameraSnap();
       yay();
@@ -1343,8 +1373,8 @@
     void receipt.offsetWidth;
     receipt.classList.add("printing");
     printerBrrt();
-    setTimeout(()=>kiss(), 760);
-    setTimeout(()=>kiss(), 1440);
+    sceneSetTimeout(()=>kiss(), 760);
+    sceneSetTimeout(()=>kiss(), 1440);
 
     await wait(3800);
     toFinalBtn.style.display = "inline-block";
@@ -1369,14 +1399,14 @@
   }
   function celebrate(){
     let conf = 0;
-    const confTimer = setInterval(()=>{
+    const confTimer = sceneSetInterval(()=>{
       conf++;
       spawnConfetti();
       if(conf > 95) clearInterval(confTimer);
     }, 60 * SPEED);
 
     let bursts = 0;
-    const fwTimer = setInterval(()=>{
+    const fwTimer = sceneSetInterval(()=>{
       bursts++;
       for(let i=0;i<6;i++) spawnFirework();
       fireworkBoom();
@@ -1494,13 +1524,6 @@
     pdf.save("Angelo_Receipt_Printable.pdf");
   });
 
-  // =========================
-  // SONG + REPLAY
-  // =========================
-  document.getElementById("songBtn").addEventListener("click", ()=>{
-    window.open("https://www.youtube.com/watch?v=rLoGGMbF-YQ", "_blank", "noopener,noreferrer");
-  });
-
   const sceneStarters = [
     startQuestionScene,
     startContractScene,
@@ -1516,8 +1539,8 @@
 
   document.getElementById("prevSceneBtn").addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex - 1));
   document.getElementById("nextSceneBtn").addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex + 1));
-  document.getElementById("replaySceneBtn").addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex));
-  document.getElementById("restartBtn").addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex));
+  replaySceneBtn.addEventListener("click", ()=>goToSceneByIndex(currentSceneIndex));
+  document.getElementById("restartBtn").addEventListener("click", ()=>goToSceneByIndex(SCENE.QUESTION));
 
   // =========================
   // BUTTON WIRING
